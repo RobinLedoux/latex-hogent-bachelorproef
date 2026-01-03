@@ -23,24 +23,18 @@ Hierbij wordt onderzocht hoe DB2 transaction logreplicatie kan worden ingezet om
 \section{Literatuurstudie}%
 \label{sec:literatuurstudie}
 
-Hier beschrijf je de \emph{state-of-the-art} rondom je gekozen onderzoeksdomein, d.w.z.\ een inleidende, doorlopende tekst over het onderzoeksdomein van je bachelorproef. Je steunt daarbij heel sterk op de professionele \emph{vakliteratuur}, en niet zozeer op populariserende teksten voor een breed publiek. Wat is de huidige stand van zaken in dit domein, en wat zijn nog eventuele open vragen (die misschien de aanleiding waren tot je onderzoeksvraag!)?
-
-Je mag de titel van deze sectie ook aanpassen (literatuurstudie, stand van zaken, enz.). Zijn er al gelijkaardige onderzoeken gevoerd? Wat concluderen ze? Wat is het verschil met jouw onderzoek?
-
-Verwijs bij elke introductie van een term of bewering over het domein naar de vakliteratuur! Denk zeker goed na welke werken je refereert en waarom.
-
-Draag zorg voor correcte literatuurverwijzingen! Een bronvermelding hoort thuis \emph{binnen} de zin waar je je op die bron baseert, dus niet er buiten! Maak meteen een verwijzing als je gebruik maakt van een bron. Doe dit dus \emph{niet} aan het einde van een lange paragraaf. Baseer nooit teveel aansluitende tekst op eenzelfde bron.
-
-Als je informatie over bronnen verzamelt in JabRef, zorg er dan voor dat alle nodige info aanwezig is om de bron terug te vinden (zoals uitvoerig besproken in de lessen Research Methods).
-
-Financiële instellingen hebben nood aan systemen die de beschikbaarheid en integriteit van transaties waarborgen \autocite{Wishartsmith2024}.
-IBM biedt hiervoor een oplossing genaamd DB2 purescale, een oplossing ontworpen voor continue beschikbaarheid \autocite{ibm2025db2purescale}. 
-DB2 purescale heeft meerdere toepassingen, waaronder Q replication / InfoSphere Change Data Capture (CDC). 
+Financiële instellingen hebben nood aan systemen die de beschikbaarheid en integriteit van transacties waarborgen \autocite{Wishartsmith2024}.
+IBM biedt hiervoor een oplossing genaamd DB2 purescale, een oplossing ontworpen voor continue beschikbaarheid \autocite{ibm2025db2purescalelux}. 
+DB2 purescale heeft meerdere toepassingen, waaronder Q replication / InfoSphere Change Data Capture (CDC) \autocite{ibm2025db2purescaleoptionslux}. 
 CDC laat toe om sites met een hoge doorvoer van data weinig vertragingstijd te bezorgen ondanks afstanden van duizenden kilometers tussen sites \autocite{ibm2025db2purescaleoptionslux}.
-DB2 purescale is echter ontworpen voor DB2 op Linux, Windows en Unix en is niet beschikbaar op DB2 voor het Z/OS besturingsssysteem.
-IBM mainframes die het Z/OS mainframe bevatten, maken daarom gebruik van DB2 data sharing \autocite{bibid}.
-Data sharing ondersteunt synchrone replicatie tussen de nodes van een data-sharing group, maar de prestaties zijn afhankelijk van de netwerkinfrastructuur. 
-Om de vertragingstijd bij het synchroniseren te minimaliseren is er tussen de sites nood aan dark fibre connecties \autocite{bari2008}. 
+DB2 purescale is echter ontworpen voor DB2 op Linux, Windows en Unix en is niet beschikbaar op DB2 voor het Z/OS besturingsssysteem \autocite{ibm2025db2}.
+IBM mainframes met het Z/OS besturingsssysteem maken daarom gebruik van DB2 data sharing \autocite{ibm2025db2}.
+Data sharing ondersteunt synchrone replicatie tussen de nodes van een data-sharing group, maar de prestaties zijn afhankelijk van de netwerkinfrastructuur \autocite{bari2008}. 
+Om de vertragingstijd bij het synchroniseren te minimaliseren is er tussen de sites nood aan dark fibre connecties \autocite{bari2008}.
+Synchrone DB2 data sharing vereist dat transacties pas als voltooid worden beschouwd wanneer ze op alle betrokken nodes zijn vastgelegd \autocite{bari2008}. 
+De maximale afstand tussen sites is beperkt door de vertragingstijd van de verbindingen, die immers ook te maken heeft met de fysieke beperkingen van de lichtsnelheid in glasvezel \autocite{bari2008}. 
+Door deze beperkingen kan een derde geografisch afgelegen site geen synchrone data sharing gebruiken.
+Bovendien moet de afstand van de derde site ver genoeg zijn zodat bij natuurverschijnselen zoals een aardbeving de data niet permanent vernietigd kan worden \autocite{ibm2023disaster}.
 
 
 % Voor literatuurverwijzingen zijn er twee belangrijke commando's:
