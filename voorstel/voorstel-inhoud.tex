@@ -24,17 +24,23 @@ Hierbij wordt onderzocht hoe DB2 transaction logreplicatie kan worden ingezet om
 \label{sec:literatuurstudie}
 
 Financiële instellingen hebben nood aan systemen die de beschikbaarheid en integriteit van transacties waarborgen \autocite{Wishartsmith2024}.
-IBM biedt hiervoor een oplossing genaamd DB2 purescale, een oplossing ontworpen voor continue beschikbaarheid \autocite{ibm2025db2purescalelux}. 
-DB2 purescale heeft meerdere toepassingen, waaronder Q replication / InfoSphere Change Data Capture (CDC) \autocite{ibm2025db2purescaleoptionslux}. 
-CDC laat toe om sites met een hoge doorvoer van data weinig vertragingstijd te bezorgen ondanks afstanden van duizenden kilometers tussen sites \autocite{ibm2025db2purescaleoptionslux}.
-DB2 purescale is echter ontworpen voor DB2 op Linux, Windows en Unix en is niet beschikbaar op DB2 voor het Z/OS besturingsssysteem \autocite{ibm2025db2}.
-IBM mainframes met het Z/OS besturingsssysteem maken daarom gebruik van DB2 data sharing \autocite{ibm2025db2}.
+IBM biedt hiervoor een oplossing genaamd DB2 PureScale, een oplossing ontworpen voor continue beschikbaarheid \autocite{ibm2025db2purescalelux}. 
+DB2 PureScale heeft meerdere toepassingen, waaronder Q Replication / InfoSphere Change Data Capture (CDC) \autocite{ibm2025db2purescaleoptionslux}. 
+CDC laat toe om sites met een hoge gegevensdoorvoer weinig vertragingstijd te bezorgen ondanks afstanden van duizenden kilometers tussen sites \autocite{ibm2025db2purescaleoptionslux}.
+DB2 PureScale is echter ontworpen voor DB2 op Linux, Windows en Unix en is niet beschikbaar op DB2 voor het Z/OS-besturingsssysteem \autocite{ibm2025db2}.
+IBM mainframes met het Z/OS-besturingsssysteem maken daarom gebruik van DB2 data sharing \autocite{ibm2025db2}.
 Data sharing ondersteunt synchrone replicatie tussen de nodes van een data-sharing group, maar de prestaties zijn afhankelijk van de netwerkinfrastructuur \autocite{bari2008}. 
 Om de vertragingstijd bij het synchroniseren te minimaliseren is er tussen de sites nood aan dark fibre connecties \autocite{bari2008}.
 Synchrone DB2 data sharing vereist dat transacties pas als voltooid worden beschouwd wanneer ze op alle betrokken nodes zijn vastgelegd \autocite{bari2008}. 
 De maximale afstand tussen sites is beperkt door de vertragingstijd van de verbindingen, die immers ook te maken heeft met de fysieke beperkingen van de lichtsnelheid in glasvezel \autocite{bari2008}. 
-Door deze beperkingen kan een derde geografisch afgelegen site geen synchrone data sharing gebruiken.
+Door deze beperkingen kan een derde geografisch afgelegen site geen synchrone DB2 data sharing gebruiken.
 Bovendien moet de afstand van de derde site ver genoeg zijn zodat bij natuurverschijnselen zoals een aardbeving de data niet permanent vernietigd kan worden \autocite{ibm2023disaster}.
+Daarom zijn er voor asynchrone replicatie twee methodes ontworpen voor DB2 op Z/OS, met name GDPS Global Mirror en Q Replication \autocite{bourbonnais2015}.
+Met GDPS Global Mirror kan het volgens \textcite{bourbonnais2015} een uur duren tot de data hersteld is omdat de replicatie gebeurt op opslagniveau, niet op databank niveau.
+Q Replication repliceert daarentegen enkel de relationele tabellen, niet de volledige disk volumes waardoor de hersteltijd volgens \textcite{bourbonnais2015} maximaal een minuut bedraagt.
+Echter is er nog het intrinsieke probleem dat asynchrone replicatie met zich meebrengt: wijzigingen worden niet tegelijkertijd met de primaire transacties bevestigd.
+Hierdoor kan de data op de derde site achterlopen en kunnen er nog onvoltooide transacties in het systeem aanwezig zijn. Bij failover is er dan aanvullende verwerking nodig om de database naar een consistente staat te brengen.
+Asynchrone replicatie biedt dus uiteindelijke data-consistentie, maar vereist aanzienlijke verwerking om de afwijkende toestand na een storing te herstellen waardoor de totale hersteltijd toeneemt en zowel RPO als RTO beïnvloed worden \autocite{coulouris2005distributed}.
 
 
 % Voor literatuurverwijzingen zijn er twee belangrijke commando's:
@@ -48,7 +54,7 @@ Bovendien moet de afstand van de derde site ver genoeg zijn zodat bij natuurvers
 \section{Methodologie}%
 \label{sec:methodologie}
 
-Hier beschrijf je hoe je van plan bent het onderzoek te voeren. Welke onderzoekstechniek ga je toepassen om elk van je onderzoeksvragen te beantwoorden? Gebruik je hiervoor literatuurstudie, interviews met belanghebbenden (bv.~voor requirements-analyse), experimenten, simulaties, vergelijkende studie, risico-analyse, PoC, \ldots?
+Hier beschrijf je hoe je van plan bent het onderzoek te voeren. Welke onderzoekstechniek ga je toepassen om elk van je onderzoeksvragen te beantwoorden? Gebruik je hiervoor literatuurstudie, interviews met belanghebbenden (bv.~voor requirements-analyse), experimenten, simulatieselijkende studie, risico-analyse, PoC, \ldots?
 
 Valt je onderwerp onder één van de typische soorten bachelorproeven die besproken zijn in de lessen Research Methods (bv.\ vergelijkende studie of risico-analyse)? Zorg er dan ook voor dat we duidelijk de verschillende stappen terug vinden die we verwachten in dit soort onderzoek!
 
