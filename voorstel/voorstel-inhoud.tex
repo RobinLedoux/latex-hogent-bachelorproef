@@ -4,13 +4,12 @@
 
 \section{Inleiding}%
 \label{sec:inleiding}
-
 Financiële instellingen gebruiken synchrone data-mirroring voor twee geografisch nabijgelegen datacenters om de beschikbaarheid van hun mainframe-omgevingen te waarborgen \autocite{bourbonnais2015}. Europese voorschriften stellen strikte eisen aan de operationele veerkracht en continuïteit van financiële instellingen.
 De Digital Operational Resilience Act verplicht financiële instellingen om een uitgebreid ICT-risico\-beheer\-kader te implementeren dat de beschikbaarheid en integriteit van kritieke systemen waarborgt, inclusief plannen voor redundantie of herstel wanneer er zich verstoringen voordoen \autocite{clausmeier2023regulation}. 
 Het probleem ontstaat echter wanneer beide datacenters tegelijkertijd uitvallen, waardoor de continuïteit van de diensten en de integriteit van transacties in gevaar komt. 
 Om dit te vermijden is het noodzakelijk een extra, geografisch gescheiden datacentrum toe te voegen, waarop alle transacties asynchroon kunnen worden gerepliceerd \autocite{snedaker2013business}.
 Het doel van deze bachelorproef is het analyseren van de risico's die gepaard gaan met het uitbreiden van een synchrone mainframe opstelling, bestaande uit twee nabijgelegen datacenters, naar een architectuur met een derde, geografisch gescheiden site buiten de maximale afstand voor synchrone data-mirroring. 
-Hierbij wordt onderzocht hoe DB2 transaction logreplicatie kan worden ingezet om data-consistentie en herstelbaarheid te waarborgen en de impact op RPO en RTO inzichtelijk te maken.
+Hierbij wordt onderzocht hoe DB2 transactie logreplicatie kan worden ingezet om data-consistentie en herstelbaarheid te waarborgen en de impact op Recovery Point Objective (RPO) en Recovery Time Objective (RTO) inzichtelijk te maken.
 
 %\begin{itemize}
 %  \item kaderen thema
@@ -22,7 +21,6 @@ Hierbij wordt onderzocht hoe DB2 transaction logreplicatie kan worden ingezet om
 
 \section{Literatuurstudie}%
 \label{sec:literatuurstudie}
-
 Financiële instellingen hebben nood aan systemen die de beschikbaarheid en integriteit van transacties waarborgen \autocite{Wishartsmith2024}.
 IBM biedt hiervoor een oplossing genaamd DB2 PureScale, een oplossing ontworpen voor continue beschikbaarheid \autocite{ibm2025db2purescalelux}. 
 DB2 PureScale heeft meerdere toepassingen, waaronder Q Replication / InfoSphere Change Data Capture (CDC) \autocite{ibm2025db2purescaleoptionslux}. 
@@ -53,18 +51,56 @@ Asynchrone replicatie biedt dus uiteindelijke data-consistentie, maar vereist aa
 %---------- Methodologie ------------------------------------------------------
 \section{Methodologie}%
 \label{sec:methodologie}
+Het onderzoek voor deze bachelorproef zal worden uitgevoerd met behulp van een technische literatuurstudie, een architecturale analyse en een risicoanalyse. 
+In de eerste fase wordt een literatuurstudie uitgevoerd op basis van academische publicaties en technische documentatie.
+Hierbij worden de verschillende manieren van DB2 logreplicatie naast elkaar gelegd en hun verschillende eigenschappen genoteerd met transactionele consistentie en herstelmechanismen als centraal doel.
+Voor deze fase wordt gebruik gemaakt van IBM Redbooks en officiële IBM-documentatie voor:
+\begin{itemize}
+    \item DB2 voor Z/OS
+    \item DB2 data sharing
+    \item GDPS Global Mirror
+    \item Q Replication
+\end{itemize}
+Aanvullend wordt ook gekeken naar academische literatuur over:
+\begin{itemize}
+    \item gedistribueerde systemen
+    \item synchrone tegenover asynchrone replicatie
+\end{itemize}
+Uit deze fase komt een gestructureerd overzicht van synchrone tegenover asynchrone replicatietechnieken in DB2 met eigenschappen die betrekking hebben tot consistentie, vertragingstijd en herstel.
+Componenten zoals coupling facilities, log streams en netwerkverbindingen komen hierbij aan bod.
+Er wordt ook gekaderd wat RPO en RTO inhoudt binnen een mainframe context.
+Geschatte tijd voor deze fase bedraagt 3 weken.
 
-Hier beschrijf je hoe je van plan bent het onderzoek te voeren. Welke onderzoekstechniek ga je toepassen om elk van je onderzoeksvragen te beantwoorden? Gebruik je hiervoor literatuurstudie, interviews met belanghebbenden (bv.~voor requirements-analyse), experimenten, simulatieselijkende studie, risico-analyse, PoC, \ldots?
+In de tweede fase wordt een vergelijkende architecturale analyse uitgevoerd van verschillende opstellingen om data integriteit te behouden bij mainframe opstellingen.
+Concreet gaat dit om het vergelijken van een gesynchroniseerde mainframe opstelling met twee sites ten opzichte van deze gesynchroniseerde opstelling samen met een asynchrone derde site.
+Hierbij wordt specifiek gekeken wat de gevolgen zijn voor de dataconsistentie, hoe bij elke opstelling een herstelprocedure wordt opgestart bij een uitvalsprocedure en wat de gevolgen zijn voor RPO en RTO\@.
+Met vergelijkende tabellen worden dataconsistentie, herstelmechanismen en de implicaties voor RPO en RTO gevisualiseerd.
+Er wordt aangetoond wat de bestaande maatregelen zijn die genomen worden om dataconsistentie bij herstelscenario's te behouden.
 
-Valt je onderwerp onder één van de typische soorten bachelorproeven die besproken zijn in de lessen Research Methods (bv.\ vergelijkende studie of risico-analyse)? Zorg er dan ook voor dat we duidelijk de verschillende stappen terug vinden die we verwachten in dit soort onderzoek!
+Geschatte tijd voor deze fase bedraagt 2 weken.
+    
+In de derde fase wordt een risicoanalyse waarbij wordt onderzocht welke bijkomende risico's asynchrone replicatie introduceert in een bancaire context.
+Hier wordt specifiek gekeken naar wat mogelijke scenario's kunnen zijn waarin een herstelprocedure zal moeten worden opgestart in de DB2 omgeving.
+Dit resulteert in een concrete lijst met faalscenario's.
+Geschatte tijd voor deze fase bedraagt 3 weken.
 
-Vermijd onderzoekstechnieken die geen objectieve, meetbare resultaten kunnen opleveren. Enquêtes, bijvoorbeeld, zijn voor een bachelorproef informatica meestal \textbf{niet geschikt}. De antwoorden zijn eerder meningen dan feiten en in de praktijk blijkt het ook bijzonder moeilijk om voldoende respondenten te vinden. Studenten die een enquête willen voeren, hebben meestal ook geen goede definitie van de populatie, waardoor ook niet kan aangetoond worden dat eventuele resultaten representatief zijn.
+In een vierde fase wordt geanalyseerd wat de mogelijke zwakheden zijn van DB2 voor Z/OS bij de verschillende scenario's beschreven in de vorige stap.
+Er wordt gekeken naar asynchrone replactie van commits, incomplete Logical Units of Works (LUW), de volgorde van log replicatie en de gevolgen van handmatige herstelprocedures.
+Elk replicatiemechanisme zal resulteren in een matrix waarin de zwakheden zichtbaar worden gesteld.
+Geschatte tijd voor deze fase: 3 weken.
 
-Uit dit onderdeel moet duidelijk naar voor komen dat je bachelorproef ook technisch voldoen\-de diepgang zal bevatten. Het zou niet kloppen als een bachelorproef informatica ook door bv.\ een student marketing zou kunnen uitgevoerd worden.
+In de vijfde fase wordt een analytische inschatting gedaan op de waarschijnlijkheid en impact van RPO, RTO en dataconsistentie gebaseerd op synchrone en asynchrone architecturen.
+Op basis van deze inschatting wordt een risicomatrix gemaakt.
+Geschatte tijd: 2 weken.
 
-Je beschrijft ook al welke tools (hardware, software, diensten, \ldots) je denkt hiervoor te gebruiken of te ontwikkelen.
+In de zesde fase worden de risico's bepaald op basis van de waarschijnlijkheid en de impact die synchrone en asynchrone oplossingen met zich meebrengen.
+Deze fase resulteert in een gerangschikte lijst van risico's.
+Geschatte tijd: 2 weken.
 
-Probeer ook een tijdschatting te maken. Hoe lang zal je met elke fase van je onderzoek bezig zijn en wat zijn de concrete \emph{deliverables} in elke fase?
+In de zevende fase wordt gekeken hoe de risico's kunnen worden geminimaliseerd door de onderzochte technieken.
+Dit omvat gecontroleerd inhalen van DB2 transactie logs, hoe een asynchrone derde site kan worden ingezet en het resultaat op RPO bij de derde site.
+Hieruit komt een tabel met aanbevelingen per risico.
+Geschatte tijd: 3 weken.
 
 %---------- Verwachte resultaten ----------------------------------------------
 \section{Verwacht resultaat, conclusie}%
