@@ -9,34 +9,37 @@ Europese voorschriften stellen strikte eisen aan de operationele veerkracht en c
 De Digital Operational Resilience Act verplicht financiële instellingen om een uitgebreid ICT-risico\-beheer\-kader te implementeren dat de beschikbaarheid en integriteit van kritieke systemen waarborgt, inclusief plannen voor redundantie of herstel wanneer er zich verstoringen voordoen \autocite{clausmeier2023regulation}. 
 
 \paragraph{Concrete probleemstelling}
-Het probleem ontstaat wanneer twee gesynchroniseerde datacenters tegelijkertijd uitvallen, waardoor de continuïteit van de diensten en de integriteit van transacties in gevaar komt. 
-Dit scenario is relevant bij grootschalige regionale incidenten zoals stroomuitval, natuurrampen of gecoördineerde cyberaanvallen.
+\textcolor{red}{Het probleem ontstaat wanneer twee gesynchroniseerde datacenters tegelijkertijd uitvallen, waardoor de continuïteit van de diensten en de integriteit van transacties in gevaar komt. 
+Dit scenario is relevant bij grootschalige regionale incidenten zoals stroomuitval, natuurrampen of gecoördineerde cyberaanvallen.}
 Het toevoegen van een aanvullende derde site zorgt voor uitdagingen omdat door de afstand geen minimale vertragingstijd kan worden gegarandeerd.
 Om dit risico te minimaliseren is het noodzakelijk een extra, geografisch gescheiden datacentrum toe te voegen, waarop alle transacties asynchroon kunnen worden gerepliceerd \autocite{snedaker2013business}.
 
 \paragraph{Onderzoeksvragen en doelstellingen}
-Deze bachelorproef analyseert de risico's bij IBM DB2 transactie-logreplicatie van kritieke bancaire mainframe-systemen naar geodistribueerde disaster recovery-omgevingen, met focus op RPO en RTO\@.
+\textcolor{red}{Deze bachelorproef analyseert de risico's bij IBM DB2 transactie-logreplicatie van kritieke bancaire mainframe-systemen naar geodistribueerde disaster recovery-omgevingen, met focus op Recovery Point Objectiv (RPO) en Recovery Time Objective (RTO).}
 
 \paragraph{Deelvragen probleemdomein}
+\textcolor{red}{
 \begin{itemize}
     \item Welke vormen van synchrone en asynchrone DB2-logreplicatie bestaan binnen DB2 voor Z/OS en welke garanties bieden deze inzake transactionele consistentie?
     \item Welke technische beperkingen (vertragingstijd, afstand, commit-gedrag) verhinderen het gebruik van synchrone replicatie naar een derde geografisch afgelegen site?
     \item Welke faalscenario's kunnen optreden in een DB2-architectuur met meerdere sites en asynchrone replicatie en welke DB2-componenten zijn daarbij betrokken?
     \item Welke impact hebben deze faalscenario's op dataconsistentie, RPO en RTO\@?
-\end{itemize}
+\end{itemize}}
 
 \paragraph{Deelvragen oplossingsdomein}
+\textcolor{red}{
 \begin{itemize}
-    \item Hoe verschillen de onderzochte DB2-replicatiemechanismen (GDPS Global Mirror en Q Replication) in hun herstelmechanismen en ondersteuning voor consistente failover?
+    \item Hoe verschillen de onderzochte DB2-re\-plicatie\-mechanismen (GDPS Global Mirror en Q Replication) in hun herstelmechanismen en ondersteuning voor consistente failover?
     \item Welke zwakheden vertonen deze mechanismen bij asynchrone replicatie van transactielogs en incomplete LUW's?
     \item Hoe kan de waarschijnlijkheid en impact van inconsistenties en verhoogde RPO en RTO analytisch worden ingeschat?
     \item Welke technische maatregelen kunnen worden toegepast om de geïdentificeerde risico's te minimaliseren en wat is hun effect op RPO, RTO en resterend risico?
-\end{itemize}
+\end{itemize}}
 
 \paragraph{Doelstelling}
-Het doel van deze bachelorproef is het analyseren van de risico's die gepaard gaan met het uitbreiden van een synchrone mainframe-opstelling, bestaande uit twee nabijgelegen datacenters, naar een architectuur met een derde, geografisch gescheiden site buiten de maximale afstand voor synchrone data-mirroring. 
-Hierbij wordt onderzocht hoe DB2 transactie-logreplicatie kan worden ingezet om data-consistentie en herstelbaarheid te waarborgen en de impact op Recovery Point Objective (RPO) en Recovery Time Objective (RTO) inzichtelijk te maken.
+\textcolor{red}{Het doel van deze bachelorproef is het analyseren van de risico's die gepaard gaan met het uitbreiden van een synchrone mainframe-opstelling, bestaande uit twee nabijgelegen datacenters, naar een architectuur met een derde, geografisch gescheiden site buiten de maximale afstand voor synchrone data-mirroring. 
+Hierbij wordt onderzocht hoe DB2 transactie-logreplicatie kan worden ingezet om data-consistentie en herstelbaarheid te waarborgen en de impact op RPO en RTO inzichtelijk te maken.}
 
+%---------- Literatuurstudie ---------------------------------------------------------
 \section{Literatuurstudie}%
 \label{sec:literatuurstudie}
 Financiële instellingen hebben nood aan systemen die de beschikbaarheid en integriteit van transacties waarborgen \autocite{Wishartsmith2024}.
@@ -58,14 +61,7 @@ Echter is er nog het intrinsieke probleem dat asynchrone replicatie met zich mee
 Hierdoor kan de data op de derde site achterlopen en kunnen er nog onvoltooide transacties in het systeem aanwezig zijn. Bij failover is er dan aanvullende verwerking nodig om de database naar een consistente staat te brengen.
 Asynchrone replicatie biedt uiteindelijke consistentie, maar vereist aanzienlijke verwerking om de afwijkende toestand na een storing te herstellen waardoor de totale hersteltijd toeneemt en zowel RPO als RTO beïnvloed worden \autocite{coulouris2005distributed}.
 
-% Voor literatuurverwijzingen zijn er twee belangrijke commando's:
-% \autocite{KEY} => (Auteur, jaartal) Gebruik dit als de naam van de auteur
-%   geen onderdeel is van de zin.
-% \textcite{KEY} => Auteur (jaartal)  Gebruik dit als de auteursnaam wel een
-%   functie heeft in de zin (bv. ``Uit onderzoek door Doll & Hill (1954) bleek
-%   ...'')
-
-%---------- Methodologie ------------------------------------------------------
+%---------- Methodologie ---------------------------------------------------------
 \section{Methodologie}%
 \label{sec:methodologie}
 Dit onderzoek wordt uitgevoerd aan de hand van een technische literatuurstudie, een architecturale analyse en een risicoanalyse. 
