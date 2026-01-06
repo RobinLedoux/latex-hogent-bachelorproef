@@ -4,26 +4,44 @@
 
 \section{Inleiding}%
 \label{sec:inleiding}
-Financiële instellingen gebruiken synchrone data-mirroring voor twee geografisch nabijgelegen datacenters om de beschikbaarheid van hun mainframe-omgevingen te waarborgen \autocite{bourbonnais2015}. Europese voorschriften stellen strikte eisen aan de operationele veerkracht en continuïteit van financiële instellingen.
+Financiële instellingen gebruiken synchrone data-mirroring voor twee geografisch nabijgelegen datacenters om de beschikbaarheid van hun mainframe-omgevingen te waarborgen \autocite{bourbonnais2015}. 
+Europese voorschriften stellen strikte eisen aan de operationele veerkracht en continuïteit van financiële instellingen.
 De Digital Operational Resilience Act verplicht financiële instellingen om een uitgebreid ICT-risico\-beheer\-kader te implementeren dat de beschikbaarheid en integriteit van kritieke systemen waarborgt, inclusief plannen voor redundantie of herstel wanneer er zich verstoringen voordoen \autocite{clausmeier2023regulation}. 
-Het probleem ontstaat echter wanneer beide datacenters tegelijkertijd uitvallen, waardoor de continuïteit van de diensten en de integriteit van transacties in gevaar komt. 
-Om dit te vermijden is het noodzakelijk een extra, geografisch gescheiden datacentrum toe te voegen, waarop alle transacties asynchroon kunnen worden gerepliceerd \autocite{snedaker2013business}.
-Het doel van deze bachelorproef is het analyseren van de risico's die gepaard gaan met het uitbreiden van een synchrone mainframe opstelling, bestaande uit twee nabijgelegen datacenters, naar een architectuur met een derde, geografisch gescheiden site buiten de maximale afstand voor synchrone data-mirroring. 
-Hierbij wordt onderzocht hoe DB2 transactie logreplicatie kan worden ingezet om data-consistentie en herstelbaarheid te waarborgen en de impact op Recovery Point Objective (RPO) en Recovery Time Objective (RTO) inzichtelijk te maken.
 
-%\begin{itemize}
-%  \item kaderen thema
-%  \item de doelgroep
-%  \item de probleemstelling en (centrale) onderzoeksvraag
-% \item de onderzoeksdoelstelling
-%\end{itemize}
-%---------- Stand van zaken ---------------------------------------------------
+\paragraph{Concrete probleemstelling}
+Het probleem ontstaat wanneer twee gesynchroniseerde datacenters tegelijkertijd uitvallen, waardoor de continuïteit van de diensten en de integriteit van transacties in gevaar komt. 
+Dit scenario is relevant bij grootschalige regionale incidenten zoals stroomuitval, natuurrampen of gecoördineerde cyberaanvallen.
+Het toevoegen van een aanvullende derde site zorgt voor uitdagingen omdat door de afstand geen minimale vertragingstijd kan worden gegarandeerd.
+Om dit risico te minimaliseren is het noodzakelijk een extra, geografisch gescheiden datacentrum toe te voegen, waarop alle transacties asynchroon kunnen worden gerepliceerd \autocite{snedaker2013business}.
+
+\paragraph{Onderzoeksvragen en doelstellingen}
+Deze bachelorproef analyseert de risico's bij IBM DB2 transactie-logreplicatie van kritieke bancaire mainframe-systemen naar geodistribueerde disaster recovery-omgevingen, met focus op RPO en RTO\@.
+
+\paragraph{Deelvragen probleemdomein}
+\begin{itemize}
+    \item Welke vormen van synchrone en asynchrone DB2-logreplicatie bestaan binnen DB2 voor Z/OS en welke garanties bieden deze inzake transactionele consistentie?
+    \item Welke technische beperkingen (vertragingstijd, afstand, commit-gedrag) verhinderen het gebruik van synchrone replicatie naar een derde geografisch afgelegen site?
+    \item Welke faalscenario's kunnen optreden in een DB2-architectuur met meerdere sites en asynchrone replicatie en welke DB2-componenten zijn daarbij betrokken?
+    \item Welke impact hebben deze faalscenario's op dataconsistentie, RPO en RTO\@?
+\end{itemize}
+
+\paragraph{Deelvragen oplossingsdomein}
+\begin{itemize}
+    \item Hoe verschillen de onderzochte DB2-replicatiemechanismen (GDPS Global Mirror en Q Replication) in hun herstelmechanismen en ondersteuning voor consistente failover?
+    \item Welke zwakheden vertonen deze mechanismen bij asynchrone replicatie van transactielogs en incomplete LUW's?
+    \item Hoe kan de waarschijnlijkheid en impact van inconsistenties en verhoogde RPO en RTO analytisch worden ingeschat?
+    \item Welke technische maatregelen kunnen worden toegepast om de geïdentificeerde risico's te minimaliseren en wat is hun effect op RPO, RTO en resterend risico?
+\end{itemize}
+
+\paragraph{Doelstelling}
+Het doel van deze bachelorproef is het analyseren van de risico's die gepaard gaan met het uitbreiden van een synchrone mainframe-opstelling, bestaande uit twee nabijgelegen datacenters, naar een architectuur met een derde, geografisch gescheiden site buiten de maximale afstand voor synchrone data-mirroring. 
+Hierbij wordt onderzocht hoe DB2 transactie-logreplicatie kan worden ingezet om data-consistentie en herstelbaarheid te waarborgen en de impact op Recovery Point Objective (RPO) en Recovery Time Objective (RTO) inzichtelijk te maken.
 
 \section{Literatuurstudie}%
 \label{sec:literatuurstudie}
 Financiële instellingen hebben nood aan systemen die de beschikbaarheid en integriteit van transacties waarborgen \autocite{Wishartsmith2024}.
 IBM biedt hiervoor een oplossing genaamd DB2 PureScale, een oplossing ontworpen voor continue beschikbaarheid \autocite{ibm2025db2purescalelux}. 
-DB2 PureScale heeft meerdere toepassingen, waaronder Q Replication / InfoSphere Change Data Capture (CDC) \autocite{ibm2025db2purescaleoptionslux}. 
+Binnen het DB2-ecosysteem wordt voor asynchrone replicatie gebruikgemaakt van technologieën zoals Q Replication, dat deel uitmaakt van InfoSphere Change Data Capture (CDC) \autocite{ibm2025db2purescaleoptionslux}. 
 CDC laat toe om sites met een hoge gegevensdoorvoer weinig vertragingstijd te bezorgen ondanks afstanden van duizenden kilometers tussen sites \autocite{ibm2025db2purescaleoptionslux}.
 DB2 PureScale is echter ontworpen voor DB2 op Linux, Windows en Unix en is niet beschikbaar op DB2 voor het Z/OS-besturingsssysteem \autocite{ibm2025db2}.
 IBM mainframes met het Z/OS-besturingsssysteem maken daarom gebruik van DB2 data sharing \autocite{ibm2025db2}.
@@ -34,12 +52,11 @@ De maximale afstand tussen sites is beperkt door de vertragingstijd van de verbi
 Door deze beperkingen kan een derde geografisch afgelegen site geen synchrone DB2 data sharing gebruiken.
 Bovendien moet de afstand van de derde site ver genoeg zijn zodat bij natuurverschijnselen zoals een aardbeving de data niet permanent vernietigd kan worden \autocite{ibm2023disaster}.
 Daarom zijn er voor asynchrone replicatie twee methodes ontworpen voor DB2 op Z/OS, met name GDPS Global Mirror en Q Replication \autocite{bourbonnais2015}.
-Met GDPS Global Mirror kan het volgens \textcite{bourbonnais2015} een uur duren tot de data hersteld is omdat de replicatie gebeurt op opslagniveau, niet op databank niveau.
-Q Replication repliceert daarentegen enkel de relationele tabellen, niet de volledige disk volumes waardoor de hersteltijd volgens \textcite{bourbonnais2015} maximaal een minuut bedraagt.
+Met GDPS Global Mirror kan het volgens \textcite{bourbonnais2015} een uur duren tot de data hersteld is omdat de replicatie gebeurt op opslagniveau, niet op databankniveau.
+Q Replication repliceert daarentegen enkel de relationele tabellen, niet de volledige diskvolumes waardoor de hersteltijd volgens \textcite{bourbonnais2015} maximaal een minuut bedraagt.
 Echter is er nog het intrinsieke probleem dat asynchrone replicatie met zich meebrengt: wijzigingen worden niet tegelijkertijd met de primaire transacties bevestigd.
 Hierdoor kan de data op de derde site achterlopen en kunnen er nog onvoltooide transacties in het systeem aanwezig zijn. Bij failover is er dan aanvullende verwerking nodig om de database naar een consistente staat te brengen.
-Asynchrone replicatie biedt dus uiteindelijke data-consistentie, maar vereist aanzienlijke verwerking om de afwijkende toestand na een storing te herstellen waardoor de totale hersteltijd toeneemt en zowel RPO als RTO beïnvloed worden \autocite{coulouris2005distributed}.
-
+Asynchrone replicatie biedt uiteindelijke consistentie, maar vereist aanzienlijke verwerking om de afwijkende toestand na een storing te herstellen waardoor de totale hersteltijd toeneemt en zowel RPO als RTO beïnvloed worden \autocite{coulouris2005distributed}.
 
 % Voor literatuurverwijzingen zijn er twee belangrijke commando's:
 % \autocite{KEY} => (Auteur, jaartal) Gebruik dit als de naam van de auteur
@@ -51,10 +68,10 @@ Asynchrone replicatie biedt dus uiteindelijke data-consistentie, maar vereist aa
 %---------- Methodologie ------------------------------------------------------
 \section{Methodologie}%
 \label{sec:methodologie}
-Het onderzoek voor deze bachelorproef zal worden uitgevoerd met behulp van een technische literatuurstudie, een architecturale analyse en een risicoanalyse. 
+Dit onderzoek wordt uitgevoerd aan de hand van een technische literatuurstudie, een architecturale analyse en een risicoanalyse. 
 In de eerste fase wordt een literatuurstudie uitgevoerd op basis van academische publicaties en technische documentatie.
 Hierbij worden de verschillende manieren van DB2 logreplicatie naast elkaar gelegd en hun verschillende eigenschappen genoteerd met transactionele consistentie en herstelmechanismen als centraal doel.
-Voor deze fase wordt gebruik gemaakt van IBM Redbooks en officiële IBM-documentatie voor:
+Voor deze fase wordt gebruikgemaakt van IBM Redbooks en officiële IBM-documentatie voor:
 \begin{itemize}
     \item DB2 voor Z/OS
     \item DB2 data sharing
@@ -68,47 +85,54 @@ Aanvullend wordt ook gekeken naar academische literatuur over:
 \end{itemize}
 Uit deze fase komt een gestructureerd overzicht van synchrone tegenover asynchrone replicatietechnieken in DB2 met eigenschappen die betrekking hebben tot consistentie, vertragingstijd en herstel.
 Componenten zoals coupling facilities, log streams en netwerkverbindingen komen hierbij aan bod.
-Er wordt ook gekaderd wat RPO en RTO inhoudt binnen een mainframe context.
-Geschatte tijd voor deze fase bedraagt 3 weken.
+Er wordt ook gekaderd wat RPO en RTO inhoudt binnen een mainframecontext.
+Concreet resulteert dit in een overzichtstabel.
+De geschatte benodigde tijd voor deze fase bedraagt 3 weken.
 
-In de tweede fase wordt een vergelijkende architecturale analyse uitgevoerd van verschillende opstellingen om data integriteit te behouden bij mainframe opstellingen.
-Concreet gaat dit om het vergelijken van een gesynchroniseerde mainframe opstelling met twee sites ten opzichte van deze gesynchroniseerde opstelling samen met een asynchrone derde site.
-Hierbij wordt specifiek gekeken wat de gevolgen zijn voor de dataconsistentie, hoe bij elke opstelling een herstelprocedure wordt opgestart bij een uitvalsprocedure en wat de gevolgen zijn voor RPO en RTO\@.
-Met vergelijkende tabellen worden dataconsistentie, herstelmechanismen en de implicaties voor RPO en RTO gevisualiseerd.
-Er wordt aangetoond wat de bestaande maatregelen zijn die genomen worden om dataconsistentie bij herstelscenario's te behouden.
-
-Geschatte tijd voor deze fase bedraagt 2 weken.
+In de tweede fase wordt een vergelijkende architecturale analyse uitgevoerd van verschillende opstellingen om data integriteit te behouden bij mainframe-opstellingen.
+Dit gaat om het vergelijken van een gesynchroniseerde mainframe-opstelling met twee sites ten opzichte van deze gesynchroniseerde opstelling samen met een asynchrone derde site.
+Hierbij wordt specifiek gekeken wat de gevolgen zijn voor de dataconsistentie, hoe bij elke opstelling een herstelprocedure wordt opgestart bij een uitvalscenario en wat de gevolgen zijn voor RPO en RTO\@.
+Ook wordt aangetoond wat de bestaande maatregelen zijn die genomen worden om dataconsistentie bij herstelscenario's te behouden.
+Concreet resulteert dit in architectuurdiagrammen van een synchrone DB2 data-sharing opstelling met twee sites en een uitgebreide opstelling met een asynchrone derde site.
+Daarnaast wordt met vergelijkende tabellen dataconsistentie, herstelmechanismen en de implicaties voor RPO en RTO per architectuur gevisualiseerd.
+De geschatte tijd voor deze fase bedraagt 2 weken.
     
-In de derde fase wordt een risicoanalyse waarbij wordt onderzocht welke bijkomende risico's asynchrone replicatie introduceert in een bancaire context.
+In de derde fase wordt een risicoanalyse uitgevoerd waarbij wordt onderzocht welke bijkomende risico's asynchrone replicatie introduceert in een bancaire context.
 Hier wordt specifiek gekeken naar wat mogelijke scenario's kunnen zijn waarin een herstelprocedure zal moeten worden opgestart in de DB2 omgeving.
-Dit resulteert in een concrete lijst met faalscenario's.
-Geschatte tijd voor deze fase bedraagt 3 weken.
+Dit resulteert in een concrete lijst met faalscenario's waarbij elk scenario wordt gekoppeld aan de betrokken DB2-componenten.
+De geschatte tijd voor deze fase bedraagt 3 weken.
 
 In een vierde fase wordt geanalyseerd wat de mogelijke zwakheden zijn van DB2 voor Z/OS bij de verschillende scenario's beschreven in de vorige stap.
-Er wordt gekeken naar asynchrone replactie van commits, incomplete Logical Units of Works (LUW), de volgorde van log replicatie en de gevolgen van handmatige herstelprocedures.
+Er wordt gekeken naar asynchrone replicatie van commits, incomplete Logical Units of Works (LUW), de volgorde van log replicatie en de gevolgen van handmatige herstelprocedures.
 Elk replicatiemechanisme zal resulteren in een matrix waarin de zwakheden zichtbaar worden gesteld.
-Geschatte tijd voor deze fase: 3 weken.
+De geschatte tijd voor deze fase bedraagt 3 weken.
 
 In de vijfde fase wordt een analytische inschatting gedaan op de waarschijnlijkheid en impact van RPO, RTO en dataconsistentie gebaseerd op synchrone en asynchrone architecturen.
-Op basis van deze inschatting wordt een risicomatrix gemaakt.
-Geschatte tijd: 2 weken.
+Deze inschatting resulteert in een risicomatrix waarin per scenario de waarschijnlijkheid, impact op RPO, impact op RTO en impact op dataconsistentie wordt weergegeven.
+De geschatte tijd voor deze fase bedraagt 2 weken.
 
-In de zesde fase worden de risico's bepaald op basis van de waarschijnlijkheid en de impact die synchrone en asynchrone oplossingen met zich meebrengen.
-Deze fase resulteert in een gerangschikte lijst van risico's.
-Geschatte tijd: 2 weken.
+In de zesde fase wordt een risicobepaling gedaan volgens de risicoformule (risico = waarschijnlijkheid x impact) waarbij de risicomatrix gebruikt wordt.
+Dit resulteert in een lijst van risico's waarbij de kritieke risico's voor bancaire omgevingen worden geïdentificeerd.
+De geschatte tijd voor deze fase bedraagt 2 weken.
 
 In de zevende fase wordt gekeken hoe de risico's kunnen worden geminimaliseerd door de onderzochte technieken.
-Dit omvat gecontroleerd inhalen van DB2 transactie logs, hoe een asynchrone derde site kan worden ingezet en het resultaat op RPO bij de derde site.
-Hieruit komt een tabel met aanbevelingen per risico.
-Geschatte tijd: 3 weken.
+Dit omvat gecontroleerd inhalen van DB2 transactielogs, hoe een asynchrone derde site kan worden ingezet en het resultaat op RPO bij de derde site.
+Hieruit komt een tabel met aanbevelingen die mogelijke mitigaties, de impact op RPO en RTO en de resterende risico's weergeeft. 
+De geschatte tijd voor deze fase bedraagt 3 weken.
 
 %---------- Verwachte resultaten ----------------------------------------------
 \section{Verwacht resultaat, conclusie}%
 \label{sec:verwachte_resultaten}
+Op basis van de literatuurstudie, de architecturale analyse en de uitgevoerde risicoanalyse wordt verwacht dat dit onderzoek aantoont dat het uitbreiden van een synchrone DB2 data-sharing mainframe-opstelling met een asynchrone derde site onvermijdelijk bijkomende risico's introduceert op het vlak van dataconsistentie, RPO en RTO\@.
+Concreet wordt verwacht dat synchrone architecturen met twee sites sterke garanties bieden met betrekking tot transactionele consistentie en minimale RPO, maar fundamenteel beperkt zijn door afstand en vertragingstijd.
+Voor de asynchrone derde site wordt verwacht dat mechanismen zoals GDPS Global Mirror en Q Replication duidelijke verschillen vertonen in herstelgedrag, hersteltijd en complexiteit van failoverprocedures.
+Daarbij wordt verondersteld dat replicatie op databankniveau (zoals Q Replication) een lagere RTO kan realiseren dan replicatie op opslagniveau, maar dat beide oplossingen aanvullende herstelverwerking vereisen om een consistente toestand te garanderen.
 
-Hier beschrijf je welke resultaten je verwacht. Als je metingen en simulaties uitvoert, kan je hier al mock-ups maken van de grafieken samen met de verwachte conclusies. Benoem zeker al je assen en de onderdelen van de grafiek die je gaat gebruiken. Dit zorgt ervoor dat je concreet weet welk soort data je moet verzamelen en hoe je die moet meten.
+Het verwachte resultaat van de risicoanalyse is een risicomatrix waarin faalscenario's worden geclassificeerd op basis van waarschijnlijkheid en impact op RPO, RTO en dataconsistentie.
+Hieruit zal naar verwachting blijken dat vooral scenario's met onvoltooide Logical Units of Work (LUW's), asynchrone commit-verwerking en handmatige herstelprocedures kritieke risico's vormen binnen een bancaire context.
+De studie verwacht tevens aan te tonen dat deze risico's niet volledig kunnen worden geëlimineerd, maar wel beheerst kunnen worden door technische maatregelen zoals gecontroleerd inhalen van transactielogs en duidelijke cut-overprocedures.
 
-Wat heeft de doelgroep van je onderzoek aan het resultaat? Op welke manier zorgt jouw bachelorproef voor een meerwaarde?
-
-Hier beschrijf je wat je verwacht uit je onderzoek, met de motivatie waarom. Het is \textbf{niet} erg indien uit je onderzoek andere resultaten en conclusies vloeien dan dat je hier beschrijft: het is dan juist interessant om te onderzoeken waarom jouw hypothesen niet overeenkomen met de resultaten.
-
+Als conclusie wordt verwacht dat een derde asynchrone site een waardevolle toevoeging kan zijn voor financiële instellingen die over de nodige middelen beschikken, aangezien extra geografische redundantie de operationele veerkracht en continuïteit van kritieke diensten verhoogt.
+Daarnaast kan een derde asynchrone site bijdragen aan het voldoen aan vereisten uit Europese regelgeving, zoals DORA\@, een regeling die operationele veerkracht en verbeterde disaster recovery bij financiële instellingen bevordert.
+Tevens wordt ook verwacht dat asynchrone replicatie uitdagingen met zich meebrengen en dat handmatig herstel bij herstelscenario's onvermijdelijk is.
+De meerwaarde van deze bachelorproef ligt in het bieden van een gestructureerd en technisch onderbouwd kader dat architecten en ervaren mainframe-systeemprogrammeurs ondersteunt bij het maken van geïnformeerde keuzes rond disaster recovery, met expliciete aandacht voor de implicaties op RPO, RTO en dataconsistentie.
