@@ -30,7 +30,7 @@ Om dit risico te minimaliseren is het noodzakelijk een extra, geografisch gesche
 \textcolor{red}{
 \begin{itemize}
     \item Hoe verschillen de onderzochte DB2-re\-plicatie\-mechanismen (GDPS Global Mirror en Q Replication) in hun herstelmechanismen en ondersteuning voor consistente failover?
-    \item Welke zwakheden vertonen deze mechanismen bij asynchrone replicatie van transactielogs en incomplete LUW's?
+    \item Welke zwakheden vertonen deze mechanismen bij asynchrone replicatie van transactielogs en incomplete LUW's (Logical Unit of Work)?
     \item Hoe kan de waarschijnlijkheid en impact van inconsistenties en verhoogde RPO en RTO analytisch worden ingeschat?
     \item Welke technische maatregelen kunnen worden toegepast om de geïdentificeerde risico's te minimaliseren en wat is hun effect op RPO, RTO en resterend risico?
 \end{itemize}}
@@ -60,6 +60,7 @@ Q Replication repliceert daarentegen enkel de relationele tabellen, niet de voll
 Echter is er nog het intrinsieke probleem dat asynchrone replicatie met zich meebrengt: wijzigingen worden niet tegelijkertijd met de primaire transacties bevestigd.
 Hierdoor kan de data op de derde site achterlopen en kunnen er nog onvoltooide transacties in het systeem aanwezig zijn. Bij failover is er dan aanvullende verwerking nodig om de database naar een consistente staat te brengen.
 Asynchrone replicatie biedt uiteindelijke consistentie, maar vereist aanzienlijke verwerking om de afwijkende toestand na een storing te herstellen waardoor de totale hersteltijd toeneemt en zowel RPO als RTO beïnvloed worden \autocite{coulouris2005distributed}.
+Wanneer een systeem faalt, zoals het crashen van een database, wordt traditioneel een hersteltechniek toegepast waarbij transacties doormiddel van logrecords worden geanalyseerd en de reeds gecommitte transacties opnieuw worden uitgevoerd (redo), terwijl onvoltooide of gefaalde transacties ongedaan worden gemaakt (undo) om transactionele consistentie te herstellen \autocite{graefe2022instant}.
 
 %---------- Methodologie ---------------------------------------------------------
 \section{Methodologie}%
@@ -83,7 +84,7 @@ Uit deze fase komt een gestructureerd overzicht van synchrone tegenover asynchro
 Componenten zoals coupling facilities, log streams en netwerkverbindingen komen hierbij aan bod.
 Er wordt ook gekaderd wat RPO en RTO inhoudt binnen een mainframecontext.
 Concreet resulteert dit in een overzichtstabel.
-De geschatte benodigde tijd voor deze fase bedraagt 3 weken.
+De geschatte benodigde tijd voor deze fase bedraagt 3 weken \textbf{van 10/02 tot en met 1/03}. 
 
 In de tweede fase wordt een vergelijkende architecturale analyse uitgevoerd van verschillende opstellingen om data integriteit te behouden bij mainframe-opstellingen.
 Dit gaat om het vergelijken van een gesynchroniseerde mainframe-opstelling met twee sites ten opzichte van deze gesynchroniseerde opstelling samen met een asynchrone derde site.
@@ -91,30 +92,34 @@ Hierbij wordt specifiek gekeken wat de gevolgen zijn voor de dataconsistentie, h
 Ook wordt aangetoond wat de bestaande maatregelen zijn die genomen worden om dataconsistentie bij herstelscenario's te behouden.
 Concreet resulteert dit in architectuurdiagrammen van een synchrone DB2 data-sharing opstelling met twee sites en een uitgebreide opstelling met een asynchrone derde site.
 Daarnaast wordt met vergelijkende tabellen dataconsistentie, herstelmechanismen en de implicaties voor RPO en RTO per architectuur gevisualiseerd.
-De geschatte tijd voor deze fase bedraagt 2 weken.
+De geschatte tijd voor deze fase bedraagt 2 weken \textbf{van 02/03 tot en met 15/03}.
     
 In de derde fase wordt een risicoanalyse uitgevoerd waarbij wordt onderzocht welke bijkomende risico's asynchrone replicatie introduceert in een bancaire context.
 Hier wordt specifiek gekeken naar wat mogelijke scenario's kunnen zijn waarin een herstelprocedure zal moeten worden opgestart in de DB2 omgeving.
 Dit resulteert in een concrete lijst met faalscenario's waarbij elk scenario wordt gekoppeld aan de betrokken DB2-componenten.
-De geschatte tijd voor deze fase bedraagt 3 weken.
+De geschatte tijd voor deze fase bedraagt 3 weken \textbf{van 16/03 tot en met 05/04}.
 
 In een vierde fase wordt geanalyseerd wat de mogelijke zwakheden zijn van DB2 voor Z/OS bij de verschillende scenario's beschreven in de vorige stap.
 Er wordt gekeken naar asynchrone replicatie van commits, incomplete Logical Units of Works (LUW), de volgorde van log replicatie en de gevolgen van handmatige herstelprocedures.
 Elk replicatiemechanisme zal resulteren in een matrix waarin de zwakheden zichtbaar worden gesteld.
-De geschatte tijd voor deze fase bedraagt 3 weken.
+Binnen deze fase wordt ook onderzocht hoe controlled log catch-up wordt toegepast binnen DB2 voor Z/OS, waarbij transactielogs gecontroleerd worden ingehaald tot een consistent herstelpunt. 
+Hierbij wordt geanalyseerd onder welke voorwaarden deze techniek incomplete LUW's kan detecteren en corrigeren, en welke beperkingen dit oplegt aan de hersteltijd.
+De geschatte tijd voor deze fase bedraagt 3 weken \textbf{van 06/04 tot en met 26/04}.
 
 In de vijfde fase wordt een analytische inschatting gedaan op de waarschijnlijkheid en impact van RPO, RTO en dataconsistentie gebaseerd op synchrone en asynchrone architecturen.
 Deze inschatting resulteert in een risicomatrix waarin per scenario de waarschijnlijkheid, impact op RPO, impact op RTO en impact op dataconsistentie wordt weergegeven.
-De geschatte tijd voor deze fase bedraagt 2 weken.
+De geschatte tijd voor deze fase bedraagt 2 weken \textbf{van 27/04 tot en met 10/05}.
 
 In de zesde fase wordt een risicobepaling gedaan volgens de risicoformule (risico = waarschijnlijkheid x impact) waarbij de risicomatrix gebruikt wordt.
 Dit resulteert in een lijst van risico's waarbij de kritieke risico's voor bancaire omgevingen worden geïdentificeerd.
-De geschatte tijd voor deze fase bedraagt 2 weken.
+De geschatte tijd voor deze fase bedraagt 2 weken \textbf{van 11/05 tot en met 24/05}.
 
 In de zevende fase wordt gekeken hoe de risico's kunnen worden geminimaliseerd door de onderzochte technieken.
 Dit omvat gecontroleerd inhalen van DB2 transactielogs, hoe een asynchrone derde site kan worden ingezet en het resultaat op RPO bij de derde site.
+De impact van de verschillende faalscenario's en mitigaties wordt analytisch beoordeeld op basis van vooraf gedefinieerde criteria, waaronder de reeds vermelde RPO die het maximale dataverlies aanduidt, hersteltijd tot operationele beschikbaarheid (RTO) en de mate van transactionele consistentie na herstel.
+Deze criteria helpen een duidelijke vergelijking te maken tussen de verscheidene herstelmechanismen en hun effectiviteit.
 Hieruit komt een tabel met aanbevelingen die mogelijke mitigaties, de impact op RPO en RTO en de resterende risico's weergeeft. 
-De geschatte tijd voor deze fase bedraagt 3 weken.
+De geschatte tijd voor deze fase bedraagt 3 weken \textbf{van 25/05 tot en met 15/06}. 
 
 %---------- Verwachte resultaten ----------------------------------------------
 \section{Verwacht resultaat, conclusie}%
