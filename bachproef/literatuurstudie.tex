@@ -7,45 +7,35 @@
 
 % Pas na deze inleidende paragraaf komt de eerste sectiehoofding.
 
-Dit hoofdstuk bevat je literatuurstudie. De inhoud gaat verder op de inleiding, maar zal het onderwerp van de bachelorproef *diepgaand* uitspitten. De bedoeling is dat de lezer na lezing van dit hoofdstuk helemaal op de hoogte is van de huidige stand van zaken (state-of-the-art) in het onderzoeksdomein. Iemand die niet vertrouwd is met het onderwerp, weet nu voldoende om de rest van het verhaal te kunnen volgen, zonder dat die er nog andere informatie moet over opzoeken.
+\section{\IfLanguageName{dutch}{Operationele veerkracht in financiële mainframe omgevingen}{Operational resilience in financial mainframe environments}}%
+\label{sec:operationele-veerkracht}
 
-Je verwijst bij elke bewering die je doet, vakterm die je introduceert, enz.\ naar je bronnen. In \LaTeX{} kan dat met het commando \texttt{$\backslash${textcite\{\}}} of \texttt{$\backslash${autocite\{\}}}. Als argument van het commando geef je de ``sleutel'' van een ``record'' in een bibliografische databank in het Bib\LaTeX{}-formaat (een tekstbestand). Als je expliciet naar de auteur verwijst in de zin (narratieve referentie), gebruik je \texttt{$\backslash${}textcite\{\}}. Soms is de auteursnaam niet expliciet een onderdeel van de zin, dan gebruik je \texttt{$\backslash${}autocite\{\}} (referentie tussen haakjes). Dit gebruik je bv.~bij een citaat, of om in het bijschrift van een overgenomen afbeelding, broncode, tabel, enz. te verwijzen naar de bron. In de volgende paragraaf een voorbeeld van elk.
+In dit hoofdstuk wordt besproken wat operationele veerkracht inhoudt, doormiddel van bestaande literatuur hierover.
+Er wordt ook besproken wat disaster recovery inhoudt in financiële mainframe-omgevingen.
+Het concept van operationele veerkracht wordt eerst gekaderd in de context van financiële instellingen.
+Hierna worden Recovery Point Objective (RPO) en Recovery Time Objective (RTO) gedefinieerd en de noodzaak van deze meetbare parameters uitgelegd.
 
-schreef een van de standaardwerken over sorteer- en zoekalgoritmen. Experten zijn het erover eens dat cloud computing een interessante opportuniteit vormen, zowel voor gebruikers als voor dienstverleners op vlak van informatietechnologie.
+Er is een nood voor cyberweerbaarheid bij financiële instellingen die niet enkel dekking biedt bij het voorkomen van cyberaanvallen, maar ook bij het herstellen wanneer er zich reeds een aanval heeft voorgedaan \autocite{dupont2019cyber}.
+Verder stelt \textcite{dupont2019cyber} dat moderne organisaties in het algemeen, maar specifiek financiële instellingen gevoelig zijn aan het watervaleffect dat technische storingen, menselijke fouten en natuurrampen veroorzaken.
+Bovendien worden de digitale middelen van financiële instellingen aangevallen door cybercriminelen, hackers vanuit regeringen, hacktivisten en ontevreden werknemers die trachten de computersystemen te infiltreren en gevoelige informatie te stelen.
+Daaropvolgend helpt de toegankelijkheid van krachtige malware tools criminelen om aanvallen te realiseren waarbij gelimiteerde technische kennis voldoende is.
+Operationele veerkracht verwijst naar het vermogen van organisaties om deze aanvallen te weerstaan, erop te reageren en schade voor klanten en de reputatie van het bedrijf te minimaliseren \autocite{essuman2020operational}.
+Financiële instellingen zijn in hoge mate afhankelijk van centrale transactieverwerkende systemen die vaak draaien op mainframeplatformen zoals Z/OS\@.
+Zo gebruiken bedrijven, waaronder financiële instellingen, databanksystemen zoals DB2 voor Z/OS om hun bedrijfskritieke transacties te verwerken met hoge vereisten met betrekking tot beschikbaarheid, integriteit en consistentie \autocite{hernandez_2009_how}.
+Operationele veerkracht verwijst in deze context niet enkel naar preventieve beveiligingsmaatregelen, maar ook robuuste herstelarchitecturen en geografisch gespreide replicatiemechanismen \autocite{bourbonnais2015}.
+Om het herstellingsvermogen meetbaar te maken, worden doorgaans doelstellingen vastgelegd in de vorm van Recovery Time Objective en Recovery Point Objective \autocite{mendoncca2020evaluating}.
+Bij een herstellingsplan is het voor financiële bedrijven noodzakelijk om meetbare criteria te hebben waaraan kan worden voldaan zodat kan worden bepaald binnen welke grenzen een organisatie een storing kan tolereren.
+Hierin spelen Recovery Point Objective en Recovery Time Objective een cruciale rol \autocite{zgureanu2022role}.
+Recovery Point Objective definieert de maximale hoeveelheid dataverlies, uitgedrukt in tijd, die aanvaardbaar is na een incident. 
+Concreet geeft RPO aan hoe ver in de tijd een systeem mag worden teruggezet ten opzichte van het moment van verstoring zonder onaanvaardbare impact voor de organisatie \autocite{international2019security}. 
+In replicatie-architecturen wordt de RPO rechtstreeks beïnvloed door de frequentie en mate van synchronisatie tussen primaire en secundaire systemen \autocite{swanson2010contingency}.
+Recovery Time Objective verwijst naar de maximale tijdsduur waarbinnen een systeem of dienst opnieuw operationeel beschikbaar moet zijn na een storing. 
+Deze parameter wordt beïnvloed door factoren zoals failover-mechanismen, herstelprocedures en de tijd nodig om transactielogs toe te passen en consistente toestanden te herstellen.
+De gekozen replicatiestrategie en de complexiteit van de herstelprocedure hebben daarbij een directe impact op de uiteindelijke RTO\@.
 
-Let er ook op: het \texttt{cite}-commando voor de punt, dus binnen de zin. Je verwijst meteen naar een bron in de eerste zin die erop gebaseerd is, dus niet pas op het einde van een paragraaf.
+\section{\IfLanguageName{dutch}{Replicatie in mainframe-omgevingen}{Replication in mainframe environments}}%
+\label{sec:mainframe-replicatie}
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.8\textwidth]{grail.jpg}
-  \caption[Voorbeeld figuur.]{\label{fig:grail}Voorbeeld van invoegen van een figuur. Zorg altijd voor een uitgebreid bijschrift dat de figuur volledig beschrijft zonder in de tekst te moeten gaan zoeken. Vergeet ook je bronvermelding niet!}
-\end{figure}
-
-\begin{listing}
-  \begin{minted}{python}
-    import pandas as pd
-    import seaborn as sns
-
-    penguins = sns.load_dataset('penguins')
-    sns.relplot(data=penguins, x="flipper_length_mm", y="bill_length_mm", hue="species")
-  \end{minted}
-  \caption[Voorbeeld codefragment]{Voorbeeld van het invoegen van een codefragment.}
-\end{listing}
-
-\lipsum[7-20]
-
-\begin{table}
-  \centering
-  \begin{tabular}{lcr}
-    \toprule
-    \textbf{Kolom 1} & \textbf{Kolom 2} & \textbf{Kolom 3} \\
-    $\alpha$         & $\beta$          & $\gamma$         \\
-    \midrule
-    A                & 10.230           & a                \\
-    B                & 45.678           & b                \\
-    C                & 99.987           & c                \\
-    \bottomrule
-  \end{tabular}
-  \caption[Voorbeeld tabel]{\label{tab:example}Voorbeeld van een tabel.}
-\end{table}
+Dit hoofdstuk bespreekt de verschillende manieren van data replicatie gebruikt binnen mainframe.
+Er wordt gekaderd wat replicatie inhoudt en hoe dit op technisch vlak te werk gaat en welke systemen hierbij worden gebruikt.
 

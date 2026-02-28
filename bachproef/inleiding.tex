@@ -17,7 +17,15 @@ Dit scenario is relevant bij grootschalige regionale incidenten zoals stroomuitv
 Het toevoegen van een aanvullende derde site zorgt voor uitdagingen omdat door de afstand geen minimale vertragingstijd kan worden gegarandeerd.
 Om dit risico te minimaliseren is het noodzakelijk een extra, geografisch gescheiden datacentrum toe te voegen, waarop alle transacties asynchroon kunnen worden gerepliceerd \autocite{snedaker2013business}.
 Echter betekent een derde aanvullende site niet dat er geen invloed is op de vertragingstijd.
-Hierdoor is een onderzoek naar verschillende oplossingen met betrekking tot een derde aanvullende site bij een oplossing van reeds twee gesynchroniseerde datacenters, nuttig om een overzicht te krijgen van de invloed op Recovery Point Objective (RPO) en Recovery Time Objective (RTO).
+Hierdoor is een onderzoek naar verschillende oplossingen met betrekking tot een derde aanvullende site bij een oplossing van reeds twee gesynchroniseerde datacenters nuttig om een overzicht te krijgen van de invloed op Recovery Point Objective (RPO) en Recovery Time Objective (RTO).
+
+\paragraph{Deelvragen probleemdomein}
+\begin{itemize}
+    \item Welke vormen van synchrone asynchrone DB2-logreplicatie bestaan binnen DB2 voor Z/OS en welke garanties bieden deze inzake transactionele consistentie?
+    \item Welke technische beperkingen (vertragingstijd, afstand, commit-gedrag) verhinderen het gebruik van synchrone replicatie naar een derde geografisch afgelegen site?
+    \item Welke faalscenario's kunnen optreden in een DB2-architectuur met meerdere sites en asynchrone replicatie en welke DB2-componenten zijn daarbij betrokken?
+    \item Welke impact hebben deze faalscenario's op dataconsistentie, RPO en RTO\@?
+\end{itemize}
 
 \section{\IfLanguageName{dutch}{Onderzoeksvraag}{Research question}}%
 \label{sec:onderzoeksvraag}
@@ -28,7 +36,7 @@ Deze bachelorproef analyseert de risico's bij IBM DB2 transactie-logreplicatie v
 \label{sec:onderzoeksdoelstelling}
 
 Het beoogd resultaat van de bachelorproef is een overzicht van verschillende oplossingen voor financiële instellingen met reeds twee gesynchroniseerde datacenters waarbij per oplossing RPO en RTO vermeld worden.
-Dit betekent ook de impact op de vertragingstijd.
+Bovendien zal per oplossing ook de vertragingstijd in kaart worden gebracht.
 
 \section{\IfLanguageName{dutch}{Opzet van deze bachelorproef}{Structure of this bachelor thesis}}%
 \label{sec:opzet-bachelorproef}
@@ -39,7 +47,7 @@ Dit betekent ook de impact op de vertragingstijd.
 
 De rest van deze bachelorproef is als volgt opgebouwd:
 
-In Hoofdstuk~\ref{ch:stand-van-zaken} wordt een overzicht gegeven van de stand van zaken binnen het onderzoeksdomein, op basis van een literatuurstudie.
+In Hoofdstuk~\ref{ch:literatuurstudie} wordt een overzicht gegeven van de stand van zaken binnen het onderzoeksdomein, op basis van een literatuurstudie.
 
 In Hoofdstuk~\ref{ch:methodologie} wordt de methodologie toegelicht en worden de gebruikte onderzoekstechnieken besproken om een antwoord te kunnen formuleren op de onderzoeksvragen.
 
