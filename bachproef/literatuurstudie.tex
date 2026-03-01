@@ -38,7 +38,7 @@ De gekozen replicatiestrategie en de complexiteit van de herstelprocedure hebben
 \label{sec:mainframe-replicatie}
 
 Dit hoofdstuk bespreekt de verschillende manieren van data replicatie gebruikt binnen mainframe.
-Er wordt gekaderd wat replicatie inhoudt en hoe dit op technisch vlak te werk gaat en welke toepassingen hiervoor worden gebruikt op mainframes met het Z/OS besturingsssysteem.
+Er wordt gekaderd welke oplossingen beschikbaar zijn op Z/OS voor replicatie op opslagniveau en de verschillende kenmerken van deze oplossingen.
 
 Replicatie houdt in dat data gekopiëerd wordt naar een secundaire site. 
 Het doel hiervan is om redundantie te krijgen wanneer een primaire site uitvalt.
@@ -47,7 +47,7 @@ Op opslagniveau biedt IBM verscheidene oplossingen om redundantie te creëren bi
 IBM GDPS Metro Mirror is een replicatietechnologie die een synchrone remote-copy van gegevens verzorgt tussen een primaire en een secundaire site \autocite{gomes_2025_redbooks}.
 Bij GDPS Metro Mirror wordt elke schrijfbewerking pas bevestigd aan de host (of het primaire systeem) als het ook op het secundaire systeem is geschreven.
 Hierdoor is de data op het volume van het secundaire systeem identiek aan het volume van het primaire systeem op het moment dat het schrijven voltooid is.
-Dit maakt Metro Mirror geschikt voor scenario's met nauwe synchronisatie en minimale data-divergentie binnen korte afstandsbereiken omdat de latentie tussen sites bij synchrone replicatie de responstijd van Input/Output (I/O) beïnvloedt.
+Dit maakt Metro Mirror geschikt voor scenario's met nauwe synchronisatie en minimale data-divergentie binnen korte afstandsbereiken omdat de vertragingstijd tussen sites bij synchrone replicatie de responstijd van Input/Output (I/O) beïnvloedt.
 Metro Mirror kan daarom worden gebruikt voor hoge beschikbaarheid en herstel na een ramp op kortere afstanden, vaak binnen een enkel geografisch gebied \autocite{ibm_2017_metro}.
 Naast GDPS Metro Mirror biedt IBM ook GDPS Global Mirror aan, een asynchrone data replicatietechnologie die gegevens tussen een primaire en een externe site repliceert zonder de schrijfbewerking op de primaire site te blokkeren totdat de secundaire site deze heeft bewaard.
 Dit betekent dat de primaire schrijfoperatie aan de host bevestigd wordt zodra die lokaal is voltooid, zonder te wachten op replicatie naar de secundaire site \autocite{ibm_2021_global}.
@@ -58,4 +58,21 @@ GDPS Global Mirror maakt gebruik van een systeem met meesters (masters) en onder
 De master controleert het maken van consistency groups binnen een Global Mirror sessie en stuurt commando's naar de ondergeschikte opslagsystemen van de sessie. 
 
 \section{\IfLanguageName{dutch}{Log-gebaseerde replicatie in DB2-omgevingen}{Log based replication in DB2 environments}}%
-\label{sec:mainframe-replicatie}
+\label{sec:log-replicatie}
+
+Dit hoofdstuk bespreekt log replicatie op databank niveau, specifiek het databanksysteem DB2 voor het Z/OS besturingsssysteem.
+Eerst wordt uitgelegd wat logs precies inhouden in DB2 en hoe deze worden bewaard.
+Daarna wordt besproken wat de verschillende manieren zijn om redundantie te creëren met betrekking tot deze logs.
+
+DB2 voor het Z/OS besturingsssysteem registreert alle data veranderingen en andere significante evenementen in een logbestand \autocite{ibm_2021_zos_db2_logs}.
+Elke log record wordt geschreven naar een Virtual Storage Access Method (VSAM) lineaire data set genaamd de active log. Wanneer de active log vol is, wordt de inhoud door DB2 gekopieerd naar een andere data set genaamd de archive log.
+Het schrijven van logs in DB2 voor Z/OS wordt verdeeld in twee types, namelijk asynchroon logs schrijven en synchroon logs schrijven \autocite{ibm_2026_db2_log_writes}.
+Het asynchroon schrijven van logs gebeurt wanneer de data wordt bewerkt. 
+De oude en nieuwe waarden van de records worden geplaatst in de log output buffer waarna controle terug wordt gegeven aan de applicatie. 
+Het schrijven naar het fysieke volume gebeurt later. 
+Bij asynchroon schrijven wacht de applicatie enkel als er geen log buffers beschikbaar zijn.
+Wanneer er logs worden geschreven op een synchrone manier, gebeurt het schrijven doorgaans bij een commit van de data. 
+De applicatie moet wachten tot DB2 de log buffers naar het fysieke volume zijn geschreven vooraleer de controle teruggeven wordt aan de applicatie.
+Als de log data set niet in gebruik is, worden alle log buffers naar het fysieke volume geschreven.
+Als de log data set bezet is, worden de verzoeken in de wachtrij geplaatst totdat deze vrijkomt.
+
