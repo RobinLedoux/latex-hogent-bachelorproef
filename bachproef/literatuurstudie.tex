@@ -20,6 +20,7 @@ Verder stelt \textcite{dupont2019cyber} dat moderne organisaties in het algemeen
 Bovendien worden de digitale middelen van financiële instellingen aangevallen door cybercriminelen, hackers vanuit regeringen, hacktivisten en ontevreden werknemers die trachten de computersystemen te infiltreren en gevoelige informatie te stelen.
 Daaropvolgend helpt de toegankelijkheid van krachtige malware tools criminelen om aanvallen te realiseren waarbij gelimiteerde technische kennis voldoende is.
 Operationele veerkracht verwijst naar het vermogen van organisaties om deze aanvallen te weerstaan, erop te reageren en schade voor klanten en de reputatie van het bedrijf te minimaliseren \autocite{essuman2020operational}.
+Strengere regelgevingen, zoals DORA vanuit de Europese Unie, tonen overigens de nood aan operationele veerkracht bij financiële instellingen aan \autocite{clausmeier2023regulation}.
 Financiële instellingen zijn in hoge mate afhankelijk van centrale transactieverwerkende systemen die vaak draaien op mainframeplatformen zoals Z/OS\@.
 Zo gebruiken bedrijven, waaronder financiële instellingen, databanksystemen zoals DB2 voor Z/OS om hun bedrijfskritieke transacties te verwerken met hoge vereisten met betrekking tot beschikbaarheid, integriteit en consistentie \autocite{hernandez_2009_how}.
 Operationele veerkracht verwijst in deze context niet enkel naar preventieve beveiligingsmaatregelen, maar ook robuuste herstelarchitecturen en geografisch gespreide replicatiemechanismen \autocite{bourbonnais2015}.
@@ -37,5 +38,24 @@ De gekozen replicatiestrategie en de complexiteit van de herstelprocedure hebben
 \label{sec:mainframe-replicatie}
 
 Dit hoofdstuk bespreekt de verschillende manieren van data replicatie gebruikt binnen mainframe.
-Er wordt gekaderd wat replicatie inhoudt en hoe dit op technisch vlak te werk gaat en welke systemen hierbij worden gebruikt.
+Er wordt gekaderd wat replicatie inhoudt en hoe dit op technisch vlak te werk gaat en welke toepassingen hiervoor worden gebruikt op mainframes met het Z/OS besturingsssysteem.
 
+Replicatie houdt in dat data gekopiëerd wordt naar een secundaire site. 
+Het doel hiervan is om redundantie te krijgen wanneer een primaire site uitvalt.
+In mainframe is het mogelijk om op opslagniveau en op log-level te repliceren \autocite{bourbonnais2015}.
+Op opslagniveau biedt IBM verscheidene oplossingen om redundantie te creëren binnen een mainframe met Z/OS\@.
+IBM GDPS Metro Mirror is een replicatietechnologie die een synchrone remote-copy van gegevens verzorgt tussen een primaire en een secundaire site \autocite{gomes_2025_redbooks}.
+Bij GDPS Metro Mirror wordt elke schrijfbewerking pas bevestigd aan de host (of het primaire systeem) als het ook op het secundaire systeem is geschreven.
+Hierdoor is de data op het volume van het secundaire systeem identiek aan het volume van het primaire systeem op het moment dat het schrijven voltooid is.
+Dit maakt Metro Mirror geschikt voor scenario's met nauwe synchronisatie en minimale data-divergentie binnen korte afstandsbereiken omdat de latentie tussen sites bij synchrone replicatie de responstijd van Input/Output (I/O) beïnvloedt.
+Metro Mirror kan daarom worden gebruikt voor hoge beschikbaarheid en herstel na een ramp op kortere afstanden, vaak binnen een enkel geografisch gebied \autocite{ibm_2017_metro}.
+Naast GDPS Metro Mirror biedt IBM ook GDPS Global Mirror aan, een asynchrone data replicatietechnologie die gegevens tussen een primaire en een externe site repliceert zonder de schrijfbewerking op de primaire site te blokkeren totdat de secundaire site deze heeft bewaard.
+Dit betekent dat de primaire schrijfoperatie aan de host bevestigd wordt zodra die lokaal is voltooid, zonder te wachten op replicatie naar de secundaire site \autocite{ibm_2021_global}.
+De replicatie gebeurt steeds na de schrijfoperatie op het primaire systeem waardoor er een natuurlijke vertraging kan ontstaan tussen de primaire en de secundaire kopie.
+Global Mirror kan worden gebruikt voor lange afstanden (tot duizenden kilometers) omdat het repliceren geen invloed heeft op de host, want het primaire systeem wacht niet tot het repliceren voltooid is.
+Met Global Mirror is het mogelijk om consistente punten (consistency groups) naar de externe externe site te verzenden, zodat een coherent herstelpunt ontstaat bij falen van het systeem.
+GDPS Global Mirror maakt gebruik van een systeem met meesters (masters) en ondergeschikten (subordinates) waarbij een Global Mirror sessie maar één master mag hebben.
+De master controleert het maken van consistency groups binnen een Global Mirror sessie en stuurt commando's naar de ondergeschikte opslagsystemen van de sessie. 
+
+\section{\IfLanguageName{dutch}{Log-gebaseerde replicatie in DB2-omgevingen}{Log based replication in DB2 environments}}%
+\label{sec:mainframe-replicatie}
