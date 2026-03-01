@@ -1,38 +1,50 @@
-%%=============================================================================
-%% Methodologie
-%%=============================================================================
-
 \chapter{\IfLanguageName{dutch}{Methodologie}{Methodology}}%
 \label{ch:methodologie}
 
-%% TODO: In dit hoofstuk geef je een korte toelichting over hoe je te werk bent
-%% gegaan. Verdeel je onderzoek in grote fasen, en licht in elke fase toe wat
-%% de doelstelling was, welke deliverables daar uit gekomen zijn, en welke
-%% onderzoeksmethoden je daarbij toegepast hebt. Verantwoord waarom je
-%% op deze manier te werk gegaan bent.
-%% 
-%% Voorbeelden van zulke fasen zijn: literatuurstudie, opstellen van een
-%% requirements-analyse, opstellen long-list (bij vergelijkende studie),
-%% selectie van geschikte tools (bij vergelijkende studie, "short-list"),
-%% opzetten testopstelling/PoC, uitvoeren testen en verzamelen
-%% van resultaten, analyse van resultaten, ...
-%%
-%% !!!!! LET OP !!!!!
-%%
-%% Het is uitdrukkelijk NIET de bedoeling dat je het grootste deel van de corpus
-%% van je bachelorproef in dit hoofstuk verwerkt! Dit hoofdstuk is eerder een
-%% kort overzicht van je plan van aanpak.
-%%
-%% Maak voor elke fase (behalve het literatuuronderzoek) een NIEUW HOOFDSTUK aan
-%% en geef het een gepaste titel.
+Dit onderzoek werd uitgevoerd aan de hand van een technisch-analytische onderzoeksopzet bestaande uit vier hoofdfasen: een literatuurstudie, een architecturale analyse, een risicoanalyse en een evaluatiefase. 
+De gekozen aanpak laat toe om zowel de theoretische fundamenten als de praktische implicaties van log-gebaseerde replicatie in DB2 voor Z/OS systematisch te onderzoeken.
 
-In de eerste fase wordt theorethisch kader opgebouwd doormiddel van een literatuurstudie waarin volgende items aan bod komen.
+In de eerste fase werd een technische literatuurstudie uitgevoerd op basis van academische publicaties en officiële documentatie. 
+Hierbij werden verschillende bestaande replicatietechnieken binnen DB2 voor Z/OS geanalyseerd met bijzondere aandacht voor transactionele consistentie, herstelmechanismen en de implicaties voor RPO en RTO\@.
+
+De studie omvatte documentatie over DB2 voor Z/OS, GDPS Global Mirror en Metro Mirror, logging in DB2 voor Z/OS aangevuld met academische literatuur over gedistribueerde systemen en replicatiemodellen. Deze fase resulteerde in een gestructureerd overzicht van replicatietechnieken en hun eigenschappen, samengevat in vergelijkende tabellen.
+
+\section{\IfLanguageName{dutch}{Architecturale analyse}{Architectural analysis}}%
+\label{sec:methodologie-architecturale-analyse}
+
+In de tweede fase werd een vergelijkende architecturale analyse uitgevoerd van verschillende mainframe-opstellingen. Hierbij werd een configuratie met twee gesynchroniseerde sites vergeleken met een uitgebreide architectuur waarin een aanvullende asynchrone derde site werd toegevoegd.
+
+Voor elke architectuur werden volgende zaken onderzocht.
 \begin{itemize}
-    \item operationele veerkracht in mainframe omngevingen
-    \item RPO/RTO
-    \item replicatie op opslagniveau
-    \item log-gebaseerde replicatie
+    \item Waarborging van dataconsistentie
+    \item Activatie herstelprocedures bij uitval
+    \item Implicaties voor RPO en RTO\@
 \end{itemize}
-Dit wordt gedaan doormiddel van een systematische analyse van academische artikels en technische documentatie.
 
-\lipsum[21-25]
+De analyse resulteerde in architectuurdiagrammen en vergelijkende tabellen waarin consistentie-eigenschappen en herstelmechanismen per opstelling werden weergegeven.
+
+\section{\IfLanguageName{dutch}{Risicoanalyse en faalscenario's}{Risk analysis and fail scenarios}}%
+\label{sec:methodologie-risicoanalyse}
+
+In de derde fase werd een systematische risicoanalyse uitgevoerd. 
+Mogelijke faalscenario's binnen een DB2 voor Z/OS omgeving werden geïdentificeerd en gekoppeld aan betrokken componenten zoals log streams, coupling facilities en replicatiemechanismen.
+
+Specifieke aandacht ging naar risico's geïntroduceerd door asynchrone replicatie, waaronder volgende zaken.
+\begin{itemize}
+    \item Replicatievertraging van commits
+    \item Incomplete Logical Units of Work (LUW's)
+    \item inconsistenties met betrekking tot de volgorde in logreplicatie
+    \item Implicaties van manuele herstelprocedures
+\end{itemize}
+
+Voor elk scenario werd de impact op RPO, RTO en transactionele consistentie analytisch beoordeeld.
+
+\section{\IfLanguageName{dutch}{Evaluatie en mitigatiestrategieën}{Evaluation and mitigitation strategies}}%
+\label{sec:methodologie-evaluatie-mitigatie}
+
+In de laatste fase werd een evaluatie uitgevoerd op basis van een risicomatrix waarin waarschijnlijkheid en impact werden gecombineerd. 
+Hierbij werd gebruikgemaakt van een kwalitatieve risicoformule (risico = waarschijnlijkheid x impact).
+Vervolgens werden mogelijke mitigatiestrategieën onderzocht, waaronder controlled log catch-up binnen DB2 voor Z/OS\@. 
+Hierbij werd geanalyseerd onder welke voorwaarden deze techniek consistente herstelpunten kan garanderen en welke beperkingen dit oplegt aan de hersteltijd.
+
+De resultaten van deze fase werden samengevat in een aanbevelingstabel waarin per architectuur de resterende risico's en de implicaties voor RPO, RTO en dataconsistentie werden weergegeven.
