@@ -93,9 +93,10 @@ Deze controlepunten worden aangemaakt wanneer een voorgedefinieerd aantal logrec
 Controlepunten worden ook gecreëerd wanneer er van een actieve log data set naar een andere wordt geschakeld, bij het succesvol opnieuw opstarten of bij normale afloop.
 Bij een checkpoint, logt DB2 de huidige status en registreert de relative byte address (RBA) in de bootstrap data set (BSDS). 
 Tijdens herstarten gebruikt DB2 de checkpoint informatie om de status voor beëindiging te herstellen.
-Elk logrecord is identificeerbaar door de RBA, een tijdsaanduiding die specifiek aanduidt wanneer een record startte in de log.
-De BSDS is een VSAM key-sequenced data set (KSDS) die alle kritieke informatie van DB2 bevat, zoals de namen van logs. 
+De RBA de identificeert de exacte positie van een logrecord in de log en wordt gebruikt om logrecords in de juiste volgorde te verwerken.
+De BSDS is een VSAM key-sequenced data set (KSDS) die alle kritieke informatie van DB2 bevat, zoals de namen en locaties van logs. 
 DB2 gebruikt de informatie in de BSDS voor het herstarten van het systeem en voor elke activiteit waarbij het lezen van logs nodig is.
+Naast deze records bestaan ook database page set control records, die voornamelijk het toewijzen, openen en sluiten van elke page set (table spaces of index spaces) registreren.
 
 DB2 log-replicatie maakt het mogelijk om wijzigingen die in de primaire database plaatsvinden asynchroon naar een secundaire site te verzenden, waardoor redundantie en herstelmogelijkheden ontstaan \autocite{ibm_2026_infosphere}.
 Het replicatieproces verloopt doorgaans in de volgende drie stappen.
