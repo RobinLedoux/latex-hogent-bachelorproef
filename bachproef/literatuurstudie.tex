@@ -76,6 +76,27 @@ De applicatie moet wachten tot DB2 de log buffers naar het fysieke volume zijn g
 Als de log data set niet in gebruik is, worden alle log buffers naar het fysieke volume geschreven.
 Als de log data set bezet is, worden de verzoeken in de wachtrij geplaatst totdat deze vrijkomt.
 
+Om log-replicatie te begrijpen in DB2 voor z/OS moet eerst worden gekeken naar de indeling van de logbestanden.
+Zoals eerder vermeld is de active log een VSAM lineaire data set.
+Volgens \textcite{ibm_2026_db2_log_content} kan deze verschillende soorten logrecords bevatten, waaronder unit of recovery records, checkpoint records en database page set control records.
+Logrecords bevatten doorgaans wijzigingen aan de DB2 databank.
+Al deze wijzigingen worden uitgevoerd binnen zogehete units of recovery. 
+Een unit of recovery is een groep operaties die als één transactie wordt behandeld en die ofwel wordt gecommit of volledig wordt teruggedraaid \autocite{ibm_2025_infosphere_units_recovery}.
+Dergelijke operaties kunnen bijvoorbeeld online transacties of andere wijzigingen zijn die door applicaties worden uitgevoerd.
+De logrecords die bij een unit of recovery records horen, beschrijven wijzigingen aan de databank, de effecten van deze wijzigingen en de bijhorende herstelinformatie \autocite{ibm_2026_db2_13}.
+Deze logrecords bevatten ook undo en redo records.
+Wanneer een verandering wordt gedaan in de databank, maakt DB2 een log die deze verandering beschrijft.
+De redo-informatie is noodzakelijk wanneer een unit of work committed is en later moet worden hersteld.
+De undo-informatie daarentegen wordt gebruikt om units of work terug te draaien wanneer die niet committed zijn.
+Naast unit of recovery logrecords, maakt DB2 tijdens normaal gebruik periodieke controlepunten aan om herstarttijd te verminderen \autocite{ibm_2026_db2_checkpoint_records}.
+Deze controlepunten worden aangemaakt wanneer een voorgedefinieerd aantal logrecords zijn geschreven of een voorgedefinieerd aantal minuten is verstreken.
+Controlepunten worden ook gecreëerd wanneer er van een actieve log data set naar een andere wordt geschakeld, bij het succesvol opnieuw opstarten of bij normale afloop.
+Bij een checkpoint, logt DB2 de huidige status en registreert de relative byte address (RBA) in de bootstrap data set (BSDS). 
+Tijdens herstarten gebruikt DB2 de checkpoint informatie om de status voor beëindiging te herstellen.
+Elk logrecord is identificeerbaar door de RBA, een tijdsaanduiding die specifiek aanduidt wanneer een record startte in de log.
+De BSDS is een VSAM key-sequenced data set (KSDS) die alle kritieke informatie van DB2 bevat, zoals de namen van logs. 
+DB2 gebruikt de informatie in de BSDS voor het herstarten van het systeem en voor elke activiteit waarbij het lezen van logs nodig is.
+
 DB2 log-replicatie maakt het mogelijk om wijzigingen die in de primaire database plaatsvinden asynchroon naar een secundaire site te verzenden, waardoor redundantie en herstelmogelijkheden ontstaan \autocite{ibm_2026_infosphere}.
 Het replicatieproces verloopt doorgaans in de volgende drie stappen.
 \begin{itemize}
