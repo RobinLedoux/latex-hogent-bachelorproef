@@ -10,7 +10,7 @@
 \section{\IfLanguageName{dutch}{Operationele veerkracht in financiële mainframe omgevingen}{Operational resilience in financial mainframe environments}}%
 \label{sec:operationele-veerkracht}
 
-In dit hoofdstuk wordt besproken wat operationele veerkracht inhoudt, doormiddel van bestaande literatuur hierover.
+In dit hoofdstuk wordt besproken wat operationele veerkracht inhoudt, doormiddel van bestaande literatuur.
 Er wordt ook besproken wat disaster recovery inhoudt in financiële mainframe-omgevingen.
 Het concept van operationele veerkracht wordt eerst gekaderd in de context van financiële instellingen.
 Hierna worden Recovery Point Objective (RPO) en Recovery Time Objective (RTO) gedefinieerd en de noodzaak van deze meetbare parameters uitgelegd.
@@ -76,3 +76,16 @@ De applicatie moet wachten tot DB2 de log buffers naar het fysieke volume zijn g
 Als de log data set niet in gebruik is, worden alle log buffers naar het fysieke volume geschreven.
 Als de log data set bezet is, worden de verzoeken in de wachtrij geplaatst totdat deze vrijkomt.
 
+DB2 log-replicatie maakt het mogelijk om wijzigingen die in de primaire database plaatsvinden asynchroon naar een secundaire site te verzenden, waardoor redundantie en herstelmogelijkheden ontstaan \autocite{ibm_2026_infosphere}.
+Het replicatieproces verloopt doorgaans in de volgende drie stappen.
+\begin{itemize}
+    \item Capture: het vastleggen van commit evenementen uit de DB2 log data sets waarbij de oude en nieuwe waarden van data records worden geregistreerd.
+    \item Transport: het overzetten van de logrecords naar de secundaire site via een netwerkverbinding. 
+    \item Apply: het toepassen van de logrecords op de secundaire database, zodat deze kan worden gebruikt na een faalscenario.
+\end{itemize}
+Bij DB2 wordt een mechanisme toegepast genaamd Controlled Log Catch-Up (CLC).
+Hierbij worden logrecords gecontroleerd ingehaald tot een consistent herstelpunt. 
+Dit mechanisme maakt het mogelijk om onvolledige Logical Units of Work (LUW) of commits in onjuiste volgorde te detecteren en te corrigeren zodat de transactionele integriteit bewaakt wordt \autocite{ibm_2026_db2}.
+
+Om replicatie op log niveau te realiseren voor DB2 wordt een oplossing aangeboden genaamd Q Replication, waarbij wijzigingen op een primaire DB2 databank kunnen worden gerepliceerd naar een secundaire databank.
+Q Replication werkt asynchroon omdat de primaire databank niet hoeft te wachten tot de secundaire databank de wijzigingen heeft verwerkt \autocite{ibm_2026_db2_q_replication}.
