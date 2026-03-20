@@ -53,9 +53,17 @@ Naast GDPS Metro Mirror biedt IBM ook GDPS Global Mirror aan, een asynchrone dat
 Dit betekent dat de primaire schrijfoperatie aan de host bevestigd wordt zodra die lokaal is voltooid, zonder te wachten op replicatie naar de secundaire site \autocite{ibm_2021_global}.
 De replicatie gebeurt steeds na de schrijfoperatie op het primaire systeem waardoor er een natuurlijke vertraging kan ontstaan tussen de primaire en de secundaire kopie.
 Global Mirror kan worden gebruikt voor lange afstanden (tot duizenden kilometers) omdat het repliceren geen invloed heeft op de host, want het primaire systeem wacht niet tot het repliceren voltooid is.
-Met Global Mirror is het mogelijk om consistente punten (consistency groups) naar de externe externe site te verzenden, zodat een coherent herstelpunt ontstaat bij falen van het systeem.
+Met Global Mirror is het mogelijk om consistente punten (consistency groups) naar de externe site te verzenden, zodat een coherent herstelpunt ontstaat bij falen van het systeem.
 GDPS Global Mirror maakt gebruik van een systeem met meesters (masters) en ondergeschikten (subordinates) waarbij een Global Mirror sessie maar één master mag hebben.
 De master controleert het maken van consistency groups binnen een Global Mirror sessie en stuurt commando's naar de ondergeschikte opslagsystemen van de sessie. 
+GDPS Metro Mirror en GDPS Global Mirror vormen slecht een deel van de beschikbare replicatiemethoden.
+Global Copy biedt functionaliteit voor het asynchroon kopiëren van data over lange afstanden, waarbij schrijfoperaties als voltooid worden beschouwd voordat de gegevens naar een herstelsite worden verzonden \autocite{ibm_2023_ibm_global_copy}.
+Het is een alternatief voor de eerder besproken Metro Mirror.
+Global Copy werkt sneller dan Metro Mirror omdat het niet wacht tot de data op de herstelsite is gekopiëerd.
+Hierdoor is een consistente kopie van de data niet gegarandeerd.
+Global Copy stuurt updates periodiek naar de herstelsite in reeksen.
+Hoe groter de afstand naar de herstelsite, hoe langer het duurt tot de reeksen aankomen.
+De mogelijke afstand tussen sites bij dit replicatiemechanisme wordt tevens beperkt door de netwerkmogelijkheden.
 
 \section{\IfLanguageName{dutch}{Log-gebaseerde replicatie in DB2-omgevingen}{Log based replication in DB2 environments}}%
 \label{sec:log-replicatie}
@@ -65,7 +73,7 @@ Eerst wordt uitgelegd wat logs precies inhouden in DB2 en hoe deze worden bewaar
 Daarna wordt besproken wat de verschillende manieren zijn om redundantie te creëren met betrekking tot deze logs.
 
 DB2 voor het Z/OS besturingsssysteem registreert alle data veranderingen en andere significante evenementen in een logbestand \autocite{ibm_2021_zos_db2_logs}.
-Elke log record wordt geschreven naar een Virtual Storage Access Method (VSAM) lineaire data set genaamd de active log. Wanneer de active log vol is, wordt de inhoud door DB2 gekopieerd naar een andere data set genaamd de archive log.
+Elke log record wordt geschreven naar een Virtual Storage Access Method (VSAM) lineaire data set genaamd de active log. Wanneer de active log vol is, wordt de inhoud door DB2 gekopiëerd naar een andere data set genaamd de archive log.
 Het schrijven van logs in DB2 voor Z/OS wordt verdeeld in twee types, namelijk asynchroon logs schrijven en synchroon logs schrijven \autocite{ibm_2026_db2_log_writes}.
 Het asynchroon schrijven van logs gebeurt wanneer de data wordt bewerkt. 
 De oude en nieuwe waarden van de records worden geplaatst in de log output buffer waarna controle terug wordt gegeven aan de applicatie. 
@@ -93,7 +101,7 @@ Deze controlepunten worden aangemaakt wanneer een voorgedefinieerd aantal logrec
 Controlepunten worden ook gecreëerd wanneer er van een actieve log data set naar een andere wordt geschakeld, bij het succesvol opnieuw opstarten of bij normale afloop.
 Bij een checkpoint, logt DB2 de huidige status en registreert de relative byte address (RBA) in de bootstrap data set (BSDS). 
 Tijdens herstarten gebruikt DB2 de checkpoint informatie om de status voor beëindiging te herstellen.
-De RBA de identificeert de exacte positie van een logrecord in de log en wordt gebruikt om logrecords in de juiste volgorde te verwerken.
+De RBA identificeert de exacte positie van een logrecord in de log en wordt gebruikt om logrecords in de juiste volgorde te verwerken.
 De BSDS is een VSAM key-sequenced data set (KSDS) die alle kritieke informatie van DB2 bevat, zoals de namen en locaties van logs. 
 DB2 gebruikt de informatie in de BSDS voor het herstarten van het systeem en voor elke activiteit waarbij het lezen van logs nodig is.
 Naast deze records bestaan ook database page set control records, die voornamelijk het toewijzen, openen en sluiten van elke page set (table spaces of index spaces) registreren.
