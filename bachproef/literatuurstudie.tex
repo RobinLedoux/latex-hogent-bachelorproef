@@ -10,10 +10,8 @@
 \section{\IfLanguageName{dutch}{Operationele veerkracht in financiële mainframe omgevingen}{Operational resilience in financial mainframe environments}}%
 \label{sec:operationele-veerkracht}
 
-In dit hoofdstuk wordt besproken wat operationele veerkracht inhoudt, doormiddel van bestaande literatuur.
-Er wordt ook besproken wat disaster recovery inhoudt in financiële mainframe-omgevingen.
-Het concept van operationele veerkracht wordt eerst gekaderd in de context van financiële instellingen.
-Hierna worden Recovery Point Objective (RPO) en Recovery Time Objective (RTO) gedefinieerd en de noodzaak van deze meetbare parameters uitgelegd.
+Dit hoofdstuk legt de theoretische basis voor operationele veerkracht en herstel bij uitval in financiële mainframe-omgevingen.
+Het concept van operationele veerkracht wordt gekaderd, gevolgd door een bespreking van Recovery Point Objective (RPO) en Recovery Time Objective (RTO) en de noodzaak van deze criteria.
 
 Er is een nood voor cyberweerbaarheid bij financiële instellingen die niet enkel dekking biedt bij het voorkomen van cyberaanvallen, maar ook bij het herstellen wanneer er zich reeds een aanval heeft voorgedaan \autocite{dupont2019cyber}.
 Verder stelt \textcite{dupont2019cyber} dat moderne organisaties in het algemeen, maar specifiek financiële instellingen gevoelig zijn aan het watervaleffect dat technische storingen, menselijke fouten en natuurrampen veroorzaken.
@@ -21,8 +19,8 @@ Bovendien worden de digitale middelen van financiële instellingen aangevallen d
 Daaropvolgend helpt de toegankelijkheid van krachtige malware tools criminelen om aanvallen te realiseren waarbij gelimiteerde technische kennis voldoende is.
 Operationele veerkracht verwijst naar het vermogen van organisaties om deze aanvallen te weerstaan, erop te reageren en schade voor klanten en de reputatie van het bedrijf te minimaliseren \autocite{essuman2020operational}.
 Strengere regelgevingen, zoals DORA vanuit de Europese Unie, tonen overigens de nood aan operationele veerkracht bij financiële instellingen aan \autocite{clausmeier2023regulation}.
-Financiële instellingen zijn in hoge mate afhankelijk van centrale transactieverwerkende systemen die vaak draaien op mainframeplatformen zoals Z/OS\@.
-Zo gebruiken bedrijven, waaronder financiële instellingen, databanksystemen zoals DB2 voor Z/OS om hun bedrijfskritieke transacties te verwerken met hoge vereisten met betrekking tot beschikbaarheid, integriteit en consistentie \autocite{hernandez_2009_how}.
+Financiële instellingen zijn in hoge mate afhankelijk van centrale transactieverwerkende systemen die vaak draaien op mainframeplatformen zoals z/OS\@.
+Zo gebruiken bedrijven, waaronder financiële instellingen, databanksystemen zoals DB2 voor z/OS om hun bedrijfskritieke transacties te verwerken met hoge vereisten met betrekking tot beschikbaarheid, integriteit en consistentie \autocite{hernandez_2009_how}.
 Operationele veerkracht verwijst in deze context niet enkel naar preventieve beveiligingsmaatregelen, maar ook robuuste herstelarchitecturen en geografisch gespreide replicatiemechanismen \autocite{bourbonnais2015}.
 Om het herstellingsvermogen meetbaar te maken, worden doorgaans doelstellingen vastgelegd in de vorm van Recovery Time Objective en Recovery Point Objective \autocite{mendoncca2020evaluating}.
 Bij een herstellingsplan is het voor financiële bedrijven noodzakelijk om meetbare criteria te hebben waaraan kan worden voldaan zodat kan worden bepaald binnen welke grenzen een organisatie een storing kan tolereren.
@@ -38,12 +36,12 @@ De gekozen replicatiestrategie en de complexiteit van de herstelprocedure hebben
 \label{sec:mainframe-replicatie}
 
 Dit hoofdstuk bespreekt de verschillende manieren van data replicatie gebruikt binnen mainframe.
-Er wordt gekaderd welke oplossingen beschikbaar zijn op Z/OS voor replicatie op opslagniveau en de verschillende kenmerken van deze oplossingen.
+Er wordt gekaderd welke oplossingen beschikbaar zijn op z/OS voor replicatie op opslagniveau en de verschillende kenmerken van deze oplossingen.
 
 Replicatie houdt in dat data gekopiëerd wordt naar een secundaire site. 
 Het doel hiervan is om redundantie te krijgen wanneer een primaire site uitvalt.
 In mainframe is het mogelijk om op opslagniveau en op log-level te repliceren \autocite{bourbonnais2015}.
-Op opslagniveau biedt IBM verscheidene oplossingen om redundantie te creëren binnen een mainframe met Z/OS\@.
+Op opslagniveau biedt IBM verscheidene oplossingen om redundantie te creëren binnen een mainframe met z/OS\@.
 IBM GDPS Metro Mirror is een replicatietechnologie die een synchrone remote-copy van gegevens verzorgt tussen een primaire en een secundaire site \autocite{gomes_2025_redbooks}.
 Bij GDPS Metro Mirror wordt elke schrijfbewerking pas bevestigd aan de host (of het primaire systeem) als het ook op het secundaire systeem is geschreven.
 Hierdoor is de data op het volume van het secundaire systeem identiek aan het volume van het primaire systeem op het moment dat het schrijven voltooid is.
@@ -68,13 +66,13 @@ De mogelijke afstand tussen sites bij dit replicatiemechanisme wordt tevens bepe
 \section{\IfLanguageName{dutch}{Log-gebaseerde replicatie in DB2-omgevingen}{Log based replication in DB2 environments}}%
 \label{sec:log-replicatie}
 
-Dit hoofdstuk bespreekt log replicatie op databank niveau, specifiek het databanksysteem DB2 voor het Z/OS besturingsssysteem.
+Dit hoofdstuk bespreekt log replicatie op databank niveau, specifiek het databanksysteem DB2 voor het z/OS besturingsssysteem.
 Eerst wordt uitgelegd wat logs precies inhouden in DB2 en hoe deze worden bewaard.
 Daarna wordt besproken wat de verschillende manieren zijn om redundantie te creëren met betrekking tot deze logs.
 
-DB2 voor het Z/OS besturingsssysteem registreert alle data veranderingen en andere significante evenementen in een logbestand \autocite{ibm_2021_zos_db2_logs}.
+DB2 voor het z/OS besturingsssysteem registreert alle data veranderingen en andere significante evenementen in een logbestand \autocite{ibm_2021_zos_db2_logs}.
 Elke log record wordt geschreven naar een Virtual Storage Access Method (VSAM) lineaire data set genaamd de active log. Wanneer de active log vol is, wordt de inhoud door DB2 gekopiëerd naar een andere data set genaamd de archive log.
-Het schrijven van logs in DB2 voor Z/OS wordt verdeeld in twee types, namelijk asynchroon logs schrijven en synchroon logs schrijven \autocite{ibm_2026_db2_log_writes}.
+Het schrijven van logs in DB2 voor z/OS wordt verdeeld in twee types, namelijk asynchroon logs schrijven en synchroon logs schrijven \autocite{ibm_2026_db2_log_writes}.
 Het asynchroon schrijven van logs gebeurt wanneer de data wordt bewerkt. 
 De oude en nieuwe waarden van de records worden geplaatst in de log output buffer waarna controle terug wordt gegeven aan de applicatie. 
 Het schrijven naar het fysieke volume gebeurt later. 
@@ -119,3 +117,27 @@ Dit mechanisme maakt het mogelijk om onvolledige Logical Units of Work (LUW) of 
 
 Om replicatie op log niveau te realiseren voor DB2 wordt een oplossing aangeboden genaamd Q Replication, waarbij wijzigingen op een primaire DB2 databank kunnen worden gerepliceerd naar een secundaire databank.
 Q Replication werkt asynchroon omdat de primaire databank niet hoeft te wachten tot de secundaire databank de wijzigingen heeft verwerkt \autocite{ibm_2026_db2_q_replication}.
+
+\section{\IfLanguageName{dutch}{Recovery Point Objective (RPO) en Recovery Time Objective (RTO) in mainframe-omgevingen}{Recovery Point Objective (RPO) and Recovery Time Objective (RTO) in mainframe environments}}%
+\label{sec:rpo-rto-mainframe}
+
+In dit hoofdstuk wordt besproken wat het spanningsveld tussen Recovery Point Objective (RPO) en Recovery Time Objective (RTO) inhoudt en hoe zich dit vertaalt naar de verschillende replicatiemechanismen binnen mainframes die gebruikmaken van het z/OS besturingsssysteem.
+Per eerder besproken technologie wordt samengevat wat der verhoudingen zijn ten opzichte van deze criteria (RPO en RTO)\@.
+
+Zoals eerder vermeld hebben financiële bedrijven noodzaak aan meetbare criteria waaraan kan worden voldaan zodat de organisatie weet binnen welke grenzen een storing kan worden getolereerd.
+Concreet gaat het hier over Recovery Point Objective (RPO) en Recovery Time Objective (RTO).
+Recovery Point Objective definieert de maximum toegelaten aantal data die mag verloren geraken.
+Recovery Time Objective definieert hoe lang een proces, systeem of applicatie mag uitvallen na een storing vooraleer er onherroepelijke schade is veroorzaakt \autocite{thordal_2007_using}.
+Het doel van elk herstellingsplan na een ramp is het beschermen van kritieke business processen van uitval.
+De eerder besproken GDPS Global Mirror replicatietechnologie biedt een RPO van minder dan een minuut; maar een RTO tussen een en twee uur \autocite{raften_2011_gdps_executive_overview}.
+De lage RPO is hier te wijten aan het periodieke aanmaken van consistency groups die dienen om een constistent herstelpunt te creëren \autocite{gomes_2025_redbooks}.
+Bij deze replicatietechnologie hoeft de primaire site bovendien niet te wachten op de secundaire site op bevestiging van de secundaire site.
+Dit zorgt dus voor minimale impact op prestaties bij de primaire site, maar betekent desalniettemin dat er een vertraging kan ontstaan van seconden tot minuten tussen de primaire en de secundaire site door de asynchrone aard van deze technologie.
+Naast GDPS Global Mirror is er ook de reeds vermelde GDPS Metro Mirror.
+\textcite{gomes_2025_redbooks} stelt dat Metro Mirror de enige replicatietechnologie is, aangeboden door IBM, waarmee een RPO van nul kan bereikt worden.
+Dit is te wijten aan de synchrone manier waarop Metro Mirror werkt.
+De synchrone manier verwijst hier naar het primaire systeem die wacht tot de data ook aanwezig is op het secundaire systeem.
+Echter zijn er uiteraard nadelen verbonden aan deze replicatietechnologie zoals de maximale afstand tussen het primaire en secundaire subsysteem.
+Dit heeft ook een invloed op de RTO, die enkele seconden tot een uur kan bedragen \autocite{li_2019_planet_mainframe_gdps}.
+Dan is er ook nog IBM Q replication waarbij de effectieve transacties binnen een databank verstuurd worden naar andere databanken of subsystemen  \autocite{ibm_2026_infosphere}.
+Volgens \textcite{bourbonnais2015} biedt deze technologie een RPO van minder dan drie seconden en een RTO van minder dan een minuut.
