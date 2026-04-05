@@ -1,0 +1,15 @@
+\chapter{\IfLanguageName{dutch}{Analyse}{analysis}}%
+\label{ch:analyse}
+
+\section{\IfLanguageName{dutch}{Architecturale Analyse}{Architectural analysis}}%
+\label{sec:architecturale-analyse}
+
+In dit hoofdstuk worden verschillende mainframe opstellingen vergeleken en hun impact op RPO, RTO en dataconsistentie geanalyseerd.
+
+\subsection{\IfLanguageName{dutch}{Twee Synchrone Sites}{Two Synchronous Sites}}%
+\label{sec:twee-synchrone-sites}
+
+De eerste opstelling die mogelijks kan gebruikt worden is een opstelling van twee sites gesynchroniseerd met GDPS Metro Mirror.
+De IBM implementatie van GDPS Metro Mirror laat data mirroring toe tot 300 km.
+Belangrijk om hierbij te vermelden is dat de maximale afstand werkt wanneer er bij de opstelling ook de juiste site-overschrijdende technologie voor connectiviteit is geïnstalleerd.
+Ook heeft een langere afstand bij deze opstelling invloed op de responstijd van applicaties \autocite{gomes_2025_redbooks}. 
