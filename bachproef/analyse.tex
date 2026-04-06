@@ -10,6 +10,17 @@ In dit hoofdstuk worden verschillende mainframe opstellingen vergeleken en hun i
 \label{sec:twee-synchrone-sites}
 
 De eerste opstelling die mogelijks kan gebruikt worden is een opstelling van twee sites gesynchroniseerd met GDPS Metro Mirror.
+Bij deze opstelling met GDPS Metro Mirror worden de schrijfoperaties als volbracht gezien wanneer deze zowel op de lokale als de externe site zijn voltooid. 
+Metro Mirror wordt gebruikt in omgevingen waarbij dataverlies niet toegestaan is bij het uitvallen van de systeemopslag. \autocite{ivanov2023unveiling}.
 De IBM implementatie van GDPS Metro Mirror laat data mirroring toe tot 300 km.
 Belangrijk om hierbij te vermelden is dat de maximale afstand werkt wanneer er bij de opstelling ook de juiste site-overschrijdende technologie voor connectiviteit is geïnstalleerd.
 Ook heeft een langere afstand bij deze opstelling invloed op de responstijd van applicaties \autocite{gomes_2025_redbooks}. 
+Doordat er een limiet is op de afstand, kan een faalscenario invloed hebben op beide sites. 
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{ibm_metro_mirror.png}
+    \caption{Metro Mirror: synchronous remote copy. Bron: \cite{ivanov2023unveiling}.}
+    \label{fig:ibm_metro_mirror}
+\end{figure}
