@@ -62,6 +62,11 @@ Hierdoor is een consistente kopie van de data niet gegarandeerd.
 Global Copy stuurt updates periodiek naar de herstelsite in reeksen.
 Hoe groter de afstand naar de herstelsite, hoe langer het duurt tot de reeksen aankomen.
 De mogelijke afstand tussen sites bij dit replicatiemechanisme wordt tevens beperkt door de netwerkmogelijkheden.
+Wanneer er bij het schrijven naar de primaire schijf op een van de systemen een probleem voordoet, kan GDPS HyperSwap gebruikt worden.
+Dit is een technologie, tevens aangeboden door IBM, die toelaat om te schakelen naar een secundaire schijf zonder dat het systeem opnieuw moet worden opgestart \autocite{gomes_2025_redbooks}.
+Er zijn twee manier waarop HyperSwap kan worden gestart.
+Zo is er een geplande HyperSwap, waarbij bewust bij voorbaat wordt geschakeld naar een secundaire schijf omdat er, bijvoorbeeld, noodzakelijk onderhoud moet worden gedaan.
+Er is ook een ongeplande HyperSwap waarbij GDPS automatisch schakelt omdat er problemen gedetecteerd zijn op de primaire schijf.
 
 \section{\IfLanguageName{dutch}{Log-gebaseerde replicatie in DB2-omgevingen}{Log based replication in DB2 environments}}%
 \label{sec:log-replicatie}
