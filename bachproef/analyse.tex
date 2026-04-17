@@ -20,6 +20,7 @@ Dit zorgt voor een RPO van 0, wat betekent dat er geen dataverlies optreedt bij 
 Deze eigenschap maakt Metro Mirror bijzonder geschikt voor kritieke systemen waar dataintegriteit essentieel is, zoals in bankomgevingen \autocite{gomes_2025_redbooks}.
 
 \subsubsection{\IfLanguageName{dutch}{Afstandsbeperking en Impact op Prestaties}{Length Limit and Impact on Performance}}%
+\label{sec:twee-synchrone-sites-beperkingen}
 
 Een belangrijke beperking van GDPS Metro Mirror is de maximale afstand tussen de twee sites.
 IBM specifieert dat Metro Mirror een maximale afstand toelaat van 300 km \autocite{gomes_2025_redbooks}.
@@ -30,6 +31,7 @@ De RTO van GDPS Metro Mirror varieert van enkele seconden tot een uur, afhankeli
 Met geautomatiseerde uitvalbeveiliging zoals GDPS HyperSwap kan de RTO worden teruggebracht tot enkele seconden, omdat de secundaire site onmiddellijk kan worden geactiveerd. 
 Zonder automatisering kan de RTO echter oplopen tot een uur, omdat handmatige interventie nodig is om de secundaire site operationeel te maken \autocite{li_2019_planet_mainframe_gdps}.
 \subsubsection{\IfLanguageName{dutch}{Faalscenario's en Risico's}{Possible Failures and Risks}}
+\label{sec:twee-synchrone-sites-failures-risks}
 
 Hoewel Metro Mirror een RPO van 0 biedt, zijn er risico's verbonden aan deze opstelling.
 Een mogelijk risico is regionale uitval. 
@@ -58,3 +60,59 @@ Faalscenario's       & Geregionaliseerde uitval               \\ \hline
 
 \subsection{\IfLanguageName{dutch}{Twee Asynchrone Sites}{Two Asynchronous Sites}}%
 \label{sec:twee-asynchrone-sites}
+
+Een andere voorkomende opstelling is een configuratie van twee sites die asynchroon verbonden zijn doormiddel van GDPS Global Mirror.
+Het laat toe om sites met elkaar te verbinden die meer dan 200 km van elkaar verwijderd zijn \autocite{gomes_2025_redbooks}.
+
+\subsubsection{\IfLanguageName{dutch}{Asynchrone replicatie}{Asynchronous replication}}%
+\label{sec:asynchrone-replicatie}
+
+Bij asynchrone replicatie worden schrijfoperaties op de primaire site onmiddelijk bevestigd aan de applicatie, zonder te wachten op bevestiging van de externe site.
+Dit zorgt ervoor dat er minimale impact is op de prestaties van de primaire site, maar introduceert een replicatievertraging.
+Deze vertraging bepaalt de RPO, want hoe groter de vertraging, hoe meer data er verloren kan gaan bij het falen van de primaire site.
+
+\subsubsection{\IfLanguageName{dutch}{Werking van GDPS Global Mirror}{Operation of GDPS Global Mirror}}%
+\label{sec:twee-asynchrone-sites-werking-global-mirror}
+
+GDPS Global Mirror is een replicatietechnologie die toelaat om op asynchrone wijze data te kopiëren tussen sites \autocite{white_2020_redbooks}.
+Doordat de asynchrone werking van Global Mirror, zijn er geen limitaties op de afstand tussen de sites.
+Het maakt gebruik van consistency groups om periodiek een consistent herstelpunt te creëren \autocite{ibm_2023_ibm_global_mirror}.
+Dit zorgt voor een RPO van seconden tot een minuut, afhankelijk van de frequentie van de consistency groups en de beschikbare bandbreedte \autocite{raften_2011_gdps_executive_overview}.
+De RTO varieert van 30 seconden tot 2 uur, afhankelijk van de mate van automatisering en de complexiteit van het herstelproces.
+
+\subsubsection{\IfLanguageName{dutch}{Voordelen en beperkingen}{Benefits and limits}}%
+\label{sec:twee-asynchrone-sites-voordelen-beperkingen}
+
+Asynchrone replicatie doormiddel van GDPS Global Mirror biedt verschillende voordelen.
+Omdat de primaire site niet moet wachten op bevestiging van de secundaire site, is er geen invloed op de prestaties van applicaties \autocite{gomes_2025_redbooks}.
+Deze technologie kan tevens worden toegepast over lange afstanden, waardoor de impact van regionale incidenten kan worden geminimaliseerd.
+Echter zijn er ook beperkingen, want Global Mirror biedt geen garantie bij het volledig voorkomen van dataverlies \autocite{gomes_2025_redbooks}.
+Consistency groups kunnen achterlopen en niet volledig real-time consistentie garanderen.
+Het herstelproces is ook complex doordat er sprake kan zijn van inconsistenties.
+Ook is voldoende bandbreedte en minimale vertraging op netwerkniveau noodzakelijk om de effectiviteit van deze asynchrone replicatietechnologie te waarborgen.
+
+\subsubsection{\IfLanguageName{dutch}{Faalscenario's en Risico's}{Possible Failures and Risks}}
+\label{sec:twee-asynchrone-sites-failures-risks}
+
+Asynchrone replicatie met GDPS Global Mirror introduceert specifieke faalscenario's en risico's, met name gerelateerd aan de replicatievertraging en de asynchrone aard van de technologie.
+
+Bij asynchrone replicatie met GDPS Global Mirror onstaat een vertraging tussen het moment waarop de data werd geschreven op de primaire site en het moment waarop dezelfde data beschikbaar is op de secundaire site.
+Deze vertraging is onlosmakelijk verbonden aan de asynchrone werking en wordt beïnvloed door verschillende factoren.
+Een van deze factoren is de voorheen besproken frequentie van consistency groups. 
+Hoe vaker een consistency group wordt gemaakt, hoe minder de discrepantie tussen de data op de primaire site en de data op de secundaire site.
+Bandbreedte kan ook vertragingen veroorzaken doordat het langer duurt tot de data gerepliceerd is op de secundaire site.
+Hierbij kan de replicatievertraging geminimaliseerd worden door zaken zoals compressietechnieken. 
+Het implementeren van geautomatiseerde mechanismen zoals GDPS HyperSwap kan er voor zorgen dat schakelen naar de secundaire versneld wordt, waardoor de RTO ook kan worden verkort.
+
+\begin{table}[H]
+\begin{tabular}{|l|l|}
+\hline
+Replicatietype       & Asynchroon                                 \\ \hline
+RPO                  & Seconden tot 1 minuut                      \\ \hline
+RTO                  & 30 seconden tot 2 uur                      \\ \hline
+Maximale afstand     & Wereldwijd                                 \\ \hline
+Impact op prestaties & Minimaal (geen wachttijd)                  \\ \hline
+Faalscenario's       & Replicatievertraging                       \\ \hline
+\end{tabular}
+\caption{Kenmerken van een opstelling met twee asynchrone sites (GDPS Global Mirror).}
+\end{table}
