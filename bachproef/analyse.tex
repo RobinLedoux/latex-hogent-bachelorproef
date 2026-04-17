@@ -9,13 +9,13 @@ In dit hoofdstuk worden verschillende mainframe opstellingen vergeleken en hun i
 \subsection{\IfLanguageName{dutch}{Twee Synchrone Sites}{Two Synchronous Sites}}%
 \label{sec:twee-synchrone-sites}
 
-De eerste opstelling die mogelijks kan gebruikt worden is een opstelling van twee sites gesynchroniseerd met GDPS Metro Mirror.
-GDPS Metro Mirror tussen twee sites is een courante opstelling bij omgevingen waarin dataverlies niet acceptable is, zoals financiële transactieverwerkingssystemen \autocite{ivanov2023unveiling}.
+Een veelgebruikte opstelling is een configuratie met twee sites die gesynchroniseerd zijn met GDPS Metro Mirror.
+GDPS Metro Mirror tussen twee sites is een veelvoorkomende opstelling bij omgevingen waarin dataverlies niet acceptabel is, zoals financiële transactieverwerkingssystemen \autocite{ivanov2023unveiling}.
 
 \subsubsection{\IfLanguageName{dutch}{Werking van GDPS Metro Mirror}{Operation of GDPS Metro Mirror}}%
 \label{sec:twee-synchrone-sites-werking-metro-mirror}
 
-GDS Metro Mirror is een synchrone replicatietechnologie waarbij schrijfoperaties pas als voltooid worden beschouwd wanneer ze zowel op de primaire als de secundaire site zijn bevestigd.
+GDPS Metro Mirror is een synchrone replicatietechnologie waarbij schrijfoperaties pas als voltooid worden beschouwd wanneer ze zowel op de primaire als de secundaire site zijn bevestigd.
 Dit zorgt voor een RPO van 0, wat betekent dat er geen dataverlies optreedt bij een uitval van de primaire site.
 Deze eigenschap maakt Metro Mirror bijzonder geschikt voor kritieke systemen waar dataintegriteit essentieel is, zoals in bankomgevingen \autocite{gomes_2025_redbooks}.
 
@@ -26,9 +26,9 @@ IBM specifieert dat Metro Mirror een maximale afstand toelaat van 300 km \autoci
 Deze beperking is het gevolg van de synchrone aard van de replicatie.
 Elke schrijfoperatie moet namelijk worden bevestigd door de secundaire site voordat de primaire site de operatie als voltooid beschouwt.
 Hierdoor neemt de responstijd van applicaties toe naarmate de afstand groter wordt, omdat de vertraging op netwerkniveau toeneemt.
-De RTO van Metro Mirror varieer van enkele seconden tot een uur, afhankelijk van de mate van automatisering.
-Bij gebruik van GDPS HyperSwap kan de RTO teruggebracht worden tot een uur, omdat handmatige interventie noodzakelijk is om de secundaire site operationeel te maken \autocite{li_2019_planet_mainframe_gdps}.
-
+De RTO van GDPS Metro Mirror varieert van enkele seconden tot een uur, afhankelijk van de mate van automatisering. 
+Met geautomatiseerde uitvalbeveiliging zoals GDPS HyperSwap kan de RTO worden teruggebracht tot enkele seconden, omdat de secundaire site onmiddellijk kan worden geactiveerd. 
+Zonder automatisering kan de RTO echter oplopen tot een uur, omdat handmatige interventie nodig is om de secundaire site operationeel te maken \autocite{li_2019_planet_mainframe_gdps}.
 \subsubsection{\IfLanguageName{dutch}{Faalscenario's en Risico's}{Possible Failures and Risks}}
 
 Hoewel Metro Mirror een RPO van 0 biedt, zijn er risico's verbonden aan deze opstelling.
@@ -36,9 +36,25 @@ Een mogelijk risico is regionale uitval.
 Omdat GDPS Metro Mirror beperkt is tot maximaal 300 km kunnen regionale incidenten zoals stroomuitval, natuurrampen en cyberaanvallen beide sites treffen.
 In dit geval is er geen beschikbare secundaire site om de dienstverlening voort te zetten \autocite{li_2019_planet_mainframe_gdps}.
 
-\begin{figure}[h]
+\begin{table}[H]
+\begin{tabular}{|l|l|}
+\hline
+Replicatietype        & Synchroon                               \\ \hline
+RPO                  & 0                                       \\ \hline
+RTO                  & Seconden tot 1 uur                      \\ \hline
+Maximale afstand     & $\sim$300 km                            \\ \hline
+Impact op prestaties & Toename responstijd bij grotere afstand \\ \hline
+Faalscenario's       & Geregionaliseerde uitval               \\ \hline
+\end{tabular}
+\caption{Kenmerken van een opstelling met twee synchrone sites (GDPS Metro Mirror).}
+\end{table}
+
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{ibm_metro_mirror.png}
     \caption{Metro Mirror: synchronous remote copy. Bron: \cite{ivanov2023unveiling}.}
     \label{fig:ibm_metro_mirror}
 \end{figure}
+
+\subsection{\IfLanguageName{dutch}{Twee Asynchrone Sites}{Two Asynchronous Sites}}%
+\label{sec:twee-asynchrone-sites}
