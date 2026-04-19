@@ -11,6 +11,9 @@ In dit hoofdstuk worden verschillende mainframe opstellingen vergeleken en hun i
 
 Een veelgebruikte opstelling is een configuratie met twee sites die gesynchroniseerd zijn met GDPS Metro Mirror.
 GDPS Metro Mirror tussen twee sites is een veelvoorkomende opstelling bij omgevingen waarin dataverlies niet acceptabel is, zoals financiële transactieverwerkingssystemen \autocite{ivanov2023unveiling}.
+In deze sectie wordt deze technologie nog eens uitgelegd.
+De beperkingen van de technologie worden besproken, samen met de mogelijke faalscenario's en risico's die hiermee gepaard gaan.
+Alle bevindingen worden kort samengevat in een tabel op het einde van deze sectie.
 
 \subsubsection{\IfLanguageName{dutch}{Werking van GDPS Metro Mirror}{Operation of GDPS Metro Mirror}}%
 \label{sec:twee-synchrone-sites-werking-metro-mirror}
@@ -43,7 +46,7 @@ In dit geval is er geen beschikbare secundaire site om de dienstverlening voort 
 \hline
 Replicatietype        & Synchroon                               \\ \hline
 RPO                  & 0                                       \\ \hline
-RTO                  & Seconden tot 1 uur                      \\ \hline
+RTO                  & Seconden tot een uur                      \\ \hline
 Maximale afstand     & $\sim$300 km                            \\ \hline
 Impact op prestaties & Toename responstijd bij grotere afstand \\ \hline
 Faalscenario's       & Geregionaliseerde uitval               \\ \hline
@@ -63,6 +66,10 @@ Faalscenario's       & Geregionaliseerde uitval               \\ \hline
 
 Een andere voorkomende opstelling is een configuratie van twee sites die asynchroon verbonden zijn doormiddel van GDPS Global Mirror.
 Het laat toe om sites met elkaar te verbinden die meer dan 200 km van elkaar verwijderd zijn \autocite{gomes_2025_redbooks}.
+In deze sectie wordt onderzocht hoe deze asynchrone opstelling zich verhoudt tot RPO en RTO.
+Concreet wordt de werking herhaald en worden de voordelen en beperkingen van deze opstelling opgelijst.
+Mogelijkse faalscenario's en risico's worden besproken.
+Al deze informatie wordt, zoals bij de vorige opstelling, finaal samengevat in een tabel.
 
 \subsubsection{\IfLanguageName{dutch}{Asynchrone replicatie}{Asynchronous replication}}%
 \label{sec:asynchrone-replicatie}
@@ -75,7 +82,7 @@ Deze vertraging bepaalt de RPO, want hoe groter de vertraging, hoe meer data er 
 \label{sec:twee-asynchrone-sites-werking-global-mirror}
 
 GDPS Global Mirror is een replicatietechnologie die toelaat om op asynchrone wijze data te kopiëren tussen sites \autocite{white_2020_redbooks}.
-Doordat de asynchrone werking van Global Mirror, zijn er geen limitaties op de afstand tussen de sites.
+Door de asynchrone werking van Global Mirror, zijn er geen limitaties op de afstand tussen de sites.
 Het maakt gebruik van consistency groups om periodiek een consistent herstelpunt te creëren \autocite{ibm_2023_ibm_global_mirror}.
 Dit zorgt voor een RPO van seconden tot een minuut, afhankelijk van de frequentie van de consistency groups en de beschikbare bandbreedte \autocite{raften_2011_gdps_executive_overview}.
 De RTO varieert van 30 seconden tot 2 uur, afhankelijk van de mate van automatisering en de complexiteit van het herstelproces.
@@ -108,7 +115,7 @@ Het implementeren van geautomatiseerde mechanismen zoals GDPS HyperSwap kan er v
 \begin{tabular}{|l|l|}
 \hline
 Replicatietype       & Asynchroon                                 \\ \hline
-RPO                  & Seconden tot 1 minuut                      \\ \hline
+RPO                  & Seconden tot een minuut                      \\ \hline
 RTO                  & 30 seconden tot 2 uur                      \\ \hline
 Maximale afstand     & Wereldwijd                                 \\ \hline
 Impact op prestaties & Minimaal (geen wachttijd)                  \\ \hline
@@ -116,3 +123,72 @@ Faalscenario's       & Replicatievertraging                       \\ \hline
 \end{tabular}
 \caption{Kenmerken van een opstelling met twee asynchrone sites (GDPS Global Mirror).}
 \end{table}
+
+\subsection{\IfLanguageName{dutch}{Twee Synchrone Sites met een Asynchrone site}{Two Synchronous Sites with a Asynchronous Site}}%
+\label{sec:hybride-opstelling} 
+
+Een hybride replicatie-opstelling combineert de voordelen van synchrone en asynchrone replicatie door twee synchrone sites te koppelen aan een derde asynchrone site.
+In deze sectie zal worden onderzocht of een hybride opstelling de nadelen van Metro Mirror en Global Mirror kan minimaliseren door de twee technologieën te combineren.
+Er wordt onderzocht of het probleem kan worden opgelost bij Metro Mirror waarbij er geen bescherming is voor regionale uitval.
+Tevens wordt ook onderzocht of door deze hybride opstelling de data inconsistentie bij een asynchrone opstelling met Global Mirror kan worden vermeden.
+
+\subsubsection{\IfLanguageName{dutch}{Werking Hybride Opstelling}{Operation of Hybrid Setup}}
+\label{sec:werking-hybride-opstelling}
+
+In een hybride opstelling worden twee sites gesynchroniseerd doormiddel van GDPS Metro Mirror (bijvoorbeeld site A en site B), en wordt een derde site (site C) asynchroon gerepliceerd met GDPS Metro Mirror.
+Hierbij geldt dat site A en site B gesynchroniseerd zijn met een RPO van 0 binnen de maximale afstand waarbij Metro Mirror toegelaten is.
+Zoals eerder besproken wordt tussen deze twee sites met Metro Mirror, elke schrijfoperaties pas bevestigd wanneer beide sites te data hebben ontvangen.
+Dit is noodzakelijk om dataverlies te vermijden wanneer een van de twee sites uitvalt. 
+De RTO varieert van seconden tot een uur \autocite{li_2019_planet_mainframe_gdps}.
+Dit hangt af van de mate van automatisering.
+Om de hybride opstelling compleet te maken, is er een aanvullende asynchrone site die zich buiten de maximale afstand van GDPS Metro Mirror bevindt.
+Een van de twee synchrone sites (site A of site B) repliceert hierbij op asynchrone wijze naar site C met behulp van GDPS Global Mirror.
+Tevens zoals eerder besproken biedt deze manier van replicatie een RPO van seconden tot een minuut.
+De RTO varieert van 30 seconden tot twee uur.
+Dit hangt af van de frequentie van consistency groups en de beschikbare bandbreedte \autocite{gomes_2025_redbooks}.
+De asynchrone site (site C in dit geval) kan wereldwijd worden geplaatst waardoor er bescherming geboden wordt tegen regionale incidenten zoals natuurrampen en stroomuitval.
+
+\subsubsection{\IfLanguageName{dutch}{Voordelen Hybride Opstelling}{Pros of Hybrid Setup}}
+\label{sec:voordelen-hybride-opstelling}
+
+Het gebruik van een hybride opstelling waarbij zowel een synchrone replicatietechnologie (GDPS Metro Mirror) als een asynchrone replicatietechnologie (GDPS Global Mirror) wordt gebruikt, biedt voordelen.
+De synchrone sites, site A en B, garanderen een RPO van 0, wat cruciaal is voor systemen zoals financiële transactieverwerking.
+De asynchrone site, site C, biedt bescherming tegen regionale uitval door data buiten het maximale GDPS Metro Mirror bereik van de synchrone sites te plaatsen.
+Door de voordelen van synchrone replicatie te combineren met die van asynchrone replicatie, is er flexibiliteit en schaalbaarheid \autocite{gomes_2025_redbooks}.
+
+\subsubsection{\IfLanguageName{dutch}{Faalscenario's en Risico's}{Possible Failures and Risks}}
+\label{sec:faalscenarios-risicos-hybride-opstelling}
+
+Hoewel de hybride opstelling veel voordelen biedt, introduceert het ook specifieke faalscenario's en risico's.
+Als site A én site B uitvallen door regionale uitval moet er worden overgeschakeld naar site C om geen verlies van kritieke diensten te veroorzaken.
+Bij het overschakelen naar site C kan de RPO beperkt worden tot seconden.
+Echter, door de asynchrone werking van site C, kan de RTO lopen van 30 seconden tot twee uur.
+Om de impact op kritieke diensten zoveel mogelijk te mitigeren, is het noodzakelijk om de overschakeling naar site C te automatiseren.
+Frequentere consistency groups zijn hierbij ook nuttig.
+De vertraging tussen site B en C bij het asynchroon repliceren kan ook problemen veroorzaken als er netwerkproblemen.
+Om frequent consistency groups te kunnen bewaren op site C, moet de netwerkverbinding tussen site B en C stabiel zijn.
+Bovendien is het mogelijk dat er data verloren gaat wanneer site B uitvalt.
+Dit heeft dan ook een impact op de RPO voor site C.
+Als er inconsitenties onstaan in site C, dan kan het zijn dat handmatige interventie nodig waarbij ook de RTO stijgt.
+Technologieën zoals GDPS HyperSwap kunnen hierbij helpen om geautomatiseerde failover te creëren.
+
+\subsubsection{\IfLanguageName{dutch}{Impact op RPO en RTO}{Impact on RPO and RTO}}
+\label{sec:hybride-opstelling-impact-rpo-rto}
+
+\begin{table}[H]
+\begin{tabularx}{\textwidth}{|p{3cm}|p{2cm}|p{2cm}|X|}
+\hline
+Site & RPO  & RTO & Opmerking \\ \hline
+Synchrone sites (A en B) & 0 & Seconden tot een uur & Biedt een lage RPO en snelle failover binnen regionale omgeving.  \\ \hline
+Asynchrone site (B repliceert naar C) & Seconden tot een minuut & 30 seconden tot twee uur & Biedt bescherming tegen regionale uitval, maar heeft wel een hogere RPO en RTO door de asynchrone werking. \\ \hline
+\end{tabularx}
+\caption{Kenmerken van een hybride opstelling (2 sites gesynchroniseerd met GDPS Metro Mirror samen met een extra site gesynchroniseerd met GDPS Global Mirror).}
+\end{table}
+
+\subsubsection{\IfLanguageName{dutch}{Mitigatiestrategieën}{Mitigation Strategies}}
+\label{sec:hybride-opstelling-mitigatiestrategie}
+
+Om de risico's die gepaard gaan met een hybride opstelling te vermijden, kunnen de volgende strategieën worden toegepast.
+Automatische failover kan worden geïmplementeerd met GDPS HyperSwap tussen site A en B.
+Om over te schakelen naar site C kan de RTO ook verminderd worden doormiddel van geautomatiseerde overschakelingsmechanismen.
+Frequente consistency groups voor de asynchrone site C zorgen er ook voor dat de RPO kan verkleind worden.
