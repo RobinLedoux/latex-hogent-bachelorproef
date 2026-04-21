@@ -38,6 +38,11 @@ Recovery Time Objective verwijst naar de maximale tijdsduur waarbinnen een syste
 Deze parameter wordt beïnvloed door factoren zoals failover-mechanismen, herstelprocedures en de tijd nodig om transactielogs toe te passen en consistente toestanden te herstellen.
 De gekozen replicatiestrategie en de complexiteit van de herstelprocedure hebben daarbij een directe impact op de uiteindelijke RTO\@.
 
+Wanneer naar operationele veerkracht wordt gekeken zijn er twee termen om over na te denken.
+Er is high- availability, waarbij gericht wordt op zo weinig mogelijk uitvaltijd, en disaster recovery.
+Terwijl implementaties voor high-availability zich vooral richten op lokale storingen, waarbij ertegen deze storingen beschermd wordt of er een snelle manier van herstel wordt geïmplementeerd, richt disaster recovery zich op grote storingen \autocite{schmidt2006high}.
+Regionale storingen kunnen niet enkel door high-availability implementaties worden vermeden, en tonen ook aan dat disaster recovery, waarbij data geografisch gespreid op redudante manier wordt bewaard, essentieel is om het verloop van kritieke business toepassingen zoals die van financiële instellingen te waarborgen.
+
 \subsection{\IfLanguageName{dutch}{Regelgeving en Compliance}{Rules and Compliance}}%
 \label{sec:operationele-veerkracht-regelgevingen}
 
@@ -94,6 +99,15 @@ Dit is een technologie, tevens aangeboden door IBM, die toelaat om te schakelen 
 Er zijn twee manier waarop HyperSwap kan worden gestart.
 Zo is er een geplande HyperSwap, waarbij bewust bij voorbaat wordt geschakeld naar een secundaire schijf omdat er, bijvoorbeeld, noodzakelijk onderhoud moet worden gedaan.
 Er is ook een ongeplande HyperSwap waarbij GDPS automatisch schakelt omdat er problemen gedetecteerd zijn op de primaire schijf.
+Een ongeplande Hyperswap kan de RTO verkorten, wat cruciaal is voor financiële instellingen.
+
+Een andere relevante technologie, ook gelevert door IBM, is FlashCopy.
+FlashCopy afzonderlijk is geen manier om high availability te veroorzaken, maar een opslagtechnologie om op efficiënte wijze een kopie van data op een bepaald tijdstip te maken \autocite{ibm_2017_ibm_flash_copy}.
+Volgens \textcite{ibm_2025_powerha_overview_of_global_mirror} laat FlashCopy toe om vrijwel onmiddelijk een kopie te maken van een fysiek volume.
+De directe kopie wordt gerealiseerd door het kopiëren van de data op de achtergrond, terwijl de oorspronkelijke volumes en doelvolumes nog steeds toegang hebben om schrijf- en leesoperaties uit te voeren.
+Wanneer het repliceren op de achtergrond gedaan is, zijn beide volumes exacte kopieën van de laatste keer dat de FlashCopy-opdracht werd uitgevoerd.
+Doordat het kopiëren op de achtergrond gebeurt, heeft het minimale impact.
+Het levert consistente kopieën die herstelplannen voor omgevingen met mainframes kunnen bevorderen.
 
 \subsection{\IfLanguageName{dutch}{Consistency Groups}{Consistency Groups}}
 \label{sec:mainframe-replicatie-consistency-groups}
