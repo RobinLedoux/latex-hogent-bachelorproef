@@ -7,7 +7,7 @@
 
 % Pas na deze inleidende paragraaf komt de eerste sectiehoofding.
 
-\section{\IfLanguageName{dutch}{Operationele veerkracht in financiële mainframe omgevingen}{Operational resilience in financial mainframe environments}}%
+\section{\IfLanguageName{dutch}{Operationele Veerkracht in Financiële Mainframe Omgevingen}{Operational resilience in financial mainframe environments}}%
 \label{sec:operationele-veerkracht}
 
 Dit hoofdstuk legt de theoretische basis voor operationele veerkracht en herstel bij uitval in financiële mainframe-omgevingen.
@@ -32,7 +32,28 @@ Recovery Time Objective verwijst naar de maximale tijdsduur waarbinnen een syste
 Deze parameter wordt beïnvloed door factoren zoals failover-mechanismen, herstelprocedures en de tijd nodig om transactielogs toe te passen en consistente toestanden te herstellen.
 De gekozen replicatiestrategie en de complexiteit van de herstelprocedure hebben daarbij een directe impact op de uiteindelijke RTO\@.
 
-\section{\IfLanguageName{dutch}{Replicatie in mainframe-omgevingen}{Replication in mainframe environments}}%
+\subsection{\IfLanguageName{dutch}{Regelgeving en Compliance}{Rules and Compliance}}%
+\label{sec:operationele-veerkracht-regelgevingen}
+
+De zogenaamde Digital Operational Resilience Act (DORA) stelt vanuit de Europese Unie strenge eisen aan de operationele veerkracht van financiële instellingen \autocite{eiopa_2025_digital_operational_resilience_act}. 
+Financiële instellingen moeten door deze wetgeving onder andere verplichte en regelmatige ethische hacktests doen \autocite{rijksoverheid_2025_verordening}.
+Tevens verplicht de European Insurance and Occupational Pensions Authority (EIOPA) vanuit deze wetgeving dat financiële instellingen robuuste herstelplannen opzetten in het geval van cyberaanvallen.
+Ook verplicht de wetgeving financiële instellingen om kwantificeerbare impacttoleranties te definiëren waaronder RTO en RPO.
+Dit betekent dat systemen zoals mainframes, die kritieke diensten verlenen, moeten worden afgesteld op deze wetgevingen en regelmatig moeten worden getest op weerbaarheid.
+Naast DORA is er de Payment Card Industry Data Security Standard (PCI-DSS), een wereldwijde veiligheidsnorm waaraan organisaties die creditcardgegevens bewaren moeten aan voldoen \autocite{pcisecuritystandardscouncil_2024_pci}.
+Het vereist dat alle gevoelige data omtrent creditcards versleuteld is en dat de toegang tot die gegevens strikt wordt beveiligd.
+Omdat financiële instellingen met gevoelige data omgaan, moet er ook rekening gehouden worden met de General Data Protection Regulation (GDPR).
+GDPR is een regelgeving die strikte eisen stelt op bedrijven die met data omgaan \autocite{wolford_2025_what}.
+Het vereist onder andere dat bedrijven transparant met data omgaan ten opzichte van de betrokkene.
+Het eist ook dat data accuraat en up-to-date is en dat het op een veilige manier wordt bewaard. 
+Voor financiële instellingen met mainframes betekent dit, onder andere, dat er een duidelijk logboek kan raadgepleegd worden - indien nodig - van transacties om deze transparantie te garanderen.
+Naast al deze regelgevingen en wetten is er ook nog het Basel III regelgevingskader die werd opgesteld als een antwoord op de financiële crisis van 2007 tot 2009.
+Volgens \textcite{bis_2025_basel} is het een set minimumvereisten voor internationaal actieve banken om regulatie, toezicht en risicobeheer te versterken.
+
+Regelgevingen zoals DORA, PCI-DSS en GDPR stellen strenge eisen aan operationele veerkracht van financiële instellingen.
+Voor mainframe-omgevingen betekent dit dat replicatiestrategieën robuust, schaalbaar en compliant moeten zijn. 
+
+\section{\IfLanguageName{dutch}{Replicatie in Mainframe-omgevingen}{Replication in mainframe environments}}%
 \label{sec:mainframe-replicatie}
 
 Dit hoofdstuk bespreekt de verschillende manieren van data replicatie gebruikt binnen mainframe.
@@ -68,7 +89,17 @@ Er zijn twee manier waarop HyperSwap kan worden gestart.
 Zo is er een geplande HyperSwap, waarbij bewust bij voorbaat wordt geschakeld naar een secundaire schijf omdat er, bijvoorbeeld, noodzakelijk onderhoud moet worden gedaan.
 Er is ook een ongeplande HyperSwap waarbij GDPS automatisch schakelt omdat er problemen gedetecteerd zijn op de primaire schijf.
 
-\section{\IfLanguageName{dutch}{Log-gebaseerde replicatie in DB2-omgevingen}{Log based replication in DB2 environments}}%
+\subsection{\IfLanguageName{dutch}{Consistency Groups}{Consistency Groups}}
+\label{sec:mainframe-replicatie-consistency-groups}
+
+De Copy Services Manager is een deel van de geleverde Copy Services in opslagsystemen (zoals bijvoorbeeld de DS8000) die Copy Services beheerst \autocite{ibm_2023_ibm_copy_services_manager}.
+Het beheert de consistentie van afhankelijke schrijfoperaties door een consistente kopie te maken over meerdere volumes of opslagsystemen.
+Deze kopie wordt een Consistency Group genoemt \autocite{ibm_2026_ibm_sessions_consistency_groups}.
+Het is een verzameling van doelvolumes binnen een sessie die zijn bijgewerkt met behoud van de volgorde waarin schrijfoperaties zijn gedaan.
+Een sessie bevat dus een groep doelvolumes die asynchroon worden gerepliceerd om een consistente kopie te creëren op de secundaire site \autocite{ibm_2026_copy_services_features}.
+
+
+\section{\IfLanguageName{dutch}{Log-gebaseerde Replicatie in DB2-omgevingen}{Log based replication in DB2 environments}}%
 \label{sec:log-replicatie}
 
 Dit hoofdstuk bespreekt log replicatie op databank niveau, specifiek het databanksysteem DB2 voor het z/OS besturingsssysteem.
@@ -123,7 +154,7 @@ Dit mechanisme maakt het mogelijk om onvolledige Logical Units of Work (LUW) of 
 Om replicatie op log niveau te realiseren voor DB2 wordt een oplossing aangeboden genaamd Q Replication, waarbij wijzigingen op een primaire DB2 databank kunnen worden gerepliceerd naar een secundaire databank.
 Q Replication werkt asynchroon omdat de primaire databank niet hoeft te wachten tot de secundaire databank de wijzigingen heeft verwerkt \autocite{ibm_2026_db2_q_replication}.
 
-\section{\IfLanguageName{dutch}{Recovery Point Objective (RPO) en Recovery Time Objective (RTO) in mainframe-omgevingen}{Recovery Point Objective (RPO) and Recovery Time Objective (RTO) in mainframe environments}}%
+\section{\IfLanguageName{dutch}{Recovery Point Objective (RPO) en Recovery Time Objective (RTO) in Mainframe-omgevingen}{Recovery Point Objective (RPO) and Recovery Time Objective (RTO) in mainframe environments}}%
 \label{sec:rpo-rto-mainframe}
 
 In dit hoofdstuk wordt besproken wat het spanningsveld tussen Recovery Point Objective (RPO) en Recovery Time Objective (RTO) inhoudt en hoe zich dit vertaalt naar de verschillende replicatiemechanismen binnen mainframes die gebruikmaken van het z/OS besturingsssysteem.
