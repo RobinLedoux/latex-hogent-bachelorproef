@@ -137,13 +137,13 @@ Tevens wordt ook onderzocht of door deze hybride opstelling de data inconsistent
 
 In een hybride opstelling worden twee sites gesynchroniseerd doormiddel van GDPS Metro Mirror (bijvoorbeeld site A en site B), en wordt een derde site (site C) asynchroon gerepliceerd met GDPS Metro Mirror.
 Hierbij geldt dat site A en site B gesynchroniseerd zijn met een RPO van 0 binnen de maximale afstand waarbij Metro Mirror toegelaten is.
-Zoals eerder besproken wordt tussen deze twee sites met Metro Mirror, elke schrijfoperaties pas bevestigd wanneer beide sites te data hebben ontvangen.
+Zoals eerder besproken wordt tussen deze twee sites met Metro Mirror, elke schrijfoperaties pas bevestigd wanneer beide sites de data hebben ontvangen.
 Dit is noodzakelijk om dataverlies te vermijden wanneer een van de twee sites uitvalt. 
 De RTO varieert van seconden tot een uur \autocite{li_2019_planet_mainframe_gdps}.
 Dit hangt af van de mate van automatisering.
 Om de hybride opstelling compleet te maken, is er een aanvullende asynchrone site die zich buiten de maximale afstand van GDPS Metro Mirror bevindt.
 Een van de twee synchrone sites (site A of site B) repliceert hierbij op asynchrone wijze naar site C met behulp van GDPS Global Mirror.
-Tevens zoals eerder besproken biedt deze manier van replicatie een RPO van seconden tot een minuut.
+Tevens, zoals eerder besproken, biedt deze manier van replicatie een RPO van seconden tot een minuut.
 De RTO varieert van 30 seconden tot twee uur.
 Dit hangt af van de frequentie van consistency groups en de beschikbare bandbreedte \autocite{gomes_2025_redbooks}.
 De asynchrone site (site C in dit geval) kan wereldwijd worden geplaatst waardoor er bescherming geboden wordt tegen regionale incidenten zoals natuurrampen en stroomuitval.
@@ -169,8 +169,10 @@ De vertraging tussen site B en C bij het asynchroon repliceren kan ook problemen
 Om frequent consistency groups te kunnen bewaren op site C, moet de netwerkverbinding tussen site B en C stabiel zijn.
 Bovendien is het mogelijk dat er data verloren gaat wanneer site B uitvalt.
 Dit heeft dan ook een impact op de RPO voor site C.
-Als er inconsitenties onstaan in site C, dan kan het zijn dat handmatige interventie nodig waarbij ook de RTO stijgt.
+Als er inconsistenties onstaan in site C, dan kan het zijn dat handmatige interventie nodig waarbij ook de RTO stijgt.
 Technologieën zoals GDPS HyperSwap kunnen hierbij helpen om geautomatiseerde failover te creëren.
+Echter moet ook worden nagedacht over consistency groups en dat site C pas operationeel kan worden zodra alle consistency groups zijn gerepliceerd.
+Om site C operationeel te maken moeten ook alle schrijfoperaties van de applicaties op de primaire site gepauzeerd worden totdat alle updates verstuurd zijn naar de herstelsite (in dit geval site C) \autocite{ibm_2021_ibm_copy_consistency_groups}.
 
 \subsubsection{\IfLanguageName{dutch}{Impact op RPO en RTO}{Impact on RPO and RTO}}
 \label{sec:hybride-opstelling-impact-rpo-rto}
@@ -190,5 +192,11 @@ Asynchrone site (B repliceert naar C) & Seconden tot een minuut & 30 seconden to
 
 Om de risico's die gepaard gaan met een hybride opstelling te vermijden, kunnen de volgende strategieën worden toegepast.
 Automatische failover kan worden geïmplementeerd met GDPS HyperSwap tussen site A en B.
+Bij een ongeplande HyperSwap detecteert het systeem automatisch een storing in volumes en wordt er overschakeld naar een andere set volumes.
+De HyperSwap functionaliteit zorgt ervoor dat de tijd die nodig is om naar een tweede set volumes over te stappen vermindert terwijl het z/OS systeem actief blijft samen met zijn applicatie \autocite{dhondy2005gdps}.
+Deze functionaliteit implementeren verkort dan ook de RTO bij falen op opslagniveau, onder andere doordat er niet handmatig moet gewisseld worden van volumes.
 Om over te schakelen naar site C kan de RTO ook verminderd worden doormiddel van geautomatiseerde overschakelingsmechanismen.
 Frequente consistency groups voor de asynchrone site C zorgen er ook voor dat de RPO kan verkleind worden.
+Wanneer er moet worden overschakeld naar site C, moet rekening gehouden worden met de consistency groups.
+Site C kan pas operationeel worden zodra alle consistency groups volledig zijn gerepliceerd.
+Automatisatie bij het pauzeren van updates die verstuurd worden naar de herstelcite kan helpen om de herstelsite (site C) zo snel mogelijk operationeel te krijgen.

@@ -26,7 +26,7 @@ Operationele veerkracht is hierbij daarom een kernwoord.
 Deze operationele veerkracht verwijst naar het vermogen van organisaties om deze aanvallen te weerstaan, erop te reageren en schade voor klanten en de reputatie van het bedrijf te minimaliseren \autocite{essuman2020operational}.
 Strengere regelgevingen, zoals DORA vanuit de Europese Unie, tonen overigens de nood aan operationele veerkracht bij financiële instellingen aan \autocite{clausmeier2023regulation}.
 Financiële instellingen zijn in hoge mate afhankelijk van centrale transactieverwerkende systemen die vaak draaien op mainframeplatformen zoals z/OS\@.
-Zo gebruiken bedrijven, waaronder financiële instellingen, databanksystemen zoals DB2 voor z/OS om hun bedrijfskritieke transacties te verwerken met hoge vereisten met betrekking tot beschikbaarheid, integriteit en consistentie \autocite{hernandez_2009_how}.
+Zo gebruiken bedrijven, waaronder financiële instellingen, databanksystemen zoals Db2 voor z/OS om hun bedrijfskritieke transacties te verwerken met hoge vereisten met betrekking tot beschikbaarheid, integriteit en consistentie \autocite{hernandez_2009_how}.
 Operationele veerkracht verwijst in deze context niet enkel naar preventieve beveiligingsmaatregelen, maar ook robuuste herstelarchitecturen en geografisch gespreide replicatiemechanismen \autocite{bourbonnais2015}.
 Om het herstellingsvermogen meetbaar te maken, worden doorgaans doelstellingen vastgelegd in de vorm van Recovery Time Objective en Recovery Point Objective \autocite{mendoncca2020evaluating}.
 Bij een herstellingsplan is het voor financiële bedrijven noodzakelijk om meetbare criteria te hebben waaraan kan worden voldaan zodat kan worden bepaald binnen welke grenzen een organisatie een storing kan tolereren.
@@ -39,9 +39,12 @@ Deze parameter wordt beïnvloed door factoren zoals failover-mechanismen, herste
 De gekozen replicatiestrategie en de complexiteit van de herstelprocedure hebben daarbij een directe impact op de uiteindelijke RTO\@.
 
 Wanneer naar operationele veerkracht wordt gekeken zijn er twee termen om over na te denken.
-Er is high- availability, waarbij gericht wordt op zo weinig mogelijk uitvaltijd, en disaster recovery.
+Er is high-availability, waarbij gericht wordt op zo weinig mogelijk uitvaltijd, en disaster recovery.
 Terwijl implementaties voor high-availability zich vooral richten op lokale storingen, waarbij ertegen deze storingen beschermd wordt of er een snelle manier van herstel wordt geïmplementeerd, richt disaster recovery zich op grote storingen \autocite{schmidt2006high}.
 Regionale storingen kunnen niet enkel door high-availability implementaties worden vermeden, en tonen ook aan dat disaster recovery, waarbij data geografisch gespreid op redudante manier wordt bewaard, essentieel is om het verloop van kritieke business toepassingen zoals die van financiële instellingen te waarborgen.
+High-availability focust zich op business continuity, waarbij het minimaliseren van onderbrekingen in bedrijfsprocessen centraal staat, terwijl disaster recovery zich focust op het herstellen van systemen na een grote storing.
+Volgens \textcite{schmidt2006high} vereist een robuuste operationele veerkracht een combinatie van beide benaderingen.
+Hierbij zijn systemen die redundant zijn op lokaal niveau noodzakelijk voor business continuity, en geografisch gespreide replicatie noodzakelijk voor disaster recovery.
 
 \subsection{\IfLanguageName{dutch}{Regelgeving en Compliance}{Rules and Compliance}}%
 \label{sec:operationele-veerkracht-regelgevingen}
@@ -119,60 +122,71 @@ Het is een verzameling van doelvolumes binnen een sessie die zijn bijgewerkt met
 Een sessie bevat dus een groep doelvolumes die asynchroon worden gerepliceerd om een consistente kopie te creëren op de secundaire site \autocite{ibm_2026_copy_services_features}.
 
 
-\section{\IfLanguageName{dutch}{Log-gebaseerde Replicatie in DB2-omgevingen}{Log based replication in DB2 environments}}%
+\section{\IfLanguageName{dutch}{Log-gebaseerde Replicatie in Db2-omgevingen}{Log based replication in Db2 environments}}%
 \label{sec:log-replicatie}
 
-Dit hoofdstuk bespreekt log replicatie op databank niveau, specifiek het databanksysteem DB2 voor het z/OS besturingsssysteem.
-Eerst wordt uitgelegd wat logs precies inhouden in DB2 en hoe deze worden bewaard.
+Dit hoofdstuk bespreekt log replicatie op databank niveau, specifiek voor het databanksysteem Db2 voor het z/OS besturingsssysteem.
+Eerst wordt uitgelegd wat logs precies inhouden in Db2 en hoe deze worden bewaard.
 Daarna wordt besproken wat de verschillende manieren zijn om redundantie te creëren met betrekking tot deze logs.
 
-DB2 voor het z/OS besturingsssysteem registreert alle data veranderingen en andere significante evenementen in een logbestand \autocite{ibm_2021_zos_db2_logs}.
-Elke log record wordt geschreven naar een Virtual Storage Access Method (VSAM) lineaire data set genaamd de active log. Wanneer de active log vol is, wordt de inhoud door DB2 gekopiëerd naar een andere data set genaamd de archive log.
-Het schrijven van logs in DB2 voor z/OS wordt verdeeld in twee types, namelijk asynchroon logs schrijven en synchroon logs schrijven \autocite{ibm_2026_db2_log_writes}.
+Log-gebaseerde replicatie speelt een cruciale rol in Db2-omgevingen, met name voor financiële instellingen die transactieconsistentie en dataintegriteit moeten waarborgen.
+In tegenstelling tot opslaggebaseerde replicatie, zoals de eerder besproken GDPS Metro Mirror en GDPS Global Mirror, focust logreplicatie op het niveau van transacties.
+Q Replication is een technologie van IBM gemaakt voor replicatie op transactieniveau met als doel een hoge doorvoer en korte wachttijd te bekomen \autocite{ibm_2026_infosphere}.
+Het maakt gebruik van IBM MQ message queues om transacties tussen een bronsysteem te versturen naar een doelsysteem.
+Er is een minimale vertragingstijd doordat de veranderingen worden doorgevoerd zodra ze zijn gecommit en gelezen van de log.
+Om dat te begrijpen, is het nuttig om eerst uit te leggen wat een log inhoudt in Db2.
+
+Db2 voor het z/OS besturingsssysteem registreert alle data veranderingen en andere significante evenementen in een logbestand \autocite{ibm_2021_zos_db2_logs}.
+Elke log record wordt geschreven naar een Virtual Storage Access Method (VSAM) lineaire data set genaamd de active log. Wanneer de active log vol is, wordt de inhoud door Db2 gekopiëerd naar een andere data set genaamd de archive log.
+De archive log wordt bewust bewaard zodat het later, indien nodig, kan worden gebruikt voor herstel.
+Het schrijven van logs in Db2 voor z/OS wordt verdeeld in twee types, namelijk asynchroon logs schrijven en synchroon logs schrijven \autocite{ibm_2026_db2_log_writes}.
 Het asynchroon schrijven van logs gebeurt wanneer de data wordt bewerkt. 
 De oude en nieuwe waarden van de records worden geplaatst in de log output buffer waarna controle terug wordt gegeven aan de applicatie. 
 Het schrijven naar het fysieke volume gebeurt later. 
 Bij asynchroon schrijven wacht de applicatie enkel als er geen log buffers beschikbaar zijn.
 Wanneer er logs worden geschreven op een synchrone manier, gebeurt het schrijven doorgaans bij een commit van de data. 
-De applicatie moet wachten tot DB2 de log buffers naar het fysieke volume zijn geschreven vooraleer de controle teruggeven wordt aan de applicatie.
+De applicatie moet wachten tot Db2 de log buffers naar het fysieke volume zijn geschreven vooraleer de controle teruggeven wordt aan de applicatie.
 Als de log data set niet in gebruik is, worden alle log buffers naar het fysieke volume geschreven.
 Als de log data set bezet is, worden de verzoeken in de wachtrij geplaatst totdat deze vrijkomt.
 
-Om log-replicatie te begrijpen in DB2 voor z/OS moet eerst worden gekeken naar de indeling van de logbestanden.
+Om log-replicatie te begrijpen in Db2 voor z/OS moet ook worden gekeken naar de indeling van de logbestanden.
 Zoals eerder vermeld is de active log een VSAM lineaire data set.
 Volgens \textcite{ibm_2026_db2_log_content} kan deze verschillende soorten logrecords bevatten, waaronder unit of recovery records, checkpoint records en database page set control records.
-Logrecords bevatten doorgaans wijzigingen aan de DB2 databank.
+Logrecords bevatten doorgaans wijzigingen aan de Db2 databank.
 Al deze wijzigingen worden uitgevoerd binnen zogehete units of recovery. 
 Een unit of recovery is een groep operaties die als één transactie wordt behandeld en die ofwel wordt gecommit of volledig wordt teruggedraaid \autocite{ibm_2025_infosphere_units_recovery}.
 Dergelijke operaties kunnen bijvoorbeeld online transacties of andere wijzigingen zijn die door applicaties worden uitgevoerd.
 De logrecords die bij een unit of recovery records horen, beschrijven wijzigingen aan de databank, de effecten van deze wijzigingen en de bijhorende herstelinformatie \autocite{ibm_2026_db2_13}.
 Deze logrecords bevatten ook undo en redo records.
-Wanneer een verandering wordt gedaan in de databank, maakt DB2 een log die deze verandering beschrijft.
+Wanneer een verandering wordt gedaan in de databank, maakt Db2 een log die deze verandering beschrijft.
 De redo-informatie is noodzakelijk wanneer een unit of work committed is en later moet worden hersteld.
 De undo-informatie daarentegen wordt gebruikt om units of work terug te draaien wanneer die niet committed zijn.
-Naast unit of recovery logrecords, maakt DB2 tijdens normaal gebruik periodieke controlepunten aan om herstarttijd te verminderen \autocite{ibm_2026_db2_checkpoint_records}.
+Naast unit of recovery logrecords, maakt Db2 tijdens normaal gebruik periodieke controlepunten aan om herstarttijd te verminderen \autocite{ibm_2026_db2_checkpoint_records}.
 Deze controlepunten worden aangemaakt wanneer een voorgedefinieerd aantal logrecords zijn geschreven of een voorgedefinieerd aantal minuten is verstreken.
 Controlepunten worden ook gecreëerd wanneer er van een actieve log data set naar een andere wordt geschakeld, bij het succesvol opnieuw opstarten of bij normale afloop.
-Bij een checkpoint, logt DB2 de huidige status en registreert de relative byte address (RBA) in de bootstrap data set (BSDS). 
-Tijdens herstarten gebruikt DB2 de checkpoint informatie om de status voor beëindiging te herstellen.
+Bij een checkpoint, logt Db2 de huidige status en registreert de relative byte address (RBA) in de bootstrap data set (BSDS). 
+Tijdens herstarten gebruikt Db2 de checkpoint informatie om de status voor beëindiging te herstellen.
 De RBA identificeert de exacte positie van een logrecord in de log en wordt gebruikt om logrecords in de juiste volgorde te verwerken.
-De BSDS is een VSAM key-sequenced data set (KSDS) die alle kritieke informatie van DB2 bevat, zoals de namen en locaties van logs. 
-DB2 gebruikt de informatie in de BSDS voor het herstarten van het systeem en voor elke activiteit waarbij het lezen van logs nodig is.
-Naast deze records bestaan ook database page set control records, die voornamelijk het toewijzen, openen en sluiten van elke page set (table spaces of index spaces) registreren.
+De BSDS is een VSAM key-sequenced data set (KSDS) die alle kritieke informatie van Db2 bevat, zoals de namen en locaties van logs. 
+Tijdens het herstarten van het systeem, gebruikt Db2 de informatie in de BSDS om de status van het systeem te herstellen en om logrecords in de juiste volgorde te verwerken. 
+Naast de checkpoint records bestaan ook database page set control records, die voornamelijk het toewijzen, openen en sluiten van elke page set (table spaces of index spaces) registreren.
 
-DB2 log-replicatie maakt het mogelijk om wijzigingen die in de primaire database plaatsvinden asynchroon naar een secundaire site te verzenden, waardoor redundantie en herstelmogelijkheden ontstaan \autocite{ibm_2026_infosphere}.
+Db2 log-replicatie maakt het mogelijk om wijzigingen die in de primaire database plaatsvinden asynchroon naar een secundaire site te verzenden, waardoor redundantie en herstelmogelijkheden ontstaan \autocite{ibm_2026_infosphere}.
 Het replicatieproces verloopt doorgaans in de volgende drie stappen.
 \begin{itemize}
-    \item Capture: het vastleggen van commit evenementen uit de DB2 log data sets waarbij de oude en nieuwe waarden van data records worden geregistreerd.
+    \item Capture: het vastleggen van commit evenementen uit de Db2 log data sets waarbij de oude en nieuwe waarden van data records worden geregistreerd.
     \item Transport: het overzetten van de logrecords naar de secundaire site via een netwerkverbinding. 
     \item Apply: het toepassen van de logrecords op de secundaire database, zodat deze kan worden gebruikt na een faalscenario.
 \end{itemize}
-Bij DB2 wordt een mechanisme toegepast genaamd Controlled Log Catch-Up (CLC).
+Bij Db2 wordt een mechanisme toegepast genaamd Controlled Log Catch-Up (CLC).
 Hierbij worden logrecords gecontroleerd ingehaald tot een consistent herstelpunt. 
 Dit mechanisme maakt het mogelijk om onvolledige Logical Units of Work (LUW) of commits in onjuiste volgorde te detecteren en te corrigeren zodat de transactionele integriteit bewaakt wordt \autocite{ibm_2026_db2}.
 
-Om replicatie op log niveau te realiseren voor DB2 wordt een oplossing aangeboden genaamd Q Replication, waarbij wijzigingen op een primaire DB2 databank kunnen worden gerepliceerd naar een secundaire databank.
+Om replicatie op log niveau te realiseren voor Db2 wordt een oplossing aangeboden genaamd Q Replication, waarbij wijzigingen op een primaire Db2 databank kunnen worden gerepliceerd naar een secundaire databank.
 Q Replication werkt asynchroon omdat de primaire databank niet hoeft te wachten tot de secundaire databank de wijzigingen heeft verwerkt \autocite{ibm_2026_db2_q_replication}.
+Q Replication laat verschillende configuraties toe zoals repliceren tussen servers op afstand of binnen de server zelf \autocite{ibm_2026_infosphere_q_replication}.
+Ook kan er gerepliceert worden in één of meerdere richtingen. Repliceren in meerdere richtingen kan bidirectioneel of peer-to-peer zijn.
+Bidirectioneel synchroniseren is nuttig voor het beheren van backupsystemen, terwijl peer-to-peer dient voor het synchronizeren van data op productiesystemen.
 
 \section{\IfLanguageName{dutch}{Recovery Point Objective (RPO) en Recovery Time Objective (RTO) in Mainframe-omgevingen}{Recovery Point Objective (RPO) and Recovery Time Objective (RTO) in mainframe environments}}%
 \label{sec:rpo-rto-mainframe}
@@ -193,7 +207,7 @@ Naast GDPS Global Mirror is er ook de reeds vermelde GDPS Metro Mirror.
 \textcite{gomes_2025_redbooks} stelt dat Metro Mirror de enige replicatietechnologie is, aangeboden door IBM, waarmee een RPO van nul kan bereikt worden.
 Dit is te wijten aan de synchrone manier waarop Metro Mirror werkt.
 De synchrone manier verwijst hier naar het primaire systeem die wacht tot de data ook aanwezig is op het secundaire systeem.
-Echter zijn er uiteraard nadelen verbonden aan deze replicatietechnologie zoals de maximale afstand tussen het primaire en secundaire subsysteem.
+Echter zijn er uiteraard nadelen verbonden aan deze replicatietechnologie, zoals de maximale afstand tussen het primaire en secundaire subsysteem.
 Dit heeft ook een invloed op de RTO, die enkele seconden tot een uur kan bedragen \autocite{li_2019_planet_mainframe_gdps}.
 Dan is er ook nog IBM Q replication waarbij de effectieve transacties binnen een databank verstuurd worden naar andere databanken of subsystemen  \autocite{ibm_2026_infosphere}.
 Volgens \textcite{bourbonnais2015} biedt deze technologie een RPO van minder dan drie seconden en een RTO van minder dan een minuut.
