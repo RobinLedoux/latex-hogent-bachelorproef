@@ -216,7 +216,8 @@ Voor kritieke systemen, zoals betalingsverwerking, is bijvoorbeeld een lagere in
 Wanneer er moet worden overschakeld naar site C, moet ook rekening gehouden worden met de consistency groups.
 Site C kan pas operationeel worden zodra alle consistency groups volledig zijn gerepliceerd.
 Automatisatie, bij het pauzeren van updates die verstuurd worden naar de herstelcite, kan helpen om de herstelsite (site C) zo snel mogelijk operationeel te krijgen.
-Data valideren met Controlled Log Catch-Up is ook sterk aangeraden omdat dit ervoor zorgt dat eventuele consistenties in de data kunnen worden gecorrigeerd.
+Het is mogelijk dat er inconsistenties onstaan bij het overschakelen naar de herstelcite.
+Hierbij kan Controlled Log Catch-Up gebruikt worden om deze inconsistenties te kunnen corrigeren.
 Bij het overschakelen naar site C, zullen applicaties herstart moeten worden, afhankelijk van de opstelling van het systeem.
 Dit proces automatiseren kan er ook voor zorgen dat de RTO minder wordt.
 

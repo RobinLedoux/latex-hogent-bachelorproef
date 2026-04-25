@@ -119,8 +119,7 @@ De Copy Services Manager is een deel van de geleverde Copy Services in opslagsys
 Het beheert de consistentie van afhankelijke schrijfoperaties door een consistente kopie te maken over meerdere volumes of opslagsystemen.
 Deze kopie wordt een Consistency Group genoemt \autocite{ibm_2026_ibm_sessions_consistency_groups}.
 Het is een verzameling van doelvolumes binnen een sessie die zijn bijgewerkt met behoud van de volgorde waarin schrijfoperaties zijn gedaan.
-Een sessie bevat dus een groep doelvolumes die asynchroon worden gerepliceerd om een consistente kopie te creëren op de secundaire site \autocite{ibm_2026_copy_services_features}.
-
+Een sessie bevat dus een groep doelvolumes die asynchroon worden gerepliceerd om een consistente kopie te creëren op de secundaire site \autocite{ibm_2026_copy_services_features}.s
 
 \section{\IfLanguageName{dutch}{Log-gebaseerde Replicatie in Db2-omgevingen}{Log based replication in Db2 environments}}%
 \label{sec:log-replicatie}
@@ -188,6 +187,21 @@ Q Replication werkt asynchroon omdat de primaire databank niet hoeft te wachten 
 Q Replication laat verschillende configuraties toe zoals repliceren tussen servers op afstand of binnen de server zelf \autocite{ibm_2026_infosphere_q_replication}.
 Ook kan er gerepliceert worden in één of meerdere richtingen. Repliceren in meerdere richtingen kan bidirectioneel of peer-to-peer zijn.
 Bidirectioneel synchroniseren is nuttig voor het beheren van backupsystemen, terwijl peer-to-peer dient voor het synchronizeren van data op productiesystemen.
+
+Het eerder beschreven log-gebaseerd replicatiemechanisme in Db2 voor z/OS is essentieel voor het waarborgen van de transactieconsistentie en dataintegriteit, maar brengt ook risico's met zich mee.
+Een mogelijk kritiek scenario doet zich voor bij incomplete LUW's. 
+Wanneer een LUW niet volledig gerepliceerd is naar de secundaire site, door bijvoorbeeld een netwerkstoring of vertraging, kan dit leiden tot inconsistente datatoestanden op de secundaire databank \autocite{bruni_2016_data_integrity_db2}.
+Dataverlies wanneer de secundaire databank niet up-to-date is met de primaire databank creërt tevens een impact op de Recovery Point Objective (RPO).
+Ook kan handmatige interventie vereist zijn om transacties te herstellen, wat de hersteltijd verlengt en dus impact heeft op de Recovery Time Objective (RTO) \autocite{bourbonnais2015}.
+Asynchrone replicatie introduceert tevens een inherent tijdsverschil tussen het moment waarop een transactie op de primaire databank wordt gecommit en het moment waarop deze op de secundaire databank wordt toegepast \autocite{white_2016_getting_started_ibm_z_resiliency}.
+Bij een failover kan recente data verloren gaan als de lag te groot is en heeft daardoor een impact op de RPO.
+Het inhalen van de achterstand, door bijvoorbeeld Controlled Lag Catch-Up, kan ook extra tijd kosten en zorgt voor een toename van de RTO.
+Ook is er nog het mogelijke probleem die ontstaat wanneer er zich storingen hebben voorgedaan tijdens het schrijven van logrecords. 
+Deze storingen kunnen namelijk leiden tot gaten in de logbestanden, waardoor herstel moeilijker wordt door het ontbreken van logrecords, en er een impact is op de RPO doordat data onherstelbaar verloren gaat.
+Het heeft ook een impact op de RTO doordat herstelprocedures zoals het gebruik van checkpoint records en BSDS moeten worden uitgevoerd, wat complexiteit en tijd toevoegt.
+Er is ook nog de mogelijkheid van onderbrekingen in de netwerkverbinding tussen een primaire en secundaire site.
+Dit kan de replicatie vertragen en stoppen waardoor er zich meer dataverlies voordoet naarmate de storing langer duurt en de RPO ook toeneemt.
+Het herstellen na een netwerkstoring vereist overigens mogelijk het opnieuw opbouwen van de replicatieverbinding en het synchroniseren van logs, waardoor de RTO toeneemt.
 
 \section{\IfLanguageName{dutch}{Recovery Point Objective (RPO) en Recovery Time Objective (RTO) in Mainframe-omgevingen}{Recovery Point Objective (RPO) and Recovery Time Objective (RTO) in mainframe environments}}%
 \label{sec:rpo-rto-mainframe}
