@@ -19,7 +19,7 @@ Alle bevindingen worden kort samengevat in een tabel op het einde van deze secti
 \label{sec:twee-synchrone-sites-werking-metro-mirror}
 
 GDPS Metro Mirror is een synchrone replicatietechnologie waarbij schrijfoperaties pas als voltooid worden beschouwd wanneer ze zowel op de primaire als de secundaire site zijn bevestigd.
-Dit zorgt voor een RPO van 0, wat betekent dat er geen dataverlies optreedt bij een uitval van de primaire site.
+Dit zorgt voor een RPO van nul, wat betekent dat er geen dataverlies optreedt bij een uitval van de primaire site.
 Deze eigenschap maakt Metro Mirror bijzonder geschikt voor kritieke systemen waar dataintegriteit essentieel is, zoals in bankomgevingen \autocite{gomes_2025_redbooks}.
 
 \subsubsection{\IfLanguageName{dutch}{Afstandsbeperking en Impact op Prestaties}{Length Limit and Impact on Performance}}%
@@ -36,7 +36,7 @@ Zonder automatisering kan de RTO echter oplopen tot een uur, omdat handmatige in
 \subsubsection{\IfLanguageName{dutch}{Faalscenario's en Risico's}{Possible Failures and Risks}}
 \label{sec:twee-synchrone-sites-failures-risks}
 
-Hoewel Metro Mirror een RPO van 0 biedt, zijn er risico's verbonden aan deze opstelling.
+Hoewel Metro Mirror een RPO van nul biedt, zijn er risico's verbonden aan deze opstelling.
 Een mogelijk risico is regionale uitval. 
 Omdat GDPS Metro Mirror beperkt is tot maximaal 300 km kunnen regionale incidenten zoals stroomuitval, natuurrampen en cyberaanvallen beide sites treffen.
 In dit geval is er geen beschikbare secundaire site om de dienstverlening voort te zetten \autocite{li_2019_planet_mainframe_gdps}.
@@ -45,7 +45,7 @@ In dit geval is er geen beschikbare secundaire site om de dienstverlening voort 
 \begin{tabular}{|l|l|}
 \hline
 Replicatietype        & Synchroon                               \\ \hline
-RPO                  & 0                                       \\ \hline
+RPO                  & nul                                       \\ \hline
 RTO                  & Seconden tot een uur                      \\ \hline
 Maximale afstand     & $\sim$300 km                            \\ \hline
 Impact op prestaties & Toename responstijd bij grotere afstand \\ \hline
@@ -191,12 +191,42 @@ Asynchrone site (B repliceert naar C) & Seconden tot een minuut & 30 seconden to
 \label{sec:hybride-opstelling-mitigatiestrategie}
 
 Om de risico's die gepaard gaan met een hybride opstelling te vermijden, kunnen de volgende strategieën worden toegepast.
-Automatische failover kan worden geïmplementeerd met GDPS HyperSwap tussen site A en B.
+Wanneer logs in Db2 voor z/OS worden gerepliceerd naar een externe site is het nuttig om het meest performante opslagsysteem ter beschikking te stellen, omdat de snelheid van het schrijven van log data vanuit de log buffers naar de active log ook te maken heeft met fysieke hardware die de schrijfoperaties doet.
+Ook is het belangrijk om te weten dat kleine log buffers ervoor zorgen dat er meer schrijfoperaties noodzakelijk zijn.
+Het is daarom nuttig om de log buffers van zoveel mogelijk plaats in de virtuele opslag te voorzien, zodat het aantal schrijfoperaties kunnen worden verminderd.
+Schrijfoperaties naar fysieke opslagsystemen ten opzichte van schrijven naar virtuele opslag is namelijk trager \autocite{wisniewski_2017_benefits_more_memory}.
+De boodschap is om paging (het uitwisselen van gegevens tussen geheugen en fysieke opslag) zoveel mogelijk te vermijden.
+Het deel van het z/OS besturingsssysteem die zich ontfermt over het beheer van virtuele opslag is ook zo ontworpen om de CPU-prestaties aanzienlijk te verbeteren, doordat paging zoveel mogelijk wordt vermeden \autocite{ibm_2026_zos_virtual_storage_management}.
+
+Naast efficiënt beheer van log buffers, zijn er uiteraard nog andere strategieën om de impact van risico's die gepaard gaan met een hybride opstelling te verminderen.
+Zo kan automatische failover worden geïmplementeerd met GDPS HyperSwap tussen site A en B.
 Bij een ongeplande HyperSwap detecteert het systeem automatisch een storing in volumes en wordt er overschakeld naar een andere set volumes.
-De HyperSwap functionaliteit zorgt ervoor dat de tijd die nodig is om naar een tweede set volumes over te stappen vermindert terwijl het z/OS systeem actief blijft samen met zijn applicatie \autocite{dhondy2005gdps}.
+De HyperSwap functionaliteit zorgt ervoor dat de tijd die nodig is om naar een tweede set volumes over te stappen vermindert, terwijl het z/OS systeem actief blijft samen met de actieve applicaties \autocite{dhondy2005gdps}.
 Deze functionaliteit implementeren verkort dan ook de RTO bij falen op opslagniveau, onder andere doordat er niet handmatig moet gewisseld worden van volumes.
 Om over te schakelen naar site C kan de RTO ook verminderd worden doormiddel van geautomatiseerde overschakelingsmechanismen.
 Frequente consistency groups voor de asynchrone site C zorgen er ook voor dat de RPO kan verkleind worden.
-Wanneer er moet worden overschakeld naar site C, moet rekening gehouden worden met de consistency groups.
+Als er elke 30 seconden een consistency group wordt gemaakt, bijvoorbeeld, dan is de RPO maximaal 30 seconden.
+Daarom kan het nuttig zijn om vaak consistency groups te maken, omdat de RPO zo verlaagd kan worden.
+Echter moet bij het kiezen van de frequentie van consistency groups ook gedacht worden aan de impact op het netwerk.
+Een kleinere intervalwaarde zal er dus voor zorgen dat de sessie vaker probeert consistency groups te maken, wat ook de verwerkingssnelheid en belasting op netwerkverkeer op de opslagsystemen kan verhogen \autocite{ibm_2026_ibm_sessions_consistency_groups}.
+De intervalwaarde kan ook ingesteld worden op nul, en zal er voor zorgen dat consistency groups continu worden aangemaakt.
+Dit betekent dat, zodra de vorige consistency group is opgesteld, er een nieuwe consistency group wordt aangemaakt \autocite{ibm_2023_ibm_mirror_global_consistency_groups}.
+De frequentie van consistency groups wordt best afgestemd op de crucaliteit van applicaties.
+Voor kritieke systemen, zoals betalingsverwerking, is bijvoorbeeld een lagere interval aanbevolen.
+Wanneer er moet worden overschakeld naar site C, moet ook rekening gehouden worden met de consistency groups.
 Site C kan pas operationeel worden zodra alle consistency groups volledig zijn gerepliceerd.
-Automatisatie bij het pauzeren van updates die verstuurd worden naar de herstelcite kan helpen om de herstelsite (site C) zo snel mogelijk operationeel te krijgen.
+Automatisatie, bij het pauzeren van updates die verstuurd worden naar de herstelcite, kan helpen om de herstelsite (site C) zo snel mogelijk operationeel te krijgen.
+Data valideren met Controlled Log Catch-Up is ook sterk aangeraden omdat dit ervoor zorgt dat eventuele consistenties in de data kunnen worden gecorrigeerd.
+Bij het overschakelen naar site C, zullen applicaties herstart moeten worden, afhankelijk van de opstelling van het systeem.
+Dit proces automatiseren kan er ook voor zorgen dat de RTO minder wordt.
+
+De replicatievertraging van site B naar site C is idealiter zo laag mogelijk.
+Daarom moet ook gekeken worden naar de replicatie op netwerkniveau.
+Om de vertraging te minimaliseren kunnen compressietechnieken helpen om de hoeveelheid data die naar site C wordt verzonden te beperken.
+Hiervoor zijn directe implementaties beschikbaar op hardware-niveau en op software-niveau \autocite{clayton_2016_ds8000}.
+Volgens \textcite{ecklund_2024_unlocking} biedt de implementatie op hardware-niveau van de IBM DS8000 (10e generatie) een compressieverhouding van 2:1.
+Implementaties op software-niveau, daarentegen, kunnen hogere compressieverhoudingen bereiken, maar zijn doorgaans minder snel dan implementaties op hardware-niveau.
+Hoewel software-implementaties meer compressie bieden, vragen ze ook meer verwerkingstijd, wat de totale netwerkvertraging kan vergroten.
+Hierdoor is de hardware-implementatie de voorkeursoptie omdat het een lagere impact heeft op de prestaties.
+Bovendien zit de compressie ingebouwd in de opslagsystemen van IBM, zoals de DS8000 (10e generatie).
+Compressie is niet enkel een voordeel bij een hybrideopstelling waarbij GDPS Metro Mirror en GDPS Global Mirror worden gecombineerd, maar ook bij alle besproken configuraties ongeacht de gekozen implementatie (hardware of software).

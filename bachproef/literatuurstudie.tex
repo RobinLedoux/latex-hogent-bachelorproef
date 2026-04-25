@@ -144,6 +144,7 @@ Het asynchroon schrijven van logs gebeurt wanneer de data wordt bewerkt.
 De oude en nieuwe waarden van de records worden geplaatst in de log output buffer waarna controle terug wordt gegeven aan de applicatie. 
 Het schrijven naar het fysieke volume gebeurt later. 
 Bij asynchroon schrijven wacht de applicatie enkel als er geen log buffers beschikbaar zijn.
+Een log buffer in Db2 voor z/OS is een toegewijd deel virtuele opslag die gebruikt wordt om veranderingen in de databank tijdelijk te bewaren, zodat deze later naar de active log op een volume kunnen worden geschreven \autocite{ibm_2026_db2_improving_log_write_log_buffers}.
 Wanneer er logs worden geschreven op een synchrone manier, gebeurt het schrijven doorgaans bij een commit van de data. 
 De applicatie moet wachten tot Db2 de log buffers naar het fysieke volume zijn geschreven vooraleer de controle teruggeven wordt aan de applicatie.
 Als de log data set niet in gebruik is, worden alle log buffers naar het fysieke volume geschreven.
