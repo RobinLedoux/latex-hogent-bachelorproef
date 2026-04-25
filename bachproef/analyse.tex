@@ -231,3 +231,11 @@ Hoewel software-implementaties meer compressie bieden, vragen ze ook meer verwer
 Hierdoor is de hardware-implementatie de voorkeursoptie omdat het een lagere impact heeft op de prestaties.
 Bovendien zit de compressie ingebouwd in de opslagsystemen van IBM, zoals de DS8000 (10e generatie).
 Compressie is niet enkel een voordeel bij een hybrideopstelling waarbij GDPS Metro Mirror en GDPS Global Mirror worden gecombineerd, maar ook bij alle besproken configuraties ongeacht de gekozen implementatie (hardware of software).
+
+Om replicatieproblemen te kunnen detecteren en er snel op te kunnen reageren is het monitoren van replicatieprestaties en meldingen creëren indien nodig noodzakelijk.
+Een mogelijkse tool die kan gebruikt worden is "IBM Z Operational Log and Data Analytics" \autocite{ibm_2026_z_operational_log_data_analytics_overview}.
+Het kan gebruikt worden om operationele data, logbestanden en meetbare waarden in verband met prestaties te analyseren.
+IBM biedt ook andere monitoring tools zoals "IBM Z IntelliMagic Vision" \autocite{ibm_2026_zos_virtual_tape_performance_management_z_intellimagic_vision}.
+Dit product laat toe om netwerklatentie te monitoren, inclusief het bijhouden van hoeveel datareplicatie achterloopt en hoe lang het duurt voordat kopieën zijn verwerkt, wat relevant is voor disaster recovery en het waarborgen van RPO-doelstellingen.
+Er is ook nog "IBM Z Performance and Capacity Analytics", waarmee de performantie van van een systeem kan beheerd worden \autocite{ibm_2026_ibm_z_performance_and_capacity_analytics}.
+Het is ook mogelijk om er anomalieën in log- en metrische data te detecteren, wat indirect kan helpen om replicatieproblemen te identificeren.
