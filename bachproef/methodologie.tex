@@ -28,13 +28,13 @@ De analyse resulteerde in architectuurdiagrammen en vergelijkende tabellen waari
 \label{sec:methodologie-risicoanalyse}
 
 In de derde fase werd een systematische risicoanalyse uitgevoerd. 
-Mogelijke faalscenario's binnen een DB2 voor Z/OS omgeving werden geïdentificeerd en gekoppeld aan betrokken componenten zoals log streams, coupling facilities en replicatiemechanismen.
+Mogelijke faalscenario's binnen een DB2 voor Z/OS omgeving werden geïdentificeerd en gekoppeld aan betrokken componenten zoals active en archive logs, coupling facilities en replicatiemechanismen.
 
 Specifieke aandacht ging naar risico's geïntroduceerd door asynchrone replicatie, waaronder volgende zaken.
 \begin{itemize}
     \item Replicatievertraging van commits
     \item Incomplete Logical Units of Work (LUW's)
-    \item inconsistenties met betrekking tot de volgorde in logreplicatie
+    \item Inconsistenties met betrekking tot de volgorde in logreplicatie
     \item Implicaties van manuele herstelprocedures
 \end{itemize}
 

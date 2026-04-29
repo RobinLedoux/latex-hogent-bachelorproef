@@ -239,3 +239,42 @@ IBM biedt ook andere monitoring tools zoals "IBM Z IntelliMagic Vision" \autocit
 Dit product laat toe om netwerklatentie te monitoren, inclusief het bijhouden van hoeveel datareplicatie achterloopt en hoe lang het duurt voordat kopieën zijn verwerkt, wat relevant is voor disaster recovery en het waarborgen van RPO-doelstellingen.
 Er is ook nog "IBM Z Performance and Capacity Analytics", waarmee de performantie van van een systeem kan beheerd worden \autocite{ibm_2026_ibm_z_performance_and_capacity_analytics}.
 Het is ook mogelijk om er anomalieën in log- en metrische data te detecteren, wat indirect kan helpen om replicatieproblemen te identificeren.
+
+\section{\IfLanguageName{dutch}{Risicoanalyse en Faalscenario's Asynchrone Replicatie in Db2 voor z/OS}{Risk Analysis and Fail Scenarios}}%
+\label{sec:risico-analyse-asynchrone-log-replicatie}
+
+In het vorige hoofdstuk zijn verschillende mainframe-opstellingen besproken, inclusief hun werking, voordelen, beperkingen en mogelijke faalscenario's waarbij het voornamelijk ging over opslaggebaseerde replicatie-opstellingen zoals GDPS Metro Mirror en GDPS Global Mirror.
+Dit hoofdstuk richt zich op log-gebaseerde replicatie in Db2 voor z/OS, met name Q Replication.
+Hierbij wordt gekeken naar de risico's die gepaard gaan met asynchrone replicatie op transactieniveau, zoals replicatievertraging, incomplete LUW's en inconsistenties in logreplicatie.
+Deze risico's worden gekoppeld aan kritieke componenten zoals log streams en coupling facilities, en hun impact op RPO, RTO en transactionele consistentie wordt geanalyseerd.
+
+\subsection{\IfLanguageName{dutch}{Replicatievertraging}{Replication Latency}}
+\label{sec:asynchrone-log-replicatie-vertraging}
+
+Replicatievertraging is een risico bij asynchrone logreplicatie, zoals Q Replication in Db2 voor z/OS door de asynchrone aard van de technologie.
+In tegenstelling tot een synchrone manier van werken, waarbij op bevestiging wordt gewacht, werkt Q Replication asynchroon.
+Hierbij wordt er met MQ queues gewerkt die systematisch worden aangemaakt en verstuurd naar het Q Apply programma die de informatie in de queues terug omzet naar transacties \autocite{ibm_2026_infosphere_q_replication}.
+Replicatievertraging verwijst specifiek naar de tijdsduur tussen het committen van een transactie op de primaire Db2 databank en het succesvol toepassen van die transactie op de secundaire databank.
+Deze vertraging is inherent aan asynchrone replicatie en wordt beïnvloed door factoren zoals het netwerk, MQ of Db2.
+
+Volgens \textcite{sharkey_2018_ibm_performance_q_replication} is de impact op de vertragingstijd bij het repliceren met Q Replication reëel.
+De afstand tussen de sites en het aantal berichten dat verstuurd wordt, de zogenaamde depth of diepte van een queue, heeft hierbij een invloed op de vertragingstijd.
+De bandbreedte van de connectie tussen de twee sites kan ook onvoldoende zijn en kan er voor zorgen dat een hoog volume aan logrecords trager wordt verwerkt.
+IBM MQ werkt synchroon op pakketniveau, omdat TCP/IP, het onderliggende protocol, volgens \textcite{borman_2014_tcp} wacht op bevestigingen (ACKs) voor elk verzonden pakket. 
+Als een pakket verloren gaat, wordt het herverzonden, wat de doorvoersnelheid van berichten kan vertragen.
+Q Replication daarentegen is asynchroon op transactieniveau.
+De primaire database wacht namelijk niet op bevestiging van Q Apply (de toepassing op de secundaire database) voordat nieuwe transacties worden verwerkt. 
+Hierdoor blijft de primaire database operationeel, terwijl de replicatie op de achtergrond plaatsvindt. 
+De TCP/IP herverzending kan dus zorgen voor een vertraging van de doorvoersnelheid.
+Er kan ook vertraging ontstaan bij het verwerken van MQ queues.
+Als er veel onverwerkte berichten in de MQ queue staan, moet Q Apply alle berichten sequentieel verwerken.
+Hoe dieper de queue, hoe langer het dus duurt voordat een bericht wordt verwerkt.
+Hierbij is de impact op vertraging evident, want berichten kunnen pas verwerkt worden nadat de vorige berichten zijn verwerkt.
+Diepe queues kunnen er ook voor zorgen dat disk en CPU gebruik verhogen waardoor de verwerking ook vertraagt \autocite{sharkey_2018_ibm_performance_q_replication}.
+
+Db2 specifieke factoren kunnen er ook voor zorgen dat de vertragingstijd groter wordt.
+Grote logrecords, bijvoorbeeld bij een operatie op een grote tabel waarbij alle waarden worden bewerkt met een UPDATE operatie, kunnen de overhead verhogen.
+Grotere logrecords vereisen meer bandbreedte en verwerkingstijd in Q Capture en MQ \autocite{ibm_2004_ibm_replication_event_publishing_guide}.
+Aanvullend, kunnen applicaties die kleine frequente commits doen meer CPU-verbruik veroorzaken \autocite{ibm_2025_infosphere_batch_frequency_param}.
+Naast grote logrecords en kleine frequente commits, is er ook nog een mogelijke vertraging wanneer de log buffers van Db2 vol zijn.
+Als dit gebeurt, moet Db2 immers wachten tot de logs naar de active log zijn geschreven \autocite{ibm_2026_how_db2_writes_active_logs}.
