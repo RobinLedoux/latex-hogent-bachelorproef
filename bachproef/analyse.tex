@@ -233,11 +233,11 @@ Bovendien zit de compressie ingebouwd in de opslagsystemen van IBM, zoals de DS8
 Compressie is niet enkel een voordeel bij een hybrideopstelling waarbij GDPS Metro Mirror en GDPS Global Mirror worden gecombineerd, maar ook bij alle besproken configuraties ongeacht de gekozen implementatie (hardware of software).
 
 Om replicatieproblemen te kunnen detecteren en er snel op te kunnen reageren is het monitoren van replicatieprestaties en meldingen creëren indien nodig noodzakelijk.
-Een mogelijkse tool die kan gebruikt worden is "IBM Z Operational Log and Data Analytics" \autocite{ibm_2026_z_operational_log_data_analytics_overview}.
+Een mogelijkse tool die kan gebruikt worden is \textbf{IBM Z Operational Log and Data Analytics} \autocite{ibm_2026_z_operational_log_data_analytics_overview}.
 Het kan gebruikt worden om operationele data, logbestanden en meetbare waarden in verband met prestaties te analyseren.
-IBM biedt ook andere monitoring tools zoals "IBM Z IntelliMagic Vision" \autocite{ibm_2026_zos_virtual_tape_performance_management_z_intellimagic_vision}.
+IBM biedt ook andere monitoring tools zoals \textbf{IBM Z IntelliMagic Vision} \autocite{ibm_2026_zos_virtual_tape_performance_management_z_intellimagic_vision}.
 Dit product laat toe om netwerklatentie te monitoren, inclusief het bijhouden van hoeveel datareplicatie achterloopt en hoe lang het duurt voordat kopieën zijn verwerkt, wat relevant is voor disaster recovery en het waarborgen van RPO-doelstellingen.
-Er is ook nog "IBM Z Performance and Capacity Analytics", waarmee de performantie van van een systeem kan beheerd worden \autocite{ibm_2026_ibm_z_performance_and_capacity_analytics}.
+Er is ook nog \textbf{IBM Z Performance and Capacity Analytics}, waarmee de performantie van van een systeem kan beheerd worden \autocite{ibm_2026_ibm_z_performance_and_capacity_analytics}.
 Het is ook mogelijk om er anomalieën in log- en metrische data te detecteren, wat indirect kan helpen om replicatieproblemen te identificeren.
 
 \section{\IfLanguageName{dutch}{Risicoanalyse en Faalscenario's Asynchrone Replicatie in Db2 voor z/OS}{Risk Analysis and Fail Scenarios}}%
@@ -290,7 +290,7 @@ Bij Q Apply kan het toevoegen van nieuwe indexen een invloed hebben op de perfor
 
 Om replicatievertraging te meten en te monitoren kunnen de volgende Key Performance Indicators (KPI's) en tools gebruikt worden.
 Voor een duidelijk begrip van de tabel met de KPI's is een uitleg van de verschillende besproken tools en commando's vereist.
-Om te beginnen is er de Q Replication Alert Monitor  die kan worden gestart met het "asnmon" commando via de UNIX System Services op z/OS \autocite{ibm_2026_asnmon}.
+Om te beginnen is er de Q Replication Alert Monitor  die kan worden gestart met het \textbf{asnmon}-commando via de UNIX System Services (USS) op z/OS \autocite{ibm_2026_asnmon}.
 Deze monitoring tool gaat de status van replicatie na en kan melden maken wanneer er bepaalde zaken gebeuren in de replicatieomgeving \autocite{ibm_2026_q_replication_alert_monitor}.
 Het kan bijvoorbeeld een melding genereren wanneer het Q Capture programma een vooraf gedifinieerde tijd heeft overschreden bij het doorgeven van de transactie aan het Q Apply programma \autocite{ibm_2026_alert_conditions_replication_alert_monitor}.
 Daarbovenop laat de tool ook toe om een melding te creëren wanneer het Q Apply programma een bepaalde vooraf gedifinieerde tijd heeft overschreden bij het toepassen van de transacties op de secundaire databank.
@@ -298,26 +298,65 @@ Daarbovenop laat de tool ook toe om een melding te creëren wanneer het Q Apply 
 IBM biedt een tool genaamd IMB MQ Explorer die draait op systemen met Windows of Linux waarmee MQ objecten kunnen worden gemonitord op verschillende platformen waaronder z/OS \autocite{ibm_2026_ibm_mq_explorer}. 
 Het laat ook toe om de diepte van MQ queues te bekijken \autocite{ibm_2026_displaying_queue_channel_monitoring_data}.
 
+Om de vertragingstijd op netwerkniveau te meten zijn er verschillende mogelijkheden waaronder de volgende commando's en tools.
+\begin{itemize}
+    \item Het \textbf{ping}-commando op USS voor z/OS kan gebruikt worden om de omlooptijd van pakketten tussen twee systemen te meten \autocite{ibm_2026_the_uss_zos_ping_command}. Het toont de vertragingstijd in milliseconden. Er zijn wel beperkingen, want het ping-commando is niet representatief voor TCP/IP-verkeer zoals bij MQ. Het toont ook geen verdere informatie over de routepaden in het netwerk en mogelijke knelpunten.
+    \item Het \textbf{traceroute}-commando toont het pad dat een pakket neemt naar een gevraagde bestemming met daarbij het aantal \textbf{hops} of routers dat er moeten worden gepasseerd \autocite{ibm_2026_using_the_traceroute_command}. Het commando kan uitgevoerd worden via TSO met \textbf{TRACERTE} of via een USS voor z/OS shell met \textbf{traceroute}.
+    \item IBM Z NetView biedt verschillende functionaliteiten om IBM Z netwerken beschikbaar te houden \autocite{ibm_2026_ibm_z_netview}. Het kan onder andere netwerkvertraging monitoren tussen z/OS-systemen, inclusief TCP/IP-verkeer.
+\end{itemize} 
+
+In Db2 is er de DSN1LOGP utility die kan gebruikt worden om de inhoud van recovery logs te formatteren voor weergave \autocite{ibm_2026_db2_DSN1LOGP}. 
+Er zijn twee mogelijke weergaven zoals een gedetailleerd rapport van alle individuele logs en een samenvattend rapport.
+De Db2 Log Analysis Tool laat toe om veranderingen in tabellen te monitoren en hier automatisch rapporten van te maken \autocite{ibm_2025_ibm_log_analysis_tool}. 
+Het kan gebruikt worden om ongewenste veranderingen in Db2 tabellen te isoleren.
 
 \begin{table}[h]
 \centering
-\caption{Metrieken voor Q Replication Monitoring}
-\begin{tabularx}{\textwidth}{|p{3cm}|p{3cm}|p{4cm}|X|}
+\caption{Meetbare waarden voor replicatievertraging}
+\begin{tabularx}{\textwidth}{|p{2cm}|p{4cm}|p{4cm}|X|}
 \hline
-\textbf{Metriek} & \textbf{Beschrijving} & \textbf{Tool/Commando} & \textbf{Streefcijfer} \\
+\textbf{Meetbare waarde} & \textbf{Beschrijving} & \textbf{Tool/Commando} & \textbf{Streefcijfer} \\
 \hline
-End-to-End Latency & Tijd tussen commit op primaire site en toepassen op secundaire site via de "QCAPTURE_LATENCY" en "QAPPLY_LATENCY" alert condities. & Q Replication Aler Monitor & < 1 seconde (kritische systemen) \\
+End-to-End Latency & Tijd tussen commit op primaire site en toepassen op secundaire site via de \textbf{QCAPTURE\_LATENCY} en \textbf{QAPPLY\_LATENCY} alert condities. & Q Replication Alert Monitor & Minder dan één seconde \\
 \hline
-MQ Queue Depth & Aantal onverwerkte berichten in de MQ queue. & MQ Explorer & < 100 berichten \\
+MQ Queue Depth & Aantal onverwerkte berichten in de MQ queue. & MQ Explorer & Minder dan 100 berichten \\
 \hline
-Apply Rate & Aantal transacties per seconde toegepast op de secundaire site. & Db2 Performance Monitor & > 90\% van primaire commit-rate \\
-\hline
-Network Latency & Round-trip tijd (RTT) tussen primaire en secundaire site. & ping, traceroute, of IBM Z NetView & < 50 ms (lokaal), < 200 ms (wereldwijd) \\
+Network Latency & Round-trip tijd (RTT) tussen primaire en secundaire site. & ping, traceroute, of IBM Z NetView & Minder dan 50 milliseconden lokaal, minder dan 200 milliseconden wereldwijd \\
 \hline
 Log Generation Rate & Aantal logrecords gegenereerd per seconde op de primaire site. & DSN1LOGP of Db2 Log Analysis Tool & Afhankelijk van workload \\
-\hline
-Apply Backlog & Tijd die Q Apply nodig heeft om achterstand in te halen. & ASNQMON (velden: APPLY\_LAG, APPLY\_TIME) & < 30 seconden \\
 \hline
 \end{tabularx}
 \label{tab:q_replication_metrics}
 \end{table}
+
+\subsection{\IfLanguageName{dutch}{Impact van Replicatievertraging}{Impact of Replication Latency}}
+\label{sec:asynchrone-log-replicatie-impact-replicatievertraging}
+
+De impact van replicatievertraging is direct gekoppeld aan RPO, RTO en operationele veerkracht.
+Hoe groter de vertraging, hoe meer dataverlies optreedt bij een uitvalscenario.
+Als het dataverlies te groot is, kan dit een risico vormen voor financiële instellingen omdat er niet voldaan wordt aan wettelijke eisen zoals DORA vanuit de Europese Unie.
+Vertraagde failover, mogelijks veroorzaakt door het moeten inhalen van een achterstand (bijvoorbeeld met Controlled Log Catch-Up), betekent een langere downtime waardoor er zich financiële verliezen en reputatieschade kunnen voordoen.
+Replicatievertraging of andere replicatiefouten kunnen instaan voor transacties die niet in de juiste volgorde zijn toegepast. 
+Dit zorgt voor inconsistente data en kan foutieve saldi, dubbele transacties of ontbrekende data met gevolg hebben bij systemen van financiële instellingen.
+Als er transacties moeten worden ingehaald door replicatievertraging, kan dit ook een impact hebben op de prestaties van applicaties omdat er in korte tijd veel CPU- en I/O-belasting veroorzaakt wordt.
+Dit heeft op zijn beurt mogelijkse impact op cruciale batchprocessen.
+Als de replicatievertraging te groot is, kan dit betekenen dat er bepaalde opgelegde wetten niet worden nageleefd.
+Voor financiële instellingen kan dit boetes tot gevolg hebben.
+
+\subsection{\IfLanguageName{dutch}{Mitigatiestrategieën voor Replicatievertraging}{Mitigation Strategies for Replication Latency}}
+\label{sec:asynchrone-log-replicatie-mitigatiestrategie-replicatievertraging}
+
+Er zijn verschillende manieren om replicatievertraging te minimaliseren.
+Een van de basis mitigatiestrategieën is het optimaliseren van het netwerk waarop replicatie wordt gedaan.
+Het gebruik van afgescheiden netwerken met dark fibre is sterk aangeraden.
+Replicatieverkeer prioriteren boven andere applicaties kan er ook voor zorgen dat er minder replicatievertraging is.
+Daarnaast kan de voorheen besproken hardware- en software-compressie helpen om het bandbreedtegebruik te verminderen zodat er efficiënter wordt gerepliceerd.
+Q Capture leest logrecords uit de Db2 log en groepeert deze in batches voordat ze als een gezamenlijk MQ-bericht worden verzonden \autocite{ibm_2025_infosphere_batch_frequency_param}.
+Het verlagen van de batchgrootte kan voor snellere verwerking zorgen, maar veroorzaakt wel meer netwerkoverhead.
+Q Capture laat ook toe om parallele queues te maken \autocite{ibm_2026_infosphere_parallel_send_queues}.
+Parallele queues vermijden ophoping op één MQ queue.
+Door het parallele versturen kan de vertragingstijd verminderd worden en de transactiedoorvoer worden verbeterd.
+Meerdere queues kunnen tot meer CPU en geheugen gebruik leiden.
+Indien het risico acceptabel is, kan er ook voor gekozen worden om berichten niet persistent te maken.
+Dit betekent dat berichten niet naar disk worden gekopieerd wanneer er zich een fout voordoet \autocite{ibm_2025_ensuring_messages_not_lost_mq}.
+Berichten die niet persistent zijn gaan verloren wanneer het systeem of een queue manager faalt.
