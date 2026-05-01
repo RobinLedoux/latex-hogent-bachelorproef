@@ -277,4 +277,47 @@ Grote logrecords, bijvoorbeeld bij een operatie op een grote tabel waarbij alle 
 Grotere logrecords vereisen meer bandbreedte en verwerkingstijd in Q Capture en MQ \autocite{ibm_2004_ibm_replication_event_publishing_guide}.
 Aanvullend, kunnen applicaties die kleine frequente commits doen meer CPU-verbruik veroorzaken \autocite{ibm_2025_infosphere_batch_frequency_param}.
 Naast grote logrecords en kleine frequente commits, is er ook nog een mogelijke vertraging wanneer de log buffers van Db2 vol zijn.
-Als dit gebeurt, moet Db2 immers wachten tot de logs naar de active log zijn geschreven \autocite{ibm_2026_how_db2_writes_active_logs}.
+Als dit gebeurt, moet Db2 immers wachten tot de log buffers naar de active log zijn geschreven \autocite{ibm_2026_how_db2_writes_active_logs}.
+
+De performantie van de site waarnaar de queues worden verstuurd heeft ook een invloed op de mogelijke vertragingstijd.
+De secundaire site moet namelijk met Q Apply transacties toepassen op de secundaire database.
+Hierbij is de snelheid afhankelijk van zaken zoals CPU en nodige operaties naar opslagapparatuur (I/O).
+Tabellen met veel indexes kunnen ook het toepassen van transacties vertragen, en constraints zoals bijvoorbeeld foreign keys kunnen ervoor zorgen dat er extra validatie nodig is.
+Bij Q Apply kan het toevoegen van nieuwe indexen een invloed hebben op de performantie en kan het zorgen voor meer nodige controles \autocite{ballard_2016_understanding_q_replication_high_availability}.
+
+\subsubsection{\IfLanguageName{dutch}{Meten Replicatievertraging}{Measuring Replication Latency}}
+\label{sec:asynchrone-log-replicatie-meten-replicatievertraging}
+
+Om replicatievertraging te meten en te monitoren kunnen de volgende Key Performance Indicators (KPI's) en tools gebruikt worden.
+Voor een duidelijk begrip van de tabel met de KPI's is een uitleg van de verschillende besproken tools en commando's vereist.
+Om te beginnen is er de Q Replication Alert Monitor  die kan worden gestart met het "asnmon" commando via de UNIX System Services op z/OS \autocite{ibm_2026_asnmon}.
+Deze monitoring tool gaat de status van replicatie na en kan melden maken wanneer er bepaalde zaken gebeuren in de replicatieomgeving \autocite{ibm_2026_q_replication_alert_monitor}.
+Het kan bijvoorbeeld een melding genereren wanneer het Q Capture programma een vooraf gedifinieerde tijd heeft overschreden bij het doorgeven van de transactie aan het Q Apply programma \autocite{ibm_2026_alert_conditions_replication_alert_monitor}.
+Daarbovenop laat de tool ook toe om een melding te creëren wanneer het Q Apply programma een bepaalde vooraf gedifinieerde tijd heeft overschreden bij het toepassen van de transacties op de secundaire databank.
+
+IBM biedt een tool genaamd IMB MQ Explorer die draait op systemen met Windows of Linux waarmee MQ objecten kunnen worden gemonitord op verschillende platformen waaronder z/OS \autocite{ibm_2026_ibm_mq_explorer}. 
+Het laat ook toe om de diepte van MQ queues te bekijken \autocite{ibm_2026_displaying_queue_channel_monitoring_data}.
+
+
+\begin{table}[h]
+\centering
+\caption{Metrieken voor Q Replication Monitoring}
+\begin{tabularx}{\textwidth}{|p{3cm}|p{3cm}|p{4cm}|X|}
+\hline
+\textbf{Metriek} & \textbf{Beschrijving} & \textbf{Tool/Commando} & \textbf{Streefcijfer} \\
+\hline
+End-to-End Latency & Tijd tussen commit op primaire site en toepassen op secundaire site via de "QCAPTURE_LATENCY" en "QAPPLY_LATENCY" alert condities. & Q Replication Aler Monitor & < 1 seconde (kritische systemen) \\
+\hline
+MQ Queue Depth & Aantal onverwerkte berichten in de MQ queue. & MQ Explorer & < 100 berichten \\
+\hline
+Apply Rate & Aantal transacties per seconde toegepast op de secundaire site. & Db2 Performance Monitor & > 90\% van primaire commit-rate \\
+\hline
+Network Latency & Round-trip tijd (RTT) tussen primaire en secundaire site. & ping, traceroute, of IBM Z NetView & < 50 ms (lokaal), < 200 ms (wereldwijd) \\
+\hline
+Log Generation Rate & Aantal logrecords gegenereerd per seconde op de primaire site. & DSN1LOGP of Db2 Log Analysis Tool & Afhankelijk van workload \\
+\hline
+Apply Backlog & Tijd die Q Apply nodig heeft om achterstand in te halen. & ASNQMON (velden: APPLY\_LAG, APPLY\_TIME) & < 30 seconden \\
+\hline
+\end{tabularx}
+\label{tab:q_replication_metrics}
+\end{table}
