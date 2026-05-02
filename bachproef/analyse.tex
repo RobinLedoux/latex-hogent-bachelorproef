@@ -448,7 +448,7 @@ De RECOVER utility in Db2 laat toe om data herstellen naar een huidige of vorige
 Als een LUW onvolledig is toegepast, kan de RECOVERY utility deze terugdraaien of opnieuw toepassen om de consistentie te herstellen \autocite{ibm_2021_db2_clc}.
 Hoewel deze aanpak tijdrovend kan zijn, is het vaak noodzakelijk om de dataconsistentie te waarborgen \autocite{ibm_2026_how_rolls_back}.
 
-Ten slotte kan, in het ergste geval, de secundaire database hersteld worden vanaf een backup. 
+In het ergste geval kan de secundaire database hersteld worden vanaf een backup. 
 Dit is echter een laatste redmiddel, omdat alle transacties die sinds de laatste backup zijn uitgevoerd, verloren zullen gaan. 
 Het herstelproces omvat het herstellen van de database vanaf de backup, het toepassen van ontbrekende transacties met behulp van archive logs, en het opnieuw synchroniseren met de primaire database. 
 Deze aanpak heeft een aanzienlijke impact op zowel de RPO als de RTO en moet daarom alleen worden overwogen wanneer andere herstelmethoden niet beschikbaar zijn \autocite{broadcom_2026_db2_backup_recovery_handbook}.
