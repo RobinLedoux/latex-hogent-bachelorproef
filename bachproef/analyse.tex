@@ -252,7 +252,7 @@ Deze risico's worden gekoppeld aan kritieke componenten zoals log streams en cou
 \label{sec:asynchrone-log-replicatie-vertraging}
 
 Replicatievertraging is een risico bij asynchrone logreplicatie, zoals Q Replication in Db2 voor z/OS door de asynchrone aard van de technologie.
-In tegenstelling tot een synchrone manier van werken, waarbij op bevestiging wordt gewacht, werkt Q Replication asynchroon.
+In tegenstelling tot een synchrone manier van werken, waarbij op bevestiging wordt gewacht, werkt Q Replication asynchroon en wordt dus niet op bevestiging gewacht.
 Hierbij wordt er met MQ queues gewerkt die systematisch worden aangemaakt en verstuurd naar het Q Apply programma die de informatie in de queues terug omzet naar transacties \autocite{ibm_2026_infosphere_q_replication}.
 Replicatievertraging verwijst specifiek naar de tijdsduur tussen het committen van een transactie op de primaire Db2 databank en het succesvol toepassen van die transactie op de secundaire databank.
 Deze vertraging is inherent aan asynchrone replicatie en wordt beïnvloed door factoren zoals het netwerk, MQ of Db2.
@@ -312,7 +312,6 @@ Het kan gebruikt worden om ongewenste veranderingen in Db2 tabellen te isoleren.
 
 \begin{table}[h]
 \centering
-\caption{Meetbare waarden voor replicatievertraging}
 \begin{tabularx}{\textwidth}{|p{2cm}|p{4cm}|p{4cm}|X|}
 \hline
 \textbf{Meetbare waarde} & \textbf{Beschrijving} & \textbf{Tool/Commando} & \textbf{Streefcijfer} \\
@@ -326,10 +325,11 @@ Network Latency & Round-trip tijd (RTT) tussen primaire en secundaire site. & pi
 Log Generation Rate & Aantal logrecords gegenereerd per seconde op de primaire site. & DSN1LOGP of Db2 Log Analysis Tool & Afhankelijk van workload \\
 \hline
 \end{tabularx}
+\caption{Meetbare waarden voor replicatievertraging}
 \label{tab:q_replication_metrics}
 \end{table}
 
-\subsection{\IfLanguageName{dutch}{Impact van Replicatievertraging}{Impact of Replication Latency}}
+\subsubsection{\IfLanguageName{dutch}{Impact van Replicatievertraging}{Impact of Replication Latency}}
 \label{sec:asynchrone-log-replicatie-impact-replicatievertraging}
 
 De impact van replicatievertraging is direct gekoppeld aan RPO, RTO en operationele veerkracht.
@@ -343,7 +343,7 @@ Dit heeft op zijn beurt mogelijkse impact op cruciale batchprocessen.
 Als de replicatievertraging te groot is, kan dit betekenen dat er bepaalde opgelegde wetten niet worden nageleefd.
 Voor financiële instellingen kan dit boetes tot gevolg hebben.
 
-\subsection{\IfLanguageName{dutch}{Mitigatiestrategieën voor Replicatievertraging}{Mitigation Strategies for Replication Latency}}
+\subsubsection{\IfLanguageName{dutch}{Mitigatiestrategieën voor Replicatievertraging}{Mitigation Strategies for Replication Latency}}
 \label{sec:asynchrone-log-replicatie-mitigatiestrategie-replicatievertraging}
 
 Er zijn verschillende manieren om replicatievertraging te minimaliseren.
@@ -360,3 +360,27 @@ Meerdere queues kunnen tot meer CPU en geheugen gebruik leiden.
 Indien het risico acceptabel is, kan er ook voor gekozen worden om berichten niet persistent te maken.
 Dit betekent dat berichten niet naar disk worden gekopieerd wanneer er zich een fout voordoet \autocite{ibm_2025_ensuring_messages_not_lost_mq}.
 Berichten die niet persistent zijn gaan verloren wanneer het systeem of een queue manager faalt.
+Voor IBM MQ zijn grotere buffer pools algemeen beter voor performantie \textcite{ibm_2026_ibm_defining_buffer_pools}.
+Grotere buffer pools kunnen ervoor zorgen dat er minder I/O-operaties moeten gedaan worden, wat resulteert in minder vertraging.
+Het vergroten van buffer pools zorgt voor meer geheugengebruik.
+
+\subsection{\IfLanguageName{dutch}{Incomplete Logical Units of Work}{Incomplete Logical Units of Work}}
+\label{sec:asynchrone-log-replicatie-incomplete-logical-units-of-work}
+
+Een ander mogelijk risico bij logreplicatie zijn incomplete Logical Units of Work (LUW's).
+Een LUW wordt doorgaans beëindigt door een commit, een volledige rollback van een transactie of het einde van een applicatie \autocite{ibm_2026_db2_unit_of_work}.
+Als de veranderingen nog niet committed zijn, kunnen andere applicaties deze veranderingen nog niet zien.
+Het start- en stoppunt van een LUW definieert consistentie punten.
+\textcite{ibm_2026_db2_unit_of_work} geeft het volgend voorbeeld.
+Een transactie binnen een bank kan inhouden dat er een bepaalde som aan geld wordt overgeplaatst van een rekening naar een andere rekening.
+Bij een dergelijke transactie moet eerst de som geld afgetrokken worden van de ene rekening en dan toegevoegd worden aan de andere rekening.
+Nadat het geld afgetrokken is van de ene rekening, wordt de data inconsistent want het geld moet nog worden toegevoegd op de tweede bankrekening.
+Alleen wanneer het geld afgetrokken is en correct toegevoegd op de desbetreffende rekeningen, kan de consistentie van de data weer bevestigd worden.
+Wanneer beide transacties, in dit geval, voltooid zijn, kan een commit gedaan worden om de transactie af te ronden waarna de veranderingen ook zichtbaar worden voor alle applicaties.
+Als er een fout gebeurd tijdens het uitvoeren van de transactie, zal Db2 gewoonlijk de wijzigingen terug draaien en daarmee de data terugzetten naar de start van de LUW \autocite{ibm_2026_how_rolls_back}.
+Het probleem ontstaat wanneer de LUW niet kan worden voltooid en, tijdens een rollback, er een fout ontstaat waardoor de data niet terug gezet is.
+Hierdoor kan de data inconsistent zijn.
+Bij het voorbeeld van \textcite{ibm_2026_db2_unit_of_work} zou het geld afgetrokken zijn van de eerste rekening maar niet toegevoegd zijn aan de tweede rekening.
+Als een rollback dan niet lukt, is de data inconsistent.
+Het kan gebeuren dat een asynchrone replicatieomgeving zoals Q Replication LUW's daardoor onvolledig repliceerd.
+
