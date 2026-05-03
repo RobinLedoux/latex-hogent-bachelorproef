@@ -488,17 +488,23 @@ Dit laat toe om berichten te markeren als gerelateerd aan elkaar.
 Daarbovenop kan er ook een logische volgorde aan de groep toegepast worden \autocite{ibm_2026_message_group}.
 MQ waarborgt verzekert dat de berichten in deze volgorde zullen worden geleverd.
 
-\subsubsection{\IfLanguageName{dutch}{Oorzaken Inconsistensies Volgorde}{Causes of Inconsistencies in Order}}
+\subsubsection{\IfLanguageName{dutch}{Oorzaken en Mitigatiestrategieën Inconsistensies Volgorde}{Causes of Inconsistencies in Order}}
 \label{sec:asynchrone-log-replicatie-oorzaken-inconsistenties-volgorde}
 
 IBM MQ biedt mechanismen om de volgorde te bewaren, maar verkeerde configuraties kunnen leiden tot inconsistenties.
 Berichten kunnen in willekeurige volgorde toekomen en daarom is het inschakelen van message sequencing noodzakelijk om de juiste volgorde te bewaren \autocite{ibm_2025_message_sequencing}.
 Als message sequencing niet is ingeschakeld, zijn berichten niet gegarandeerd in de correcte volgorde.
+Schakel daarom message sequencing in voor alle queues die worden gebruikt door Q Replication.
+
 Een andere mogelijke oorzaak door misconfiguratie heeft te maken met message groups.
-Als berichten van één LUW niet dezelfde message group worden geplaatst, kan Q Apply ze in verkeerde volgorde verwerken.
-Dit kan gebeuren als de \textbf{MESSAGE_FORMAT} in de \textbf{IBMQREP_SENDQUEUES} tabel niet op C (compact) staat \autocite{bibid}{ibm_2026_ibmqrep_sendqueues}.
-Ook kan het zijn dat de \textbf{MSG_CONTENT_TYPE} verkeerd is ingesteld.
-Als \textbf{MSG_CONTENT_TYPE} namelijk op R staat, worden berichten per operatie (zoals INSERT, UPDATE en DELETE) verzonden.
+Als berichten van één LUW niet in dezelfde message group worden geplaatst, kan Q Apply ze in verkeerde volgorde verwerken.
+Dit kan gebeuren als de \textbf{MESSAGE\_FORMAT} in de \textbf{IBMQREP\_SENDQUEUES} tabel niet op C (compact) staat \autocite{bibid}{ibm_2026_ibmqrep_sendqueues}.
+Ook kan het zijn dat de \textbf{MSG\_CONTENT\_TYPE} verkeerd is ingesteld.
+Als \textbf{MSG\_CONTENT\_TYPE} namelijk op R staat, worden berichten per operatie (zoals INSERT, UPDATE en DELETE) verzonden.
 Hierdoor worden berichten door Q Capture niet als één transactiegroep herkent.
 
+Fouten in de configuratie of uitvoering van Q Apply kunnen ook leiden tot inconsistenties met betrekking tot de volgorde van transacties.
+Q Apply kan meerdere threads gebruiken om LUW's toe te passen.
+Als afhankelijke LUW's parallele worden verwerkt, kan dit leiden tot inconsistenties.
+Om dit te vermijden, moeten afhankelijke tabellen in één replication queue map worden geplaatst, zodat Q Apply de volgorde kan garanderen.
 
