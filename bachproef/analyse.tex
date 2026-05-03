@@ -498,13 +498,13 @@ Schakel daarom message sequencing in voor alle queues die worden gebruikt door Q
 
 Een andere mogelijke oorzaak door misconfiguratie heeft te maken met message groups.
 Als berichten van één LUW niet in dezelfde message group worden geplaatst, kan Q Apply ze in verkeerde volgorde verwerken.
-Dit kan gebeuren als de \textbf{MESSAGE\_FORMAT} in de \textbf{IBMQREP\_SENDQUEUES} tabel niet op C (compact) staat \autocite{bibid}{ibm_2026_ibmqrep_sendqueues}.
+Dit kan gebeuren als de \textbf{MESSAGE\_FORMAT} in de \textbf{IBMQREP\_SENDQUEUES} tabel niet op C (compact) staat \autocite{ibm_2026_ibmqrep_sendqueues}.
 Ook kan het zijn dat de \textbf{MSG\_CONTENT\_TYPE} verkeerd is ingesteld.
 Als \textbf{MSG\_CONTENT\_TYPE} namelijk op R staat, worden berichten per operatie (zoals INSERT, UPDATE en DELETE) verzonden.
 Hierdoor worden berichten door Q Capture niet als één transactiegroep herkent.
+Het is daarom sterk aangeraden om de \textbf{MSG\_CONTENT\_TYPE} op de standaardwaarde T in te stellen en om \textbf{MESSAGE\_FORMAT} op compact in te stellen.
 
 Fouten in de configuratie of uitvoering van Q Apply kunnen ook leiden tot inconsistenties met betrekking tot de volgorde van transacties.
 Q Apply kan meerdere threads gebruiken om LUW's toe te passen.
 Als afhankelijke LUW's parallele worden verwerkt, kan dit leiden tot inconsistenties.
 Om dit te vermijden, moeten afhankelijke tabellen in één replication queue map worden geplaatst, zodat Q Apply de volgorde kan garanderen.
-
