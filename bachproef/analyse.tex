@@ -456,3 +456,49 @@ Deze aanpak heeft een aanzienlijke impact op zowel de RPO als de RTO en moet daa
 Tot slot is regelmatige monitoring en testing essentieel. 
 Door replicatieprestaties te monitoren met tools zoals IBM Z NetView en Q Replication Alert Monitor, kunnen potentiële problemen tijdig worden gedetecteerd. 
 Daarnaast is het raadzaam om failover-scenario's minstens één keer per jaar te testen om te waarborgen dat de RPO en RTO binnen de gestelde doelen blijven.
+
+\subsection{\IfLanguageName{dutch}{Inconsistenties Volgorde Logreplicatie}{Inconsistencies Order Log Replication}}
+\label{sec:asynchrone-log-replicatie-inconsistenties-volgorde-logreplicatie}
+
+Bij asynchrone replicatie, zoals Q Replication, worden transacties niet onmiddelijk gesynchroniseerd tussen een primaire en secundaire site.
+Dit introduceert een vertraging, zoals eerder besproken, tussen het moment waarop een transactie wordt gecommit op de primaire databank en het moment waarop de transactie wordt toegepast op de secundaire databank.
+Het is essentieel dat de volgorde van de transacties wordt behouden ondanks deze replicatievertraging.
+Met name in financiële instellingen zijn transacties vaak afhankelijk van elkaar.
+Bij een overschrijving, bijvoorbeeld, moet eerst het geld worden afgenomen van de ene rekening voordat het wordt toegevoegd aan de andere rekening.
+Als deze volgorde niet work gerespecteerd kan dit leiden tot zaken zoals negatieve saldi en dubbele betalingen.
+Bovendien mag asynchrone replicatie de ACID-principes (Atomicity, Consistency, Isolationen Durability) niet overschrijden. 
+Ook moeten na een storing de transacties in de juiste volgorde kunnen worden hersteld om RPO en RTO te waarborgen.
+Een verkeerde volgorde kan leiden tot dataverlies of langere hersteltijden.
+
+\subsubsection{\IfLanguageName{dutch}{Logrecordverwerking in Db2}{Logrecord Processing in Db2}}
+\label{sec:asynchrone-log-replicatie-logrecordverwerking-db2}
+
+Q Capture leest de logrecords uit de Db2 logs en groepeert deze in LUW's.
+Elke LUW wordt omgezet in een MQ-bericht en verzonden naar de secundaire site via IBM MQ.
+Belangrijk om te vermelden is dat Q Capture aan elk MQ-bericht metadata toevoegt.
+Deze metadata bevat een sequence nummer, een uniek nummer dat de volgorde van het bericht binnen de LUW aangeeft, een transaction ID waarmee de LUW uniek geïdentificeerd kan worden, en het tijdstip waarop de transactie werd gecommit op de primaire site \autocite{ibm_2025_structure_delimited_messages_event_publishing}.
+Q Apply ontvangt de MQ-berichten op de secundaire site en past de wijzigingen toe op de secundaire databank.
+Het is cruciaal dat Q Apply de berichten verwerkt in de juiste volgorde om de transactionele consistentie te waarborgen.
+Standaard verwerkt Q Apply berichten sequentieel, maar parallele threads kunnen ook gebruikt worden voor verschillende LUW's \autocite{ibm_2026_q_apply_program}.
+
+IBM MQ biedt twee mechanismen om de volgorde van berichten te behouden.
+Het sequence nummer zorgt ervoor dat berichten in volgorde kunnen worden geleverd.
+MQ kan berichten ook groeperen in een message group.
+Dit laat toe om berichten te markeren als gerelateerd aan elkaar.
+Daarbovenop kan er ook een logische volgorde aan de groep toegepast worden \autocite{ibm_2026_message_group}.
+MQ waarborgt verzekert dat de berichten in deze volgorde zullen worden geleverd.
+
+\subsubsection{\IfLanguageName{dutch}{Oorzaken Inconsistensies Volgorde}{Causes of Inconsistencies in Order}}
+\label{sec:asynchrone-log-replicatie-oorzaken-inconsistenties-volgorde}
+
+IBM MQ biedt mechanismen om de volgorde te bewaren, maar verkeerde configuraties kunnen leiden tot inconsistenties.
+Berichten kunnen in willekeurige volgorde toekomen en daarom is het inschakelen van message sequencing noodzakelijk om de juiste volgorde te bewaren \autocite{ibm_2025_message_sequencing}.
+Als message sequencing niet is ingeschakeld, zijn berichten niet gegarandeerd in de correcte volgorde.
+Een andere mogelijke oorzaak door misconfiguratie heeft te maken met message groups.
+Als berichten van één LUW niet dezelfde message group worden geplaatst, kan Q Apply ze in verkeerde volgorde verwerken.
+Dit kan gebeuren als de \textbf{MESSAGE_FORMAT} in de \textbf{IBMQREP_SENDQUEUES} tabel niet op C (compact) staat \autocite{bibid}{ibm_2026_ibmqrep_sendqueues}.
+Ook kan het zijn dat de \textbf{MSG_CONTENT_TYPE} verkeerd is ingesteld.
+Als \textbf{MSG_CONTENT_TYPE} namelijk op R staat, worden berichten per operatie (zoals INSERT, UPDATE en DELETE) verzonden.
+Hierdoor worden berichten door Q Capture niet als één transactiegroep herkent.
+
+
