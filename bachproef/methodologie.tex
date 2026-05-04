@@ -2,20 +2,22 @@
 \label{ch:methodologie}
 
 Dit onderzoek werd uitgevoerd aan de hand van een technisch-analytische onderzoeksopzet bestaande uit vier hoofdfasen: een literatuurstudie, een architecturale analyse, een risicoanalyse en een evaluatiefase. 
-De gekozen aanpak laat toe om zowel de theoretische fundamenten als de praktische implicaties van log-gebaseerde replicatie in DB2 voor Z/OS systematisch te onderzoeken.
+De gekozen aanpak laat toe om zowel de theoretische fundamenten als de praktische implicaties van log-gebaseerde replicatie in Db2 voor z/OS systematisch te onderzoeken.
 
 In de eerste fase werd een technische literatuurstudie uitgevoerd op basis van academische publicaties en officiële documentatie. 
-Hierbij werden verschillende bestaande replicatietechnieken binnen DB2 voor Z/OS geanalyseerd met bijzondere aandacht voor transactionele consistentie, herstelmechanismen en de implicaties voor RPO en RTO\@.
+Hierbij werden verschillende bestaande replicatietechnieken binnen Db2 voor z/OS geanalyseerd met bijzondere aandacht voor transactionele consistentie, herstelmechanismen en de implicaties voor RPO en RTO\@.
 
-De studie omvatte documentatie over DB2 voor Z/OS, GDPS Global Mirror en Metro Mirror, logging in DB2 voor Z/OS aangevuld met academische literatuur over gedistribueerde systemen en replicatiemodellen. Deze fase resulteerde in een gestructureerd overzicht van replicatietechnieken en hun eigenschappen, samengevat in vergelijkende tabellen.
+De studie omvatte documentatie over Db2 voor z/OS, GDPS Global Mirror en Metro Mirror, en logging in Db2 voor z/OS aangevuld met academische literatuur over gedistribueerde systemen en replicatiemodellen. 
+Deze fase resulteerde in een gestructureerd overzicht van replicatietechnieken en hun eigenschappen, samengevat in vergelijkende tabellen.
 
 \section{\IfLanguageName{dutch}{Architecturale analyse}{Architectural analysis}}%
 \label{sec:methodologie-architecturale-analyse}
 
-In de tweede fase werd een vergelijkende architecturale analyse uitgevoerd van verschillende mainframe-opstellingen. Hierbij werd een configuratie met twee gesynchroniseerde sites vergeleken met een uitgebreide architectuur waarin een aanvullende asynchrone derde site werd toegevoegd.
-Vooraleer deze hybride vorostelling te hebben vergeleken, werd een opstelling van enkel twee synchrone sites en een opstelling van enkel twee asynchrone sites afzonderlijk onderzocht.
+In de tweede fase werd een vergelijkende architecturale analyse uitgevoerd van verschillende mainframe-opstellingen. 
+Hierbij werd een configuratie met twee gesynchroniseerde sites vergeleken met een uitgebreide architectuur waarin een aanvullende asynchrone derde site werd toegevoegd.
+Vooraleer deze hybride opstelling werd vergeleken, werd een opstelling met enkel twee synchrone sites en een opstelling met enkel twee asynchrone sites afzonderlijk onderzocht.
 
-Voor elke architectuur werden volgende zaken onderzocht.
+Voor elke architectuur werden de volgende zaken onderzocht.
 \begin{itemize}
     \item Waarborging van dataconsistentie
     \item Activatie herstelprocedures bij uitval
@@ -28,9 +30,9 @@ De analyse resulteerde in architectuurdiagrammen en vergelijkende tabellen waari
 \label{sec:methodologie-risicoanalyse}
 
 In de derde fase werd een systematische risicoanalyse uitgevoerd. 
-Mogelijke faalscenario's binnen een DB2 voor Z/OS omgeving werden geïdentificeerd en gekoppeld aan betrokken componenten zoals active en archive logs, coupling facilities en replicatiemechanismen.
+Mogelijke faalscenario's binnen een Db2 voor z/OS-omgeving werden geïdentificeerd en gekoppeld aan betrokken componenten zoals active en archive logs, coupling facilities en replicatiemechanismen.
 
-Specifieke aandacht ging naar risico's geïntroduceerd door asynchrone replicatie, waaronder volgende zaken.
+Specifieke aandacht ging naar risico's geïntroduceerd door asynchrone replicatie, waaronder de volgende zaken.
 \begin{itemize}
     \item Replicatievertraging van commits
     \item Incomplete Logical Units of Work (LUW's)
@@ -39,12 +41,12 @@ Specifieke aandacht ging naar risico's geïntroduceerd door asynchrone replicati
 
 Voor elk scenario werd de impact op RPO, RTO en transactionele consistentie analytisch beoordeeld.
 
-\section{\IfLanguageName{dutch}{Evaluatie en mitigatiestrategieën}{Evaluation and mitigitation strategies}}%
+\section{\IfLanguageName{dutch}{Evaluatie en mitigatiestrategieën}{Evaluation and mitigation strategies}}%
 \label{sec:methodologie-evaluatie-mitigatie}
 
 In de laatste fase werd een evaluatie uitgevoerd op basis van een risicomatrix waarin waarschijnlijkheid en impact werden gecombineerd. 
-Hierbij werd gebruikgemaakt van een kwalitatieve risicoformule (risico = waarschijnlijkheid x impact).
-Vervolgens werden mogelijke mitigatiestrategieën onderzocht, waaronder controlled log catch-up binnen DB2 voor Z/OS\@. 
+Hierbij werd gebruikgemaakt van een kwalitatieve risicoformule (risico = waarschijnlijkheid \times impact).
+Vervolgens werden mogelijke mitigatiestrategieën onderzocht, waaronder Controlled Log Catch-up binnen Db2 voor z/OS\@. 
 Hierbij werd geanalyseerd onder welke voorwaarden deze techniek consistente herstelpunten kan garanderen en welke beperkingen dit oplegt aan de hersteltijd.
 
 De resultaten van deze fase werden samengevat in een aanbevelingstabel waarin per architectuur de resterende risico's en de implicaties voor RPO, RTO en dataconsistentie werden weergegeven.

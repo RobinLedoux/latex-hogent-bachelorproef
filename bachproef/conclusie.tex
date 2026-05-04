@@ -14,3 +14,27 @@
 % Heeft het onderzoek geleid tot nieuwe vragen die uitnodigen tot verder 
 %onderzoek?
 
+Deze bachelorproef onderzocht de risico's van log-gebaseerde replicatie in Db2 voor z/OS binnen kritieke financiële omgevingen met mainframes.
+Hierbij ging er bijzondere aandacht naar de impact op Recovery Point Objective (RPO) en Recovery Time Objective (RTO) in geodistribueerde architecturen.
+Uit de analyse blijkt dat een opstelling met uitsluitend twee synchrone datacenters, hoewel deze een RPO van nul garandeert, onvoldoende bescherming biedt tegen geregionaliseerde uitval. 
+De afstandsbeperkingen inherent aan synchrone replicatie maken het onmogelijk om volledige geografische spreiding te realiseren zonder significante impact op de prestaties.
+Asynchrone replicatietechnologieën, zoals GDPS Global Mirror, bieden daarentegen wel de mogelijkheid tot geografische spreiding over grote afstanden, maar introduceren onvermijdelijk risico's op dataverlies en inconsistentie. 
+Deze risico's manifesteren zich voornamelijk onder de vorm van replicatievertraging, incomplete Logical Units of Work (LUW's) en inconsistenties in de volgorde van transacties. 
+Deze fenomenen hebben een directe negatieve impact op zowel RPO als RTO en vereisen bijkomende herstelmechanismen.
+De hybride architectuur, waarbij twee synchrone sites worden gecombineerd met een derde asynchrone site, vormt op basis van dit onderzoek de meest robuuste oplossing. 
+Deze opstelling combineert de voordelen van beide replicatiemodellen: een RPO van nul en snelle failover binnen de synchrone regio, aangevuld met bescherming tegen regionale uitval via een geografisch gescheiden derde site. 
+De keerzijde is echter een verhoogde complexiteit, vooral bij failover naar de asynchrone site, waarbij consistentieherstel en replicatieachterstand een significante invloed hebben op de RTO.
+Binnen logreplicatie blijkt Controlled Log Catch-Up (CLC) een essentieel mechanisme om transactionele consistentie te waarborgen na falen. 
+Hoewel CLC effectief is in het herstellen van consistente toestanden, verhoogt het de hersteltijd wanneer grote achterstanden moeten worden ingehaald. 
+Hierdoor ontstaat een duidelijk spanningsveld tussen dataconsistentie en herstelsnelheid.
+De bijdrage van dit onderzoek ligt in het systematisch in kaart brengen van de interactie tussen replicatiestrategieën, faalscenario's en hun impact op RPO en RTO binnen Db2 voor z/OS-omgevingen.
+Door deze analyse worden financiële instellingen ondersteund bij het maken van onderbouwde architecturale keuzes die voldoen aan strikte regelgeving zoals DORA vanuit de Europese Unie.
+Desondanks kent dit onderzoek beperkingen. 
+De analyse is hoofdzakelijk gebaseerd op literatuur en theoretische modellering, zonder empirische validatie in een productieomgeving. 
+Factoren zoals specifieke hardwareconfiguraties, netwerkcondities en workloadvariaties kunnen in de praktijk een andere impact hebben op de prestaties en risico's.
+Verder onderzoek kan zich richten op experimentele validatie van de beschreven architecturen, bijvoorbeeld via simulaties of testomgevingen. 
+Daarnaast is er ruimte voor onderzoek naar geautomatiseerde failovermechanismen en optimalisatietechnieken die de impact van replicatievertraging en CLC op RTO verder kunnen beperken. 
+Ook de rol van nieuwe technologieën, zoals AI-gedreven monitoring en voorspellende faal analyse, vormt een interessant perspectief binnen dit domein.
+Samenvattend kan gesteld worden dat er geen universele oplossing bestaat die simultaan een RPO van nul, minimale RTO en volledige geografische spreiding garandeert. 
+De keuze voor een replicatiestrategie blijft steeds een afweging tussen consistentie, performantie en operationele complexiteit. 
+De hybride architectuur biedt hierbij de beste balans voor kritieke systemen binnen financiële omgevingen, mits de bijkomende risico's actief worden geminimaliseerd door de besproken mitigatiestrategieën.

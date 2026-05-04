@@ -13,21 +13,21 @@
 Dit hoofdstuk legt de theoretische basis voor operationele veerkracht en herstel bij uitval in financiële mainframe-omgevingen.
 Het concept van operationele veerkracht wordt gekaderd, gevolgd door een bespreking van Recovery Point Objective (RPO) en Recovery Time Objective (RTO) en de noodzaak van deze criteria.
 
-Er is een nood voor cyberweerbaarheid bij financiële instellingen die niet enkel dekking biedt bij het voorkomen van cyberaanvallen, maar ook bij het herstellen wanneer er zich reeds een aanval heeft voorgedaan \autocite{dupont2019cyber}.
-Verder stelt \textcite{dupont2019cyber} dat moderne organisaties in het algemeen, maar specifiek financiële instellingen gevoelig zijn aan het watervaleffect dat technische storingen, menselijke fouten en natuurrampen veroorzaken.
-Bovendien worden de digitale middelen van financiële instellingen aangevallen door cybercriminelen, hackers vanuit regeringen, hacktivisten en ontevreden werknemers die trachten de computersystemen te infiltreren en gevoelige informatie te stelen.
-Daaropvolgend helpt de toegankelijkheid van krachtige malware tools criminelen om aanvallen te realiseren waarbij gelimiteerde technische kennis voldoende is.
+Er is een nood aan cyberweerbaarheid bij financiële instellingen die niet enkel dekking biedt bij het voorkomen van cyberaanvallen, maar ook bij het herstellen wanneer er zich reeds een aanval heeft voorgedaan \autocite{dupont2019cyber}.
+Verder stelt \textcite{dupont2019cyber} dat moderne organisaties in het algemeen, maar specifiek financiële instellingen gevoelig zijn voor het watervaleffect dat technische storingen, menselijke fouten en natuurrampen veroorzaken.
+Bovendien worden de digitale middelen van financiële instellingen aangevallen door cybercriminelen, door overheden gesteunde hackers, hacktivisten en ontevreden werknemers die trachten de computersystemen te infiltreren en gevoelige informatie te stelen.
+Daaropvolgend helpt de toegankelijkheid van krachtige malwaretools criminelen om aanvallen te realiseren waarbij gelimiteerde technische kennis voldoende is.
 
 CERT-EU, de cyberveiligheidsdienst voor de instellingen, organen en instanties van de Europese Unie, toont in een verslag een overzicht van cyberaanvallen in november 2022 \autocite{certeu_2022_cyber}.
 Het verslag benadrukt de noodzaak voor instellingen die werken met kritieke systemen en gevoelige data om niet alleen preventieve maatregelen te treffen, maar ook robuuste herstelmechanismen te implementeren.
 Eveneens is het watervaleffect van dergelijke cyberaanvallen reëel en kan het leiden tot geregionaliseerde uitval van systemen, wat de noodzaak voor geografisch gespreide databewaring onderstreept \autocite{emara2023geographically}.
 Financiële instellingen die met mainframes werken waarop kritieke systemen draaien, zijn daarbij ook een doelwit voor de cybercriminelen die deze aanvallen uitvoeren.
-Operationele veerkracht is hierbij daarom een kernwoord.
+Operationele veerkracht is hierbij een kernbegrip.
 Deze operationele veerkracht verwijst naar het vermogen van organisaties om deze aanvallen te weerstaan, erop te reageren en schade voor klanten en de reputatie van het bedrijf te minimaliseren \autocite{essuman2020operational}.
 Strengere regelgevingen, zoals DORA vanuit de Europese Unie, tonen overigens de nood aan operationele veerkracht bij financiële instellingen aan \autocite{clausmeier2023regulation}.
 Financiële instellingen zijn in hoge mate afhankelijk van centrale transactieverwerkende systemen die vaak draaien op mainframeplatformen zoals z/OS\@.
-Zo gebruiken bedrijven, waaronder financiële instellingen, databanksystemen zoals Db2 voor z/OS om hun bedrijfskritieke transacties te verwerken met hoge vereisten met betrekking tot beschikbaarheid, integriteit en consistentie \autocite{hernandez_2009_how}.
-Operationele veerkracht verwijst in deze context niet enkel naar preventieve beveiligingsmaatregelen, maar ook robuuste herstelarchitecturen en geografisch gespreide replicatiemechanismen \autocite{bourbonnais2015}.
+Zo gebruiken bedrijven, waaronder financiële instellingen, databanksystemen zoals Db2 voor z/OS om hun bedrijfskritieke transacties te verwerken met hoge vereisten inzake tot beschikbaarheid, integriteit en consistentie \autocite{hernandez_2009_how}.
+Operationele veerkracht verwijst in deze context niet enkel naar preventieve beveiligingsmaatregelen, maar ook om robuuste herstelarchitecturen en geografisch gespreide replicatiemechanismen te implementeren \autocite{bourbonnais2015}.
 Om het herstellingsvermogen meetbaar te maken, worden doorgaans doelstellingen vastgelegd in de vorm van Recovery Time Objective en Recovery Point Objective \autocite{mendoncca2020evaluating}.
 Bij een herstellingsplan is het voor financiële bedrijven noodzakelijk om meetbare criteria te hebben waaraan kan worden voldaan zodat kan worden bepaald binnen welke grenzen een organisatie een storing kan tolereren.
 Hierin spelen Recovery Point Objective en Recovery Time Objective een cruciale rol \autocite{zgureanu2022role}.
@@ -38,10 +38,10 @@ Recovery Time Objective verwijst naar de maximale tijdsduur waarbinnen een syste
 Deze parameter wordt beïnvloed door factoren zoals failover-mechanismen, herstelprocedures en de tijd nodig om transactielogs toe te passen en consistente toestanden te herstellen.
 De gekozen replicatiestrategie en de complexiteit van de herstelprocedure hebben daarbij een directe impact op de uiteindelijke RTO\@.
 
-Wanneer naar operationele veerkracht wordt gekeken zijn er twee termen om over na te denken.
+Wanneer naar operationele veerkracht wordt gekeken, zijn er twee essentiële begrippen.
 Er is high-availability, waarbij gericht wordt op zo weinig mogelijk uitvaltijd, en disaster recovery.
-Terwijl implementaties voor high-availability zich vooral richten op lokale storingen, waarbij ertegen deze storingen beschermd wordt of er een snelle manier van herstel wordt geïmplementeerd, richt disaster recovery zich op grote storingen \autocite{schmidt2006high}.
-Regionale storingen kunnen niet enkel door high-availability implementaties worden vermeden, en tonen ook aan dat disaster recovery, waarbij data geografisch gespreid op redudante manier wordt bewaard, essentieel is om het verloop van kritieke business toepassingen zoals die van financiële instellingen te waarborgen.
+Terwijl implementaties voor high-availability zich vooral richten op lokale storingen, waarbij systemen tegen deze storingen worden beschermd of er een snelle manier van herstel wordt geïmplementeerd, richt disaster recovery zich op grote storingen \autocite{schmidt2006high}.
+Regionale storingen kunnen niet enkel door high-availability implementaties worden vermeden, en tonen ook aan dat disaster recovery, waarbij data geografisch gespreid op redundante manier wordt bewaard, essentieel is om het verloop van kritieke business toepassingen zoals die van financiële instellingen te waarborgen.
 High-availability focust zich op business continuity, waarbij het minimaliseren van onderbrekingen in bedrijfsprocessen centraal staat, terwijl disaster recovery zich focust op het herstellen van systemen na een grote storing.
 Volgens \textcite{schmidt2006high} vereist een robuuste operationele veerkracht een combinatie van beide benaderingen.
 Hierbij zijn systemen die redundant zijn op lokaal niveau noodzakelijk voor business continuity, en geografisch gespreide replicatie noodzakelijk voor disaster recovery.
@@ -57,56 +57,56 @@ Dit betekent dat systemen zoals mainframes, die kritieke diensten verlenen, moet
 Naast DORA is er de Payment Card Industry Data Security Standard (PCI-DSS), een wereldwijde veiligheidsnorm waaraan organisaties die creditcardgegevens bewaren moeten aan voldoen \autocite{pcisecuritystandardscouncil_2024_pci}.
 Het vereist dat alle gevoelige data omtrent creditcards versleuteld is en dat de toegang tot die gegevens strikt wordt beveiligd.
 Omdat financiële instellingen met gevoelige data omgaan, moet er ook rekening gehouden worden met de General Data Protection Regulation (GDPR).
-GDPR is een regelgeving die strikte eisen stelt op bedrijven die met data omgaan \autocite{wolford_2025_what}.
+GDPR is een privacywet die strikte eisen stelt aan bedrijven die met data omgaan \autocite{wolford_2025_what}.
 Het vereist onder andere dat bedrijven transparant met data omgaan ten opzichte van de betrokkene.
-Het eist ook dat data accuraat en up-to-date is en dat het op een veilige manier wordt bewaard. 
-Voor financiële instellingen met mainframes betekent dit, onder andere, dat er een duidelijk logboek kan raadgepleegd worden - indien nodig - van transacties om deze transparantie te garanderen.
-Naast deze regelgevingen en wetten is er ook nog het Basel III regelgevingskader die werd opgesteld als een antwoord op de financiële crisis van 2007 tot 2009.
+Het eist ook dat data accuraat en up-to-date zijn en dat het op een veilige manier wordt bewaard. 
+Voor financiële instellingen met mainframes betekent dit, onder andere, dat er een duidelijk logboek kan geraadpleegd worden - indien nodig - van transacties om deze transparantie te garanderen.
+Naast deze regelgeving en wetten is er ook nog het Basel III regelgevingskader dat werd opgesteld als een antwoord op de financiële crisis van 2007 tot 2009.
 Volgens \textcite{bis_2025_basel} is het een set minimumvereisten voor internationaal actieve banken om regulatie, toezicht en risicobeheer te versterken.
 
-Regelgevingen zoals DORA, PCI-DSS en GDPR stellen strenge eisen aan operationele veerkracht van financiële instellingen.
+Regelgevingen zoals DORA, PCI-DSS en GDPR stellen strenge eisen aan de operationele veerkracht van financiële instellingen.
 Voor mainframe-omgevingen betekent dit dat replicatiestrategieën robuust, schaalbaar en compliant moeten zijn. 
 
 \section{\IfLanguageName{dutch}{Replicatie in Mainframe-omgevingen}{Replication in mainframe environments}}%
 \label{sec:mainframe-replicatie}
 
-Dit hoofdstuk bespreekt de verschillende manieren van data replicatie gebruikt binnen mainframe.
+Dit hoofdstuk bespreekt de verschillende manieren van datareplicatie gebruikt binnen mainframe.
 Er wordt gekaderd welke oplossingen beschikbaar zijn op z/OS voor replicatie op opslagniveau en de verschillende kenmerken van deze oplossingen.
 
-Replicatie houdt in dat data gekopiëerd wordt naar een secundaire site. 
+Replicatie houdt in dat gegevens worden gekopieerd naar een secundaire site. 
 Het doel hiervan is om redundantie te krijgen wanneer een primaire site uitvalt.
-In mainframe is het mogelijk om op opslagniveau en op log-level te repliceren \autocite{bourbonnais2015}.
+In mainframes is het mogelijk om op opslagniveau en op log-level te repliceren \autocite{bourbonnais2015}.
 Op opslagniveau biedt IBM verscheidene oplossingen om redundantie te creëren binnen een mainframe met z/OS\@.
 IBM GDPS Metro Mirror is een replicatietechnologie die een synchrone remote-copy van gegevens verzorgt tussen een primaire en een secundaire site \autocite{gomes_2025_redbooks}.
 Bij GDPS Metro Mirror wordt elke schrijfbewerking pas bevestigd aan de host (of het primaire systeem) als het ook op het secundaire systeem is geschreven.
 Hierdoor is de data op het volume van het secundaire systeem identiek aan het volume van het primaire systeem op het moment dat het schrijven voltooid is.
 Dit maakt Metro Mirror geschikt voor scenario's met nauwe synchronisatie en minimale data-divergentie binnen korte afstandsbereiken omdat de vertragingstijd tussen sites bij synchrone replicatie de responstijd van Input/Output (I/O) beïnvloedt.
 Metro Mirror kan daarom worden gebruikt voor hoge beschikbaarheid en herstel na een ramp op kortere afstanden, vaak binnen een enkel geografisch gebied \autocite{ibm_2017_metro}.
-Naast GDPS Metro Mirror biedt IBM ook GDPS Global Mirror aan, een asynchrone data replicatietechnologie die gegevens tussen een primaire en een externe site repliceert zonder de schrijfbewerking op de primaire site te blokkeren totdat de secundaire site deze heeft bewaard.
+Naast GDPS Metro Mirror biedt IBM ook GDPS Global Mirror aan, een asynchrone datareplicatietechnologie die gegevens tussen een primaire en een externe site repliceert zonder de schrijfbewerking op de primaire site te blokkeren totdat de secundaire site deze heeft bewaard.
 Dit betekent dat de primaire schrijfoperatie aan de host bevestigd wordt zodra die lokaal is voltooid, zonder te wachten op replicatie naar de secundaire site \autocite{ibm_2021_global}.
 De replicatie gebeurt steeds na de schrijfoperatie op het primaire systeem waardoor er een natuurlijke vertraging kan ontstaan tussen de primaire en de secundaire kopie.
 Global Mirror kan worden gebruikt voor lange afstanden (tot duizenden kilometers) omdat het repliceren geen invloed heeft op de host, want het primaire systeem wacht niet tot het repliceren voltooid is.
 Met Global Mirror is het mogelijk om consistente punten (consistency groups) naar de externe site te verzenden, zodat een coherent herstelpunt ontstaat bij falen van het systeem.
 GDPS Global Mirror maakt gebruik van een systeem met meesters (masters) en ondergeschikten (subordinates) waarbij een Global Mirror sessie maar één master mag hebben.
 De master controleert het maken van consistency groups binnen een Global Mirror sessie en stuurt commando's naar de ondergeschikte opslagsystemen van de sessie. 
-GDPS Metro Mirror en GDPS Global Mirror vormen slecht een deel van de beschikbare replicatiemethoden.
+GDPS Metro Mirror en GDPS Global Mirror vormen slechts een deel van de beschikbare replicatiemethoden.
 Global Copy biedt functionaliteit voor het asynchroon kopiëren van data over lange afstanden, waarbij schrijfoperaties als voltooid worden beschouwd voordat de gegevens naar een herstelsite worden verzonden \autocite{ibm_2023_ibm_global_copy}.
 Het is een alternatief voor de eerder besproken Metro Mirror.
-Global Copy werkt sneller dan Metro Mirror omdat het niet wacht tot de data op de herstelsite is gekopiëerd.
+Global Copy werkt sneller dan Metro Mirror omdat het niet wacht tot de data op de herstelsite is gekopieerd.
 Hierdoor is een consistente kopie van de data niet gegarandeerd.
 Global Copy stuurt updates periodiek naar de herstelsite in reeksen.
 Hoe groter de afstand naar de herstelsite, hoe langer het duurt tot de reeksen aankomen.
 De mogelijke afstand tussen sites bij dit replicatiemechanisme wordt tevens beperkt door de netwerkmogelijkheden.
-Wanneer er bij het schrijven naar de primaire schijf op een van de systemen een probleem voordoet, kan GDPS HyperSwap gebruikt worden.
-Dit is een technologie, tevens aangeboden door IBM, die toelaat om te schakelen naar een secundaire schijf zonder dat het systeem opnieuw moet worden opgestart \autocite{gomes_2025_redbooks}.
-Er zijn twee manier waarop HyperSwap kan worden gestart.
+Wanneer er zich bij het schrijven naar de primaire schijf op een van de systemen een probleem voordoet, kan GDPS HyperSwap worden gebruikt.
+Dit is een IBM-technologie die toelaat om te schakelen naar een secundaire schijf zonder dat het systeem opnieuw moet worden opgestart \autocite{gomes_2025_redbooks}.
+Er zijn twee manieren waarop HyperSwap kan worden gestart.
 Zo is er een geplande HyperSwap, waarbij bewust bij voorbaat wordt geschakeld naar een secundaire schijf omdat er, bijvoorbeeld, noodzakelijk onderhoud moet worden gedaan.
 Er is ook een ongeplande HyperSwap waarbij GDPS automatisch schakelt omdat er problemen gedetecteerd zijn op de primaire schijf.
-Een ongeplande Hyperswap kan de RTO verkorten, wat cruciaal is voor financiële instellingen.
+Een ongeplande HyperSwap kan de RTO verkorten, wat cruciaal is voor financiële instellingen.
 
-Een andere relevante technologie, ook gelevert door IBM, is FlashCopy.
-FlashCopy afzonderlijk is geen manier om high availability te veroorzaken, maar een opslagtechnologie om op efficiënte wijze een kopie van data op een bepaald tijdstip te maken \autocite{ibm_2017_ibm_flash_copy}.
-Volgens \textcite{ibm_2025_powerha_overview_of_global_mirror} laat FlashCopy toe om vrijwel onmiddelijk een kopie te maken van een fysiek volume.
+Een andere relevante technologie, ook geleverd door IBM, is FlashCopy.
+FlashCopy is geen manier om high availability te veroorzaken, maar een opslagtechnologie om op efficiënte wijze een kopie van data op een bepaald tijdstip te maken \autocite{ibm_2017_ibm_flash_copy}.
+Volgens \textcite{ibm_2025_powerha_overview_of_global_mirror} laat FlashCopy toe om vrijwel onmiddellijk een kopie te maken van een fysiek volume.
 De directe kopie wordt gerealiseerd door het kopiëren van de data op de achtergrond, terwijl de oorspronkelijke volumes en doelvolumes nog steeds toegang hebben om schrijf- en leesoperaties uit te voeren.
 Wanneer het repliceren op de achtergrond gedaan is, zijn beide volumes exacte kopieën van de laatste keer dat de FlashCopy-opdracht werd uitgevoerd.
 Doordat het kopiëren op de achtergrond gebeurt, heeft het minimale impact.
@@ -115,66 +115,66 @@ Het levert consistente kopieën die herstelplannen voor omgevingen met mainframe
 \subsection{\IfLanguageName{dutch}{Consistency Groups}{Consistency Groups}}
 \label{sec:mainframe-replicatie-consistency-groups}
 
-De Copy Services Manager is een deel van de geleverde Copy Services in opslagsystemen (zoals bijvoorbeeld de DS8000) die Copy Services beheerst \autocite{ibm_2023_ibm_copy_services_manager}.
+De Copy Services Manager is een deel van de geleverde Copy Services in opslagsystemen (zoals bijvoorbeeld de DS8000) die Copy Services beheert \autocite{ibm_2023_ibm_copy_services_manager}.
 Het beheert de consistentie van afhankelijke schrijfoperaties door een consistente kopie te maken over meerdere volumes of opslagsystemen.
-Deze kopie wordt een Consistency Group genoemt \autocite{ibm_2026_ibm_sessions_consistency_groups}.
+Deze kopie wordt een Consistency Group genoemd \autocite{ibm_2026_ibm_sessions_consistency_groups}.
 Het is een verzameling van doelvolumes binnen een sessie die zijn bijgewerkt met behoud van de volgorde waarin schrijfoperaties zijn gedaan.
-Een sessie bevat dus een groep doelvolumes die asynchroon worden gerepliceerd om een consistente kopie te creëren op de secundaire site \autocite{ibm_2026_copy_services_features}.s
+Een sessie bevat dus een groep doelvolumes die asynchroon worden gerepliceerd om een consistente kopie te creëren op de secundaire site \autocite{ibm_2026_copy_services_features}.
 
 \section{\IfLanguageName{dutch}{Log-gebaseerde Replicatie in Db2-omgevingen}{Log based replication in Db2 environments}}%
 \label{sec:log-replicatie}
 
-Dit hoofdstuk bespreekt log replicatie op databank niveau, specifiek voor het databanksysteem Db2 voor het z/OS besturingsssysteem.
+Dit hoofdstuk bespreekt logreplicatie op databankniveau, specifiek voor het databanksysteem Db2 voor het z/OS besturingssysteem.
 Eerst wordt uitgelegd wat logs precies inhouden in Db2 en hoe deze worden bewaard.
 Daarna wordt besproken wat de verschillende manieren zijn om redundantie te creëren met betrekking tot deze logs.
 
 Log-gebaseerde replicatie speelt een cruciale rol in Db2-omgevingen, met name voor financiële instellingen die transactieconsistentie en dataintegriteit moeten waarborgen.
 In tegenstelling tot opslaggebaseerde replicatie, zoals de eerder besproken GDPS Metro Mirror en GDPS Global Mirror, focust logreplicatie op het niveau van transacties.
-Q Replication is een technologie van IBM gemaakt voor replicatie op transactieniveau met als doel een hoge doorvoer en korte wachttijd te bekomen \autocite{ibm_2026_infosphere}.
+Q Replication is een technologie van IBM die gemaakt is voor replicatie op transactieniveau met als doel een hoge doorvoer en korte wachttijd te bekomen \autocite{ibm_2026_infosphere}.
 Het maakt gebruik van IBM MQ message queues om transacties tussen een bronsysteem te versturen naar een doelsysteem.
 Er is een minimale vertragingstijd doordat de veranderingen worden doorgevoerd zodra ze zijn gecommit en gelezen van de log.
-Om dat te begrijpen, is het nuttig om eerst uit te leggen wat een log inhoudt in Db2.
+Om dit te begrijpen, is het nuttig om eerst uit te leggen wat een log inhoudt in Db2.
 
-Db2 voor het z/OS besturingsssysteem registreert alle data veranderingen en andere significante evenementen in een logbestand \autocite{ibm_2021_zos_db2_logs}.
-Elke log record wordt geschreven naar een Virtual Storage Access Method (VSAM) lineaire data set genaamd de active log. Wanneer de active log vol is, wordt de inhoud door Db2 gekopiëerd naar een andere data set genaamd de archive log.
+Db2 voor het z/OS besturingssysteem registreert alle dataveranderingen en andere significante gebeurtenissen in een logbestand \autocite{ibm_2021_zos_db2_logs}.
+Elke log record wordt geschreven naar een Virtual Storage Access Method (VSAM) lineaire dataset genaamd de active log. Wanneer de active log vol is, wordt de inhoud door Db2 gekopieerd naar een andere dataset genaamd de archive log.
 De archive log wordt bewust bewaard zodat het later, indien nodig, kan worden gebruikt voor herstel.
-Het schrijven van logs in Db2 voor z/OS wordt verdeeld in twee types, namelijk asynchroon logs schrijven en synchroon logs schrijven \autocite{ibm_2026_db2_log_writes}.
-Het asynchroon schrijven van logs gebeurt wanneer de data wordt bewerkt. 
+Het schrijven van logs in Db2 voor z/OS wordt verdeeld in twee typen, namelijk asynchroon logs schrijven en synchroon logs schrijven \autocite{ibm_2026_db2_log_writes}.
+Het asynchroon schrijven van logs gebeurt wanneer de gegevens worden bewerkt. 
 De oude en nieuwe waarden van de records worden geplaatst in de log output buffer waarna controle terug wordt gegeven aan de applicatie. 
 Het schrijven naar het fysieke volume gebeurt later. 
 Bij asynchroon schrijven wacht de applicatie enkel als er geen log buffers beschikbaar zijn.
-Een log buffer in Db2 voor z/OS is een toegewijd deel virtuele opslag die gebruikt wordt om veranderingen in de databank tijdelijk te bewaren, zodat deze later naar de active log op een volume kunnen worden geschreven \autocite{ibm_2026_db2_improving_log_write_log_buffers}.
+Een log buffer in Db2 voor z/OS is een toegewijd deel van de virtuele opslag die gebruikt wordt om veranderingen in de databank tijdelijk te bewaren, zodat deze later naar de active log op een volume kunnen worden geschreven \autocite{ibm_2026_db2_improving_log_write_log_buffers}.
 Wanneer er logs worden geschreven op een synchrone manier, gebeurt het schrijven doorgaans bij een commit van de data. 
-De applicatie moet wachten tot Db2 de log buffers naar het fysieke volume zijn geschreven vooraleer de controle teruggeven wordt aan de applicatie.
-Als de log data set niet in gebruik is, worden alle log buffers naar het fysieke volume geschreven.
-Als de log data set bezet is, worden de verzoeken in de wachtrij geplaatst totdat deze vrijkomt.
+De applicatie moet wachten tot Db2 de log buffers naar het fysieke volume zijn geschreven vooraleer de controle wordt teruggeven aan de applicatie.
+Als de log dataset niet in gebruik is, worden alle log buffers naar het fysieke volume geschreven.
+Als de log dataset bezet is, worden de verzoeken in de wachtrij geplaatst totdat deze vrijkomt.
 
 Om log-replicatie te begrijpen in Db2 voor z/OS moet ook worden gekeken naar de indeling van de logbestanden.
-Zoals eerder vermeld is de active log een VSAM lineaire data set.
+Zoals eerder vermeld is de active log een VSAM lineaire dataset.
 Volgens \textcite{ibm_2026_db2_log_content} kan deze verschillende soorten logrecords bevatten, waaronder unit of recovery records, checkpoint records en database page set control records.
 Logrecords bevatten doorgaans wijzigingen aan de Db2 databank.
-Al deze wijzigingen worden uitgevoerd binnen zogehete units of recovery. 
+Al deze wijzigingen worden uitgevoerd binnen zogenoemde units of recovery. 
 Een unit of recovery is een groep operaties die als één transactie wordt behandeld en die ofwel wordt gecommit of volledig wordt teruggedraaid \autocite{ibm_2025_infosphere_units_recovery}.
 Dergelijke operaties kunnen bijvoorbeeld online transacties of andere wijzigingen zijn die door applicaties worden uitgevoerd.
 De logrecords die bij een unit of recovery records horen, beschrijven wijzigingen aan de databank, de effecten van deze wijzigingen en de bijhorende herstelinformatie \autocite{ibm_2026_db2_13}.
 Deze logrecords bevatten ook undo en redo records.
 Wanneer een verandering wordt gedaan in de databank, maakt Db2 een log die deze verandering beschrijft.
-De redo-informatie is noodzakelijk wanneer een unit of work committed is en later moet worden hersteld.
-De undo-informatie daarentegen wordt gebruikt om units of work terug te draaien wanneer die niet committed zijn.
+De redo-informatie is noodzakelijk wanneer een unit of work gecommit is en later moet worden hersteld.
+De undo-informatie daarentegen wordt gebruikt om units of work terug te draaien wanneer die niet gecommit zijn.
 Naast unit of recovery logrecords, maakt Db2 tijdens normaal gebruik periodieke controlepunten aan om herstarttijd te verminderen \autocite{ibm_2026_db2_checkpoint_records}.
 Deze controlepunten worden aangemaakt wanneer een voorgedefinieerd aantal logrecords zijn geschreven of een voorgedefinieerd aantal minuten is verstreken.
-Controlepunten worden ook gecreëerd wanneer er van een actieve log data set naar een andere wordt geschakeld, bij het succesvol opnieuw opstarten of bij normale afloop.
-Bij een checkpoint, logt Db2 de huidige status en registreert de relative byte address (RBA) in de bootstrap data set (BSDS). 
+Controlepunten worden ook gecreëerd wanneer er van een actieve log dataset naar een andere wordt geschakeld, bij het succesvol opnieuw opstarten of bij normale afloop.
+Bij een checkpoint, logt Db2 de huidige status en registreert de relative byte address (RBA) in de bootstrap dataset (BSDS). 
 Tijdens herstarten gebruikt Db2 de checkpoint informatie om de status voor beëindiging te herstellen.
 De RBA identificeert de exacte positie van een logrecord in de log en wordt gebruikt om logrecords in de juiste volgorde te verwerken.
-De BSDS is een VSAM key-sequenced data set (KSDS) die alle kritieke informatie van Db2 bevat, zoals de namen en locaties van logs. 
+De BSDS is een VSAM key-sequenced dataset (KSDS) die alle kritieke informatie van Db2 bevat, zoals de namen en locaties van logs. 
 Tijdens het herstarten van het systeem, gebruikt Db2 de informatie in de BSDS om de status van het systeem te herstellen en om logrecords in de juiste volgorde te verwerken. 
 Naast de checkpoint records bestaan ook database page set control records, die voornamelijk het toewijzen, openen en sluiten van elke page set (table spaces of index spaces) registreren.
 
 Db2 log-replicatie maakt het mogelijk om wijzigingen die in de primaire database plaatsvinden asynchroon naar een secundaire site te verzenden, waardoor redundantie en herstelmogelijkheden ontstaan \autocite{ibm_2026_infosphere}.
 Het replicatieproces verloopt doorgaans in de volgende drie stappen.
 \begin{itemize}
-    \item Capture: het vastleggen van commit evenementen uit de Db2 log data sets waarbij de oude en nieuwe waarden van data records worden geregistreerd.
+    \item Capture: het vastleggen van commit evenementen uit de Db2 log datasets waarbij de oude en nieuwe waarden van data records worden geregistreerd.
     \item Transport: het overzetten van de logrecords naar de secundaire site via een netwerkverbinding. 
     \item Apply: het toepassen van de logrecords op de secundaire database, zodat deze kan worden gebruikt na een faalscenario.
 \end{itemize}
@@ -182,21 +182,21 @@ Bij Db2 wordt een mechanisme toegepast genaamd Controlled Log Catch-Up (CLC).
 Hierbij worden logrecords gecontroleerd ingehaald tot een consistent herstelpunt. 
 Dit mechanisme maakt het mogelijk om onvolledige Logical Units of Work (LUW) of commits in onjuiste volgorde te detecteren en te corrigeren zodat de transactionele integriteit bewaakt wordt \autocite{ibm_2026_db2}.
 
-Om replicatie op log niveau te realiseren voor Db2 wordt een oplossing aangeboden genaamd Q Replication, waarbij wijzigingen op een primaire Db2 databank kunnen worden gerepliceerd naar een secundaire databank.
+Om replicatie op logniveau te realiseren voor Db2 wordt een oplossing aangeboden genaamd Q Replication, waarbij wijzigingen op een primaire Db2 databank kunnen worden gerepliceerd naar een secundaire databank.
 Q Replication werkt asynchroon omdat de primaire databank niet hoeft te wachten tot de secundaire databank de wijzigingen heeft verwerkt \autocite{ibm_2026_db2_q_replication}.
 Q Replication laat verschillende configuraties toe zoals repliceren tussen servers op afstand of binnen de server zelf \autocite{ibm_2026_infosphere_q_replication}.
-Ook kan er gerepliceert worden in één of meerdere richtingen. Repliceren in meerdere richtingen kan bidirectioneel of peer-to-peer zijn.
+Ook kan er gerepliceerd worden in één of meerdere richtingen. Repliceren in meerdere richtingen kan bidirectioneel of peer-to-peer zijn.
 Bidirectioneel synchroniseren is nuttig voor het beheren van backupsystemen, terwijl peer-to-peer dient voor het synchronizeren van data op productiesystemen.
 
 Het eerder beschreven log-gebaseerd replicatiemechanisme in Db2 voor z/OS is essentieel voor het waarborgen van de transactieconsistentie en dataintegriteit, maar brengt ook risico's met zich mee.
 Een mogelijk kritiek scenario doet zich voor bij incomplete LUW's. 
 Wanneer een LUW niet volledig gerepliceerd is naar de secundaire site, door bijvoorbeeld een netwerkstoring of vertraging, kan dit leiden tot inconsistente datatoestanden op de secundaire databank \autocite{bruni_2016_data_integrity_db2}.
-Dataverlies wanneer de secundaire databank niet up-to-date is met de primaire databank creërt tevens een impact op de Recovery Point Objective (RPO).
+Dataverlies wanneer de secundaire databank niet up-to-date is met de primaire databank creëert tevens een impact op de Recovery Point Objective (RPO).
 Ook kan handmatige interventie vereist zijn om transacties te herstellen, wat de hersteltijd verlengt en dus impact heeft op de Recovery Time Objective (RTO) \autocite{bourbonnais2015}.
 Asynchrone replicatie introduceert tevens een inherent tijdsverschil tussen het moment waarop een transactie op de primaire databank wordt gecommit en het moment waarop deze op de secundaire databank wordt toegepast \autocite{white_2016_getting_started_ibm_z_resiliency}.
 Bij een failover kan recente data verloren gaan als de lag te groot is en heeft daardoor een impact op de RPO.
 Het inhalen van de achterstand, door bijvoorbeeld Controlled Lag Catch-Up, kan ook extra tijd kosten en zorgt voor een toename van de RTO.
-Ook is er nog het mogelijke probleem die ontstaat wanneer er zich storingen hebben voorgedaan tijdens het schrijven van logrecords. 
+Ook is er nog het mogelijke probleem dat ontstaat wanneer er zich storingen hebben voorgedaan tijdens het schrijven van logrecords. 
 Deze storingen kunnen namelijk leiden tot gaten in de logbestanden, waardoor herstel moeilijker wordt door het ontbreken van logrecords, en er een impact is op de RPO doordat data onherstelbaar verloren gaat.
 Het heeft ook een impact op de RTO doordat herstelprocedures zoals het gebruik van checkpoint records en BSDS moeten worden uitgevoerd, wat complexiteit en tijd toevoegt.
 Er is ook nog de mogelijkheid van onderbrekingen in de netwerkverbinding tussen een primaire en secundaire site.
@@ -205,23 +205,23 @@ Het herstellen na een netwerkstoring vereist overigens mogelijk het opnieuw opbo
 
 \section{\IfLanguageName{dutch}{Recovery Point Objective (RPO) en Recovery Time Objective (RTO) in Mainframe-omgevingen}{Recovery Point Objective (RPO) and Recovery Time Objective (RTO) in mainframe environments}}%
 \label{sec:rpo-rto-mainframe}
-In dit hoofdstuk wordt besproken wat het spanningsveld tussen Recovery Point Objective (RPO) en Recovery Time Objective (RTO) inhoudt en hoe zich dit vertaalt naar de verschillende replicatiemechanismen binnen mainframes die gebruikmaken van het z/OS besturingsssysteem.
-Per eerder besproken technologie wordt samengevat wat der verhoudingen zijn ten opzichte van deze criteria (RPO en RTO)\@.
+In dit hoofdstuk wordt besproken wat het spanningsveld tussen Recovery Point Objective (RPO) en Recovery Time Objective (RTO) inhoudt en hoe zich dit vertaalt naar de verschillende replicatiemechanismen binnen mainframes die gebruikmaken van het z/OS besturingssysteem.
+Per eerder besproken technologie wordt samengevat wat de verhoudingen zijn ten opzichte van deze criteria (RPO en RTO)\@.
 
-Zoals eerder vermeld hebben financiële bedrijven noodzaak aan meetbare criteria waaraan kan worden voldaan zodat de organisatie weet binnen welke grenzen een storing kan worden getolereerd.
+Zoals eerder vermeld hebben financiële bedrijven nood aan meetbare criteria waaraan kan worden voldaan zodat de organisatie weet binnen welke grenzen een storing kan worden getolereerd.
 Concreet gaat het hier over Recovery Point Objective (RPO) en Recovery Time Objective (RTO).
-Recovery Point Objective definieert de maximum toegelaten aantal data die mag verloren geraken.
+Recovery Point Objective definieert de maximale hoeveelheid data die verloren mag gaan.
 Recovery Time Objective definieert hoe lang een proces, systeem of applicatie mag uitvallen na een storing vooraleer er onherroepelijke schade is veroorzaakt \autocite{thordal_2007_using}.
 Het doel van elk herstellingsplan na een ramp is het beschermen van kritieke business processen van uitval.
-De eerder besproken GDPS Global Mirror replicatietechnologie biedt een RPO van minder dan een minuut; maar een RTO tussen een en twee uur \autocite{raften_2011_gdps_executive_overview}.
-De lage RPO is hier te wijten aan het periodieke aanmaken van consistency groups die dienen om een constistent herstelpunt te creëren \autocite{gomes_2025_redbooks}.
-Bij deze replicatietechnologie hoeft de primaire site bovendien niet te wachten op de secundaire site op bevestiging van de secundaire site.
+De eerder besproken GDPS Global Mirror replicatietechnologie biedt een RPO van minder dan een minuut, maar een RTO tussen een en twee uur \autocite{raften_2011_gdps_executive_overview}.
+De lage RPO is hier te wijten aan het periodieke aanmaken van consistency groups die dienen om een consistent herstelpunt te creëren \autocite{gomes_2025_redbooks}.
+Bij deze replicatietechnologie hoeft de primaire site bovendien niet te wachten op de bevestiging van de secundaire site.
 Dit zorgt dus voor minimale impact op prestaties bij de primaire site, maar betekent desalniettemin dat er een vertraging kan ontstaan van seconden tot minuten tussen de primaire en de secundaire site door de asynchrone aard van deze technologie.
 Naast GDPS Global Mirror is er ook de reeds vermelde GDPS Metro Mirror.
 \textcite{gomes_2025_redbooks} stelt dat Metro Mirror de enige replicatietechnologie is, aangeboden door IBM, waarmee een RPO van nul kan bereikt worden.
 Dit is te wijten aan de synchrone manier waarop Metro Mirror werkt.
-De synchrone manier verwijst hier naar het primaire systeem die wacht tot de data ook aanwezig is op het secundaire systeem.
+De synchrone manier verwijst hier naar het primaire systeem dat wacht tot de data ook aanwezig is op het secundaire systeem.
 Echter zijn er uiteraard nadelen verbonden aan deze replicatietechnologie, zoals de maximale afstand tussen het primaire en secundaire subsysteem.
 Dit heeft ook een invloed op de RTO, die enkele seconden tot een uur kan bedragen \autocite{li_2019_planet_mainframe_gdps}.
-Dan is er ook nog IBM Q replication waarbij de effectieve transacties binnen een databank verstuurd worden naar andere databanken of subsystemen  \autocite{ibm_2026_infosphere}.
+Dan is er ook nog IBM Q replication waarbij de effectieve transacties binnen een databank worden verstuurd naar andere databanken of subsystemen \autocite{ibm_2026_infosphere}.
 Volgens \textcite{bourbonnais2015} biedt deze technologie een RPO van minder dan drie seconden en een RTO van minder dan een minuut.

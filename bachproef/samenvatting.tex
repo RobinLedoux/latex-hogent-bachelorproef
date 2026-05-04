@@ -45,4 +45,13 @@
 
 \chapter*{\IfLanguageName{dutch}{Samenvatting}{Abstract}}
 
-
+Deze bachelorproef onderzoekt de rol van operationele veerkracht binnen mainframe-omgevingen, met een specifieke focus op replicatiearchitecturen en hun impact op RPO (Recovery Point Objective), RTO (Recovery Time Objective) en dataconsistentie.
+In een context waarin financiële instellingen steeds afhankelijker worden van continue beschikbaarheid en fouttolerante systemen, is het essentieel om de betrouwbaarheid van dataplatformen te analyseren, zeker binnen een geopolitiek en technologisch instabiele wereld.
+De centrale onderzoeksvraag luidt hoe verschillende replicatiestrategieën binnen IBM Z-omgevingen bijdragen aan operationele veerkracht, en welke risico's hierbij optreden op vlak van dataverlies, vertraging en inconsistenties.
+Het onderzoek werd uitgevoerd door een technische en literatuurgebaseerde analyse van drie architecturen: synchrone replicatie (GDPS Metro Mirror), asynchrone replicatie (GDPS Global Mirror) en een hybride configuratie die beide combineert. 
+Daarnaast werd ook loggebaseerde replicatie via Db2 Q Replication onderzocht, met nadruk op transactionele consistentie en replicatievertraging.
+Uit de resultaten blijkt dat synchrone replicatie een RPO van nul garandeert, maar beperkt is door afstand en performance-impact. 
+Asynchrone replicatie biedt meer schaalbaarheid en betere prestaties, maar introduceert risico's op dataverlies en inconsistenties. 
+De hybride architectuur biedt de meest robuuste oplossing door geografische spreiding te combineren met lage RPO binnen regionale contexten en bescherming tegen grootschalige uitval.
+De belangrijkste conclusie is dat geen enkele architectuur volledig alle risico's elimineert, maar dat een gelaagde hybride aanpak in combinatie met automatisatie (zoals GDPS HyperSwap) de hoogste mate van operationele veerkracht biedt. 
+De resultaten zijn relevant voor financiële instellingen die hun disaster recovery-strategie willen optimaliseren binnen moderne mainframe-omgevingen.

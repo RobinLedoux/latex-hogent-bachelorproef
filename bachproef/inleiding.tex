@@ -15,28 +15,28 @@ De Digital Operational Resilience Act verplicht financiële instellingen om een 
 Het probleem ontstaat wanneer twee gesynchroniseerde datacenters tegelijkertijd uitvallen, waardoor de continuïteit van de diensten en de integriteit van transacties in gevaar komt. 
 Dit scenario is relevant bij grootschalige regionale incidenten zoals stroomuitval, natuurrampen of gecoördineerde cyberaanvallen.
 Het toevoegen van een aanvullende derde site zorgt voor uitdagingen omdat door de afstand geen minimale vertragingstijd kan worden gegarandeerd.
-Om dit risico te minimaliseren is het noodzakelijk een extra, geografisch gescheiden datacentrum toe te voegen, waarop alle transacties asynchroon kunnen worden gerepliceerd \autocite{snedaker2013business}.
-Echter betekent een derde aanvullende site niet dat er geen invloed is op de vertragingstijd.
-Hierdoor is een onderzoek naar verschillende oplossingen met betrekking tot een derde aanvullende site bij een oplossing van reeds twee gesynchroniseerde datacenters nuttig om een overzicht te krijgen van de invloed op Recovery Point Objective (RPO) en Recovery Time Objective (RTO).
+Om dit risico te minimaliseren is het noodzakelijk om een extra, geografisch gescheiden datacentrum toe te voegen, waarop alle transacties asynchroon kunnen worden gerepliceerd \autocite{snedaker2013business}.
+Een derde aanvullende site betekent echter niet dat er geen invloed is op de vertragingstijd.
+Hierdoor is onderzoek naar verschillende oplossingen met betrekking tot een derde aanvullende site bij een oplossing van reeds twee gesynchroniseerde datacenters nuttig om een overzicht te krijgen van de invloed op Recovery Point Objective (RPO) en Recovery Time Objective (RTO).
 
 \section{\IfLanguageName{dutch}{Deelvragen probleemdomein}{Subquestions problem domain}}%
 \label{sec:deelvragen-probleemdomein}
 \begin{itemize}
-    \item Welke vormen van datareplicatie en DB2-logreplicatie bestaan binnen DB2 voor Z/OS en welke garanties bieden deze inzake transactionele consistentie?
+    \item Welke vormen van datareplicatie en Db2-logreplicatie bestaan binnen Db2 voor z/OS en welke garanties bieden deze inzake transactionele consistentie?
     \item Welke technische beperkingen (vertragingstijd, afstand, commit-gedrag) verhinderen het gebruik van synchrone replicatie naar een derde geografisch afgelegen site?
-    \item Welke faalscenario's kunnen optreden in een DB2-architectuur met meerdere sites en asynchrone replicatie en welke DB2-componenten zijn daarbij betrokken?
+    \item Welke faalscenario's kunnen optreden in een Db2-architectuur met meerdere sites en asynchrone replicatie, en welke Db2-componenten zijn daarbij betrokken?
     \item Welke impact hebben deze faalscenario's op dataconsistentie, RPO en RTO\@?
 \end{itemize}
 
 \section{\IfLanguageName{dutch}{Onderzoeksvraag}{Research question}}%
 \label{sec:onderzoeksvraag}
 
-Deze bachelorproef analyseert de risico's bij IBM DB2 transactie-logreplicatie van kritieke bancaire mainframe-systemen naar geodistribueerde disaster recovery-omgevingen, met focus op RPO en RTO\@.
+Deze bachelorproef analyseert de risico's bij IBM Db2 transactielogreplicatie van kritieke bancaire mainframe-systemen naar geodistribueerde disaster recovery-omgevingen, met focus op RPO en RTO\@.
 
 \section{\IfLanguageName{dutch}{Onderzoeksdoelstelling}{Research objective}}%
 \label{sec:onderzoeksdoelstelling}
 
-Het beoogd resultaat van de bachelorproef is een overzicht van verschillende oplossingen voor financiële instellingen met reeds twee gesynchroniseerde datacenters waarbij per oplossing RPO en RTO vermeld worden.
+Het beoogde resultaat van de bachelorproef is een overzicht van verschillende oplossingen voor financiële instellingen met reeds twee gesynchroniseerde datacenters waarbij per oplossing RPO en RTO worden vermeld.
 Bovendien zal per oplossing ook de vertragingstijd in kaart worden gebracht.
 
 \section{\IfLanguageName{dutch}{Opzet van deze bachelorproef}{Structure of this bachelor thesis}}%
@@ -52,6 +52,6 @@ In Hoofdstuk~\ref{ch:literatuurstudie} wordt een overzicht gegeven van de stand 
 
 In Hoofdstuk~\ref{ch:methodologie} wordt de methodologie toegelicht en worden de gebruikte onderzoekstechnieken besproken om een antwoord te kunnen formuleren op de onderzoeksvragen.
 
-In Hoofdstuk~\ref{ch:analyse} 
+In Hoofdstuk~\ref{ch:analyse} wordt de analyse van de verschillende architecturen en risico's besproken.
 
 In Hoofdstuk~\ref{ch:conclusie}, tenslotte, wordt de conclusie gegeven en een antwoord geformuleerd op de onderzoeksvragen. Daarbij wordt ook een aanzet gegeven voor toekomstig onderzoek binnen dit domein.
