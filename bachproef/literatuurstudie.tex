@@ -132,7 +132,7 @@ Log-gebaseerde replicatie speelt een cruciale rol in Db2-omgevingen, met name vo
 In tegenstelling tot opslaggebaseerde replicatie, zoals de eerder besproken GDPS Metro Mirror en GDPS Global Mirror, focust logreplicatie op het niveau van transacties.
 Q Replication is een technologie van IBM die gemaakt is voor replicatie op transactieniveau met als doel een hoge doorvoer en korte wachttijd te bekomen \autocite{ibm_2026_infosphere}.
 Het maakt gebruik van IBM MQ message queues om transacties tussen een bronsysteem te versturen naar een doelsysteem.
-Er is een minimale vertragingstijd doordat de veranderingen worden doorgevoerd zodra ze zijn gecommit en gelezen van de log.
+Er is een minimale vertragingstijd doordat de veranderingen worden doorgevoerd zodra ze zijn gecommit en gelezen van het log.
 Om dit te begrijpen, is het nuttig om eerst uit te leggen wat een log inhoudt in Db2.
 
 Db2 voor het z/OS besturingssysteem registreert alle dataveranderingen en andere significante gebeurtenissen in een logbestand \autocite{ibm_2021_zos_db2_logs}.
@@ -166,7 +166,7 @@ Deze controlepunten worden aangemaakt wanneer een voorgedefinieerd aantal logrec
 Controlepunten worden ook gecreëerd wanneer er van een actieve log dataset naar een andere wordt geschakeld, bij het succesvol opnieuw opstarten of bij normale afloop.
 Bij een checkpoint, logt Db2 de huidige status en registreert de relative byte address (RBA) in de bootstrap dataset (BSDS). 
 Tijdens herstarten gebruikt Db2 de checkpoint informatie om de status voor beëindiging te herstellen.
-De RBA identificeert de exacte positie van een logrecord in de log en wordt gebruikt om logrecords in de juiste volgorde te verwerken.
+De RBA identificeert de exacte positie van een logrecord in het log en wordt gebruikt om logrecords in de juiste volgorde te verwerken.
 De BSDS is een VSAM key-sequenced dataset (KSDS) die alle kritieke informatie van Db2 bevat, zoals de namen en locaties van logs. 
 Tijdens het herstarten van het systeem, gebruikt Db2 de informatie in de BSDS om de status van het systeem te herstellen en om logrecords in de juiste volgorde te verwerken. 
 Naast de checkpoint records bestaan ook database page set control records, die voornamelijk het toewijzen, openen en sluiten van elke page set (table spaces of index spaces) registreren.
@@ -180,7 +180,7 @@ Het replicatieproces verloopt doorgaans in de volgende drie stappen.
 \end{itemize}
 Bij Db2 wordt een mechanisme toegepast genaamd Controlled Log Catch-Up (CLC).
 Hierbij worden logrecords gecontroleerd ingehaald tot een consistent herstelpunt. 
-Dit mechanisme maakt het mogelijk om onvolledige Logical Units of Work (LUW) of commits in onjuiste volgorde te detecteren en te corrigeren zodat de transactionele integriteit bewaakt wordt \autocite{ibm_2026_db2}.
+Dit mechanisme maakt het mogelijk om commits in onjuiste volgorde te detecteren en te corrigeren zodat de transactionele integriteit bewaakt wordt \autocite{ibm_2026_db2}.
 
 Om replicatie op logniveau te realiseren voor Db2 wordt een oplossing aangeboden genaamd Q Replication, waarbij wijzigingen op een primaire Db2 databank kunnen worden gerepliceerd naar een secundaire databank.
 Q Replication werkt asynchroon omdat de primaire databank niet hoeft te wachten tot de secundaire databank de wijzigingen heeft verwerkt \autocite{ibm_2026_db2_q_replication}.
@@ -189,10 +189,22 @@ Ook kan er gerepliceerd worden in één of meerdere richtingen. Repliceren in me
 Bidirectioneel synchroniseren is nuttig voor het beheren van backupsystemen, terwijl peer-to-peer dient voor het synchronizeren van data op productiesystemen.
 
 Het eerder beschreven log-gebaseerd replicatiemechanisme in Db2 voor z/OS is essentieel voor het waarborgen van de transactieconsistentie en dataintegriteit, maar brengt ook risico's met zich mee.
-Een mogelijk kritiek scenario doet zich voor bij incomplete LUW's. 
-Wanneer een LUW niet volledig gerepliceerd is naar de secundaire site, door bijvoorbeeld een netwerkstoring of vertraging, kan dit leiden tot inconsistente datatoestanden op de secundaire databank \autocite{bruni_2016_data_integrity_db2}.
-Dataverlies wanneer de secundaire databank niet up-to-date is met de primaire databank creëert tevens een impact op de Recovery Point Objective (RPO).
-Ook kan handmatige interventie vereist zijn om transacties te herstellen, wat de hersteltijd verlengt en dus impact heeft op de Recovery Time Objective (RTO) \autocite{bourbonnais2015}.
+Een mogelijk kritiek scenario doet zich voor bij long-running units of work.
+Long-running units of work in IBM Q Replication verwijst naar transacties of batches die zo lang duren dat het beheren van logs bemoeilijkt wordt \autocite{ibm_2026_problems_long_running_units_of_work}.
+De RBA die het startpunt van de transactie in de logs aanduidt, valt hierbij buiten het bereik van de active logs.
+Hierdoor moet het systeem archive logs raadplegen om de transactie te herstellen, wat het herstarten vertraagt.
+Long-running units of work kunnen ook de replicatievertraging verhogen.
+Wanneer een transactie namelijk te groot is om in het geheugen te passen, moet Q Capture deze naar schijf schrijven \autocite{ibm_2026_space_requirements_for_spill_files_capture_program}.
+Hierdoor wordt de verwerking van volgende transacties geblokkeerd tot de huidige afgerond is, waardoor de algemene replicatiesnelheid vertraagt.
+Er is ook nog een ander mogelijk probleem dat zich kan voordoen bij long-running units of work en dat is het veroorzaken van lock contention.
+Db2 gebruikt locks om de integriteit van data te garanderen \autocite{ibm_2026_lock_contention_suspension_deadlock_timeout}.
+Wanneer er, bijvoorbeeld, door een batchjob miljoenen rijen uit een tabel worden verwijderd in één grote transactie, houdt Db2 locks op al die rijen vast.
+Zolang die transactie niet gecommit is, moeten applicaties die dezelfde rijen willen aanpassen wachten tot Db2 de locks weghaalt.
+Bij Q Replication kan het dus ook zijn dat er gewacht moet worden, met name als de replicatie parallel probeert te werken.
+Omdat Q Capture bij een uitval moet herstarten vanaf het beginpunt van de oudste openstaande transactie, ligt dat startpunt mogelijk in de archive logs en moeten die eerst worden opgehaald.
+Als gevolg van long-running transacties, moet een grote hoeveelheid logdata opnieuw verwerkt worden \autocite{ibm_2013_us_reducing_reading_database_logs_persisting_long_running_transactions}.
+Dit verlengt direct de tijd die nodig is om Q Capture weer operationeel te krijgen na een uitval en heeft dus ook een impact op de RTO.
+
 Asynchrone replicatie introduceert tevens een inherent tijdsverschil tussen het moment waarop een transactie op de primaire databank wordt gecommit en het moment waarop deze op de secundaire databank wordt toegepast \autocite{white_2016_getting_started_ibm_z_resiliency}.
 Bij een failover kan recente data verloren gaan als de lag te groot is en heeft daardoor een impact op de RPO.
 Het inhalen van de achterstand, door bijvoorbeeld Controlled Lag Catch-Up, kan ook extra tijd kosten en zorgt voor een toename van de RTO.

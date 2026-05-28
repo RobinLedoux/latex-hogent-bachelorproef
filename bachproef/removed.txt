@@ -1,0 +1,105 @@
+Literatuurstudie:
+
+Een mogelijk kritiek scenario doet zich voor bij incomplete LUW's. 
+Wanneer een LUW niet volledig gerepliceerd is naar de secundaire site, door bijvoorbeeld een netwerkstoring of vertraging, kan dit leiden tot inconsistente datatoestanden op de secundaire databank \autocite{bruni_2016_data_integrity_db2}.
+Dataverlies wanneer de secundaire databank niet up-to-date is met de primaire databank creëert tevens een impact op de Recovery Point Objective (RPO).
+Ook kan handmatige interventie vereist zijn om transacties te herstellen, wat de hersteltijd verlengt en dus impact heeft op de Recovery Time Objective (RTO) \autocite{bourbonnais2015}.
+
+Methodologie:
+
+    \item Incomplete Logical Units of Work (LUW's)
+
+Analyse:
+
+Hierbij wordt gekeken naar de risico's die gepaard gaan met asynchrone replicatie op transactieniveau, zoals replicatievertraging, incomplete LUW's en inconsistenties in logreplicatie.
+\subsection{\IfLanguageName{dutch}{Incomplete Logical Units of Work}{Incomplete Logical Units of Work}}
+
+Een LUW wordt doorgaans beëindigd door een commit, een volledige rollback van een transactie of het einde van een applicatie \autocite{ibm_2026_db2_unit_of_work}.
+Als de veranderingen nog niet committed zijn, kunnen andere applicaties deze veranderingen nog niet zien.
+Het start- en stoppunt van een LUW definieert consistentie punten.
+\textcite{ibm_2026_db2_unit_of_work} geeft het volgend voorbeeld.
+Een transactie binnen een bank kan inhouden dat er een bepaalde som aan geld wordt overgeplaatst van een rekening naar een andere rekening.
+Bij een dergelijke transactie moet eerst een geldsom worden afgetrokken van de ene rekening en dan toegevoegd worden aan de andere rekening.
+Nadat het geld afgetrokken is van de ene rekening, wordt de data inconsistent want het geld moet nog worden toegevoegd op de tweede bankrekening.
+Alleen wanneer het geld afgetrokken is en correct toegevoegd op de desbetreffende rekeningen, kan de consistentie van de data weer bevestigd worden.
+Wanneer beide transacties, in dit geval, voltooid zijn, kan een commit gedaan worden om de transactie af te ronden waarna de veranderingen ook zichtbaar worden voor alle applicaties.
+Als er een fout gebeurd tijdens het uitvoeren van de transactie, zal Db2 gewoonlijk de wijzigingen terug draaien en daarmee de data terugzetten naar de start van de LUW \autocite{ibm_2026_how_rolls_back}.
+Het probleem ontstaat wanneer de LUW niet kan worden voltooid en, tijdens een rollback, er een fout ontstaat waardoor de data niet terug gezet is.
+Hierdoor kan de data inconsistent zijn.
+Bij het voorbeeld van \textcite{ibm_2026_db2_unit_of_work} zou het geld afgetrokken zijn van de eerste rekening maar niet toegevoegd zijn aan de tweede rekening.
+Als een rollback dan niet lukt, is de data inconsistent.
+Het kan gebeuren dat een asynchrone replicatieomgeving zoals Q Replication LUW's daardoor onvolledig repliceert.
+
+\subsubsection{\IfLanguageName{dutch}{Oorzaken van Incomplete LUW's}{Causes of Incomplete Logical Units of Work}}
+\label{sec:asynchrone-log-replicatie-oorzaken-incomplete-logical-units-of-work}
+
+Incomplete LUW's kunnen optreden door verschillende storingen in het replicatieproces van Q Replication.
+Hieronder worden de hoofdoorzaken besproken, samen met hun impact op de dataconsistentie.
+
+Een mogelijke oorzaak van incomplete LUW's is een crash van het Q Apply programma tijdens het toepassen van een transactie op de secundaire databank.
+Q Apply is verantwoordelijke voor het toepassen van de logrecords, die door Q Capture zijn verzameld en via MQ zijn verzonden, op de secundaire databank.
+Het MQ-bericht dat Q Apply ontvangt bevat een volledige LUW.
+Q Apply begint, na het ontvangen van het bericht, met het toepassen van de individuele operaties binnen die LUW in de juiste volgorde.
+Het probleem ontstaat wanneer Q Apply crasht tijdens dit proces, bijvoorbeeld door een systeemfout.
+Hierdoor kan het voorkomen dat er enkel een deel van de operaties binnen de LUW is toegepast, met inconsistente data als gevolg.
+
+Een andere oorzaak van incomplete LUW's zijn gaten in de logbestanden op de primaire site.
+Db2 voor z/OS schrijft alle wijzingingen in de databank naar de logbuffer die uiteindelijk worden bewaard in de active log en later naar de archive log worden gekopieerd.
+Als er een schrijffout optreedt, door bijvoorbeeld het falen van een opslagapparaat, kan het zijn dat een of meerdere logrecords ontbreken in de active log of archive log \autocite{broadcom_2026_db2_backup_recovery_handbook}.
+Wanneer Q Capture de logrecords leest om LUW's te reconstrueren en naar de secundaire site verzenden, mist het de ontbrekende logrecords.
+Hierdoor kan Q Capture een onvolledige LUW naar Q Apply verzenden.
+Als Q Apply deze onvolledige LUW toepast op de secundaire database, ontstaat er datainconsistentie.
+Dit heeft directe gevolgen voor de RPO.
+Het herstellen van een dergelijke situatie is complex en vereist het gebruik van backups en archive logs om de ontbrekende gegevens te reconstrueren.
+Met name als de backups niet actueel zijn, kan de RTO aanzienlijk verlengd worden.
+
+In omgevingen met een hoge workload kan de MQ-queue die gebruikt wordt voor Q Replication overbelast worden.
+Q Capture verzendt LUW's met MQ-berichten naar de secundaire site, waar Q Apply deze berichten verwerkt \autocite{ibm_2026_infosphere_q_replication}.
+Als Q Capture sneller berichten verzendt dan Q Apply ze kan verwerken, groeit de queue tot een maximale grootte \autocite{ballard_2016_understanding_q_replication_high_availability}.
+Dit kan leiden tot een langere replicatietijd, zoals voorheen gesproken, maar kan ook leiden tot ontbrekende LUW's als het systeem faalt wanneer bepaalde LUW's nog niet zijn toegepast door Q Apply.
+
+\subsubsection{\IfLanguageName{dutch}{Impact van Incomplete LUW's}{Impact of Incomplete Logical Units of Work}}
+\label{sec:asynchrone-log-replicatie-impact-incomplete-logical-units-of-work}
+
+Een storing veroorzaakt door incomplete LUW's heeft meerdere gevolgen.
+Ten eerste ontstaat er datainconsistentie, wat voor financiële instellingen kan leiden tot onjuiste saldi, dubbele uitgevoerde operaties, of ontbrekende gegevens.
+Ten tweede heeft dit gevolgen voor de RPO en RTO.
+Alle transacties die na de onvolledige LUW zijn gecommit op de primaire site, zijn mogelijk verloren als de primaire site uitvalt voordat de replicatie is hersteld.
+Bovendien vereist het herstellen van de consistentie vaak handmatige interventie of het uitvoeren van Controlled Log Catch-Up (CLC), wat de RTO aanzienlijk kan verlengen.
+
+\subsubsection{\IfLanguageName{dutch}{Mitigatiestrategieën voor Incomplete LUW's}{Mitigation Strategies for Incomplete Logical Units of Work}}
+\label{sec:asynchrone-log-replicatie-mitigatie-incomplete-logical-units-of-work}
+
+De risico's die gepaard gaan met incomplete LUW's in een asynchrone replicatieomgeving zoals Q Replication kunnen aanzienlijk worden gemitigeerd door een combinatie van preventieve en correctieve maatregelen. 
+Voor financiële instellingen, waar dataconsistentie en operationele veerkracht van het grootste belang zijn, is het implementeren van deze strategieën essentieel om te voldoen aan strenge eisen zoals die gesteld worden door DORA, PCI-DSS en GDPR. 
+Hieronder worden de meest effectieve mitigatiestrategieën besproken.
+
+Preventieve maatregelen zijn gericht op het voorkomen van situaties die kunnen leiden tot incomplete LUW's. 
+Een van de meest effectieve strategieën is het gebruik van frequente consistency groups in combinatie met GDPS Global Mirror. 
+Door elke 30 seconden een consistency group aan te maken, wordt de RPO beperkt tot maximaal 30 seconden. 
+Dit zorgt ervoor dat, zelfs bij een storing, het dataverlies beperkt blijft tot de transacties die plaatsvonden tussen twee opeenvolgende consistency groups. 
+Hoewel deze aanpak de netwerkbelasting verhoogt, is de winst in termen van databescherming aanzienlijk, met name voor kritieke systemen \autocite{gomes_2025_redbooks}.
+
+Redundante netwerkverbindingen kunnen worden geïmplementeerd om het risico op netwerkstoringen te minimaliseren. 
+Door twee of meer onafhankelijke netwerkpaden te gebruiken voor replicatie, kan het systeem overschakelen naar een backup-verbinding als de primaire verbinding uitvalt. 
+Dit vermindert de kans dat MQ-berichten verloren gaan of onvolledig worden ontvangen \autocite{ballard_2016_understanding_q_replication_high_availability}.
+Tot slot kan de batchgrootte in Q Capture worden geoptimaliseerd. 
+Q Capture leest logrecords uit de Db2-log en groepeert deze in batches voordat ze als MQ-berichten worden verzonden. 
+Een kleinere batchgrootte zorgt voor snellere verwerking, maar veroorzaakt meer netwerkoverhead. 
+Omgekeerd vermindert een grotere batchgrootte de overhead, maar kan de verwerking vertragen. 
+Het is daarom aan te raden om de batchgrootte af te stemmen op de specifieke workload en netwerkomstandigheden \autocite{ibm_2025_infosphere_batch_frequency_param}.
+
+Indien incomplete LUW's toch optreden, zijn er verschillende correctieve maatregelen beschikbaar om de dataconsistentie te herstellen. 
+De RECOVER utility in Db2 laat toe om data herstellen naar een huidige of vorige staat door het kopiëren van en toepassen van logrecords \autocite{ibm_2025_db2_recover}.
+Als een LUW onvolledig is toegepast, kan de RECOVERY utility deze terugdraaien of opnieuw toepassen om de consistentie te herstellen \autocite{ibm_2021_db2_clc}.
+Hoewel deze aanpak tijdrovend kan zijn, is het vaak noodzakelijk om de dataconsistentie te waarborgen \autocite{ibm_2026_how_rolls_back}.
+
+In het ergste geval kan de secundaire database hersteld worden vanaf een backup. 
+Dit is echter een laatste redmiddel, omdat alle transacties die sinds de laatste backup zijn uitgevoerd, verloren zullen gaan. 
+Het herstelproces omvat het herstellen van de database vanaf de backup, het toepassen van ontbrekende transacties met behulp van archive logs, en het opnieuw synchroniseren met de primaire database. 
+Deze aanpak heeft een aanzienlijke impact op zowel de RPO als de RTO en moet daarom alleen worden overwogen wanneer andere herstelmethoden niet beschikbaar zijn \autocite{broadcom_2026_db2_backup_recovery_handbook}.
+
+Tot slot is regelmatige monitoring en testing essentieel. 
+Door replicatieprestaties te monitoren met tools zoals IBM Z NetView en Q Replication Alert Monitor, kunnen potentiële problemen tijdig worden gedetecteerd. 
+Daarnaast is het raadzaam om failover-scenario's minstens één keer per jaar te testen om te waarborgen dat de RPO en RTO binnen de gestelde doelen blijven.
+

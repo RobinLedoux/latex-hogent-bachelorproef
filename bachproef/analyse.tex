@@ -245,7 +245,7 @@ Het is ook mogelijk om er anomalieën in log- en metrische data te detecteren, w
 
 In het vorige hoofdstuk zijn verschillende mainframe-opstellingen besproken, inclusief hun werking, voordelen, beperkingen en mogelijke faalscenario's waarbij het voornamelijk ging over opslaggebaseerde replicatie-opstellingen zoals GDPS Metro Mirror en GDPS Global Mirror.
 Dit hoofdstuk richt zich op loggebaseerde replicatie in Db2 voor z/OS, met name Q Replication.
-Hierbij wordt gekeken naar de risico's die gepaard gaan met asynchrone replicatie op transactieniveau, zoals replicatievertraging, incomplete LUW's en inconsistenties in logreplicatie.
+Hierbij wordt gekeken naar de risico's die gepaard gaan met asynchrone replicatie op transactieniveau, zoals replicatievertraging, long-running LUW's en inconsistenties in logreplicatie.
 Deze risico's worden gekoppeld aan kritieke componenten zoals log streams en coupling facilities, en hun impact op RPO, RTO en transactionele consistentie wordt geanalyseerd.
 
 \subsection{\IfLanguageName{dutch}{Replicatievertraging}{Replication Latency}}
@@ -364,97 +364,101 @@ Voor IBM MQ zijn grotere buffer pools algemeen beter voor performantie \textcite
 Grotere buffer pools kunnen ervoor zorgen dat er minder I/O-operaties moeten gedaan worden, wat resulteert in minder vertraging.
 Het vergroten van buffer pools zorgt voor meer geheugengebruik.
 
-\subsection{\IfLanguageName{dutch}{Incomplete Logical Units of Work}{Incomplete Logical Units of Work}}
-\label{sec:asynchrone-log-replicatie-incomplete-logical-units-of-work}
+\subsection{\IfLanguageName{dutch}{Long-running Logical Units of Work}{Long-running Logical Units of Work}}
+\label{sec:asynchrone-log-replicatie-long-running-logical-units-of-work}
 
-Een ander mogelijk risico bij logreplicatie zijn incomplete Logical Units of Work (LUW's).
+Een ander mogelijk risico bij logreplicatie zijn long-running Logical Units of Work (LUW's).
 Een LUW wordt doorgaans beëindigd door een commit, een volledige rollback van een transactie of het einde van een applicatie \autocite{ibm_2026_db2_unit_of_work}.
-Als de veranderingen nog niet committed zijn, kunnen andere applicaties deze veranderingen nog niet zien.
-Het start- en stoppunt van een LUW definieert consistentie punten.
-\textcite{ibm_2026_db2_unit_of_work} geeft het volgend voorbeeld.
-Een transactie binnen een bank kan inhouden dat er een bepaalde som aan geld wordt overgeplaatst van een rekening naar een andere rekening.
-Bij een dergelijke transactie moet eerst een geldsom worden afgetrokken van de ene rekening en dan toegevoegd worden aan de andere rekening.
-Nadat het geld afgetrokken is van de ene rekening, wordt de data inconsistent want het geld moet nog worden toegevoegd op de tweede bankrekening.
-Alleen wanneer het geld afgetrokken is en correct toegevoegd op de desbetreffende rekeningen, kan de consistentie van de data weer bevestigd worden.
-Wanneer beide transacties, in dit geval, voltooid zijn, kan een commit gedaan worden om de transactie af te ronden waarna de veranderingen ook zichtbaar worden voor alle applicaties.
-Als er een fout gebeurd tijdens het uitvoeren van de transactie, zal Db2 gewoonlijk de wijzigingen terug draaien en daarmee de data terugzetten naar de start van de LUW \autocite{ibm_2026_how_rolls_back}.
-Het probleem ontstaat wanneer de LUW niet kan worden voltooid en, tijdens een rollback, er een fout ontstaat waardoor de data niet terug gezet is.
-Hierdoor kan de data inconsistent zijn.
-Bij het voorbeeld van \textcite{ibm_2026_db2_unit_of_work} zou het geld afgetrokken zijn van de eerste rekening maar niet toegevoegd zijn aan de tweede rekening.
-Als een rollback dan niet lukt, is de data inconsistent.
-Het kan gebeuren dat een asynchrone replicatieomgeving zoals Q Replication LUW's daardoor onvolledig repliceert.
+Het start- en stoppunt van een LUW definiëren consistentiepunten.
+Een transactie binnen een bank kan, bijvoorbeeld, inhouden dat er een bepaalde som geld wordt overgeplaatst van één rekening naar een andere rekening.
+Eerst wordt een geldsom afgetrokken van de primaire rekening en daarna toegevoegd aan de secundaire rekening.
+Zolang alleen de aftrekking van het geld op de primaire rekening heeft plaatsgevonden, is de data inconsistent.
+Pas wanneer beide stappen voltooid zijn, kan een commit worden uitgevoerd waarna de wijzigingen ook zichtbaar worden voor andere applicaties.
+Q Replication repliceert uitsluitend gecommitte transacties.
+Dit wil zeggen dat Q Replication een volledige transactie opbouwt in het geheugen en deze pas verstuurt nadat een commit in het Db2-log wordt gedetecteerd \autocite{chatterjee_2010_ibm_infosphere_replication_server}.
+Onvoltooide of teruggedraaide LUW's worden dus nooit gerepliceerd.
+Het risico bij Q Replication situeert zich dan ook niet in incomplete, maar in long-running LUW's.
+Dit zijn transacties die dermate lang open blijven staan dat dit problemen veroorzaakt voor het beheer van logs, de replicatievertraging en de beschikbaarheid van het systeem.
 
-\subsubsection{\IfLanguageName{dutch}{Oorzaken van Incomplete LUW's}{Causes of Incomplete Logical Units of Work}}
-\label{sec:asynchrone-log-replicatie-oorzaken-incomplete-logical-units-of-work}
+\subsubsection{\IfLanguageName{dutch}{Oorzaken van Long-running LUW's}{Causes of Long-Running Logical Units of Work}}
+\label{sec:asynchrone-log-replicatie-oorzaken-long-running-logical-units-of-work}
 
-Incomplete LUW's kunnen optreden door verschillende storingen in het replicatieproces van Q Replication.
-Hieronder worden de hoofdoorzaken besproken, samen met hun impact op de dataconsistentie.
+Er zijn meerdere oorzaken van long-running LUW's in Db2.
+Een eerste mogelijke oorzaak is grote batchjobs zonder tussentijdse commits.
+In databasebeheersystemen is het gebruikelijk dat periodieke batchworkloads grote hoeveelheden operaties uitvoeren zoals insert, update of delete \autocite{ibm_2010_mainframe_batch_online_transaction_processing}.
+Zulke grote batchverwerkingen kunnen druk uitoefenen op de middelen van het databasebeheersysteem.
+Wanneer een batchjob miljoenen rijen verwerkt in één enkele transactie, zonder hierbij tussentijds commits uit te voeren, ontstaat een long-running LUW.
+Hierdoor neemt, zoals eerder vermeld, de replicatievertraging toe doordat Q Replication wacht op de commit voordat de transactie wordt gerepliceerd.
 
-Een mogelijke oorzaak van incomplete LUW's is een crash van het Q Apply programma tijdens het toepassen van een transactie op de secundaire databank.
-Q Apply is verantwoordelijke voor het toepassen van de logrecords, die door Q Capture zijn verzameld en via MQ zijn verzonden, op de secundaire databank.
-Het MQ-bericht dat Q Apply ontvangt bevat een volledige LUW.
-Q Apply begint, na het ontvangen van het bericht, met het toepassen van de individuele operaties binnen die LUW in de juiste volgorde.
-Het probleem ontstaat wanneer Q Apply crasht tijdens dit proces, bijvoorbeeld door een systeemfout.
-Hierdoor kan het voorkomen dat er enkel een deel van de operaties binnen de LUW is toegepast, met inconsistente data als gevolg.
+Een andere mogelijk oorzaak kan liggen bij het ontwerp van applicaties die Db2 gebruiken.
+Ontwikkelaars proberen de prestaties te optimaliseren door het aantal commits te minimaliseren, maar dit resulteert in lange openstaande transacties.
+Bovendien kunnen er problemen in verband met locks voordoen wanneer een transactie te veel rijen of tabellen vergrendelt.
+Dit kan leiden tot deadlocks of timeouts, waardoor de LUW langer open blijft staan \autocite{ibm_2026_lock_contention_suspension_deadlock_timeout}.
+Een applicatie, bijvoorbeeld, die een grote tabel scant en elke individuele rij bijwerkt zonder commits, kan een LUW creëren die minuten of zelfs uren duurt.
+Tevens kunnen zaken zoals oneindige lussen en andere bugs in applicaties ervoor zorgen dat een transactie niet wordt gecommit.
 
-Een andere oorzaak van incomplete LUW's zijn gaten in de logbestanden op de primaire site.
-Db2 voor z/OS schrijft alle wijzingingen in de databank naar de logbuffer die uiteindelijk worden bewaard in de active log en later naar de archive log worden gekopieerd.
-Als er een schrijffout optreedt, door bijvoorbeeld het falen van een opslagapparaat, kan het zijn dat een of meerdere logrecords ontbreken in de active log of archive log \autocite{broadcom_2026_db2_backup_recovery_handbook}.
-Wanneer Q Capture de logrecords leest om LUW's te reconstrueren en naar de secundaire site verzenden, mist het de ontbrekende logrecords.
-Hierdoor kan Q Capture een onvolledige LUW naar Q Apply verzenden.
-Als Q Apply deze onvolledige LUW toepast op de secundaire database, ontstaat er datainconsistentie.
-Dit heeft directe gevolgen voor de RPO.
-Het herstellen van een dergelijke situatie is complex en vereist het gebruik van backups en archive logs om de ontbrekende gegevens te reconstrueren.
-Met name als de backups niet actueel zijn, kan de RTO aanzienlijk verlengd worden.
+Long-running LUW's kunnen ook veroorzaakt worden door externe systemen of processen waar de transactie op wacht.
+Wanneer een transactie locks niet vrijgeeft met voldoende commits, moet het systeem wachten en heeft dit impact op de algemene performantie \autocite{copplestonejones_2024_db2_locking_application_developers}.
+Een voorbeeld van een extern systeem of proces waar een transactie mogelijk op moet wachten is gebruikersinput.
+Het kan zijn dat een financiële transactie eerst moet worden goedgekeurd door een medewerker alvorens deze wordt uitgevoerd.
+Ook kan de integratie met externe systemen ervoor zorgen dat een transactie moet wachten op een antwoord, zoals bijvoorbeeld bij een betalingsverwerking die wacht op bevestiging van een betaalprovider.
+Als een applicatie synchrone oproepingen doet naar externe diensten, kan een trage respons bovendien leiden tot een long-running LUW.
 
-In omgevingen met een hoge workload kan de MQ-queue die gebruikt wordt voor Q Replication overbelast worden.
-Q Capture verzendt LUW's met MQ-berichten naar de secundaire site, waar Q Apply deze berichten verwerkt \autocite{ibm_2026_infosphere_q_replication}.
-Als Q Capture sneller berichten verzendt dan Q Apply ze kan verwerken, groeit de queue tot een maximale grootte \autocite{ballard_2016_understanding_q_replication_high_availability}.
-Dit kan leiden tot een langere replicatietijd, zoals voorheen gesproken, maar kan ook leiden tot ontbrekende LUW's als het systeem faalt wanneer bepaalde LUW's nog niet zijn toegepast door Q Apply.
+\subsubsection{\IfLanguageName{dutch}{Impact van Long-running LUW's}{Impact of Long-running Logical Units of Work}}
+\label{sec:asynchrone-log-replicatie-impact-long-running-logical-units-of-work}
 
-\subsubsection{\IfLanguageName{dutch}{Impact van Incomplete LUW's}{Impact of Incomplete Logical Units of Work}}
-\label{sec:asynchrone-log-replicatie-impact-incomplete-logical-units-of-work}
+De gevolgen van long-running LUW's kunnen aanzienlijk zijn, zowel voor de prestaties als de betrouwbaarheid van het replicatieproces en de algemene databaseomgeving.
+Als een long-running LUW tijdens het herstarten van het systeem wordt gedetecteerd, moet Q Capture alle logrecords van die LUW lezen, inclusief de archive logs.
+Dit kan lang duren als de LUW bijvoorbeeld dagenlang actief was.
+Het systeem is dan ook niet beschikbaar tot de LUW is verwerkt.
+Andere transacties moeten ook wachten tot de LUW is afgerond.
+Bovendien kan het zijn dat er handmatige interventie noodzakelijk is, omdat er bij een long-running LUW beslist moet worden of deze al dan niet gecommit of teruggedraaid moet worden.
+Dit voegt handmatige stappen toe aan het herstelproces, waardoor de feitelijke hersteltijd oploopt en de beoogde RTO wordt overschreden.
+Als de long-running LUW dermate groot is dat de RBA buiten de active logs valt, moet Q Capture daarnaast de archive logs van schijf lezen.
+Dit is langzamer dan het lezen van de active logs en vertraagt het herstel aanzienlijk.
+Wanneer Q Apply een enorme transactie moet toepassen kan dit ook lang duren.
+Zolang de LUW niet afgerond is, bevindt de secundaire databank zich in een inconsistente staat waardoor de RTO ook verlengd wordt.
+Tevens bestaat het risico dat long-running LUW's locks vasthouden op de secundaire databank.
+Hierdoor moeten andere processen wachten tot deze locks vrijgegeven zijn, wat het herstel vertraagt.
 
-Een storing veroorzaakt door incomplete LUW's heeft meerdere gevolgen.
-Ten eerste ontstaat er datainconsistentie, wat voor financiële instellingen kan leiden tot onjuiste saldi, dubbele uitgevoerde operaties, of ontbrekende gegevens.
-Ten tweede heeft dit gevolgen voor de RPO en RTO.
-Alle transacties die na de onvolledige LUW zijn gecommit op de primaire site, zijn mogelijk verloren als de primaire site uitvalt voordat de replicatie is hersteld.
-Bovendien vereist het herstellen van de consistentie vaak handmatige interventie of het uitvoeren van Controlled Log Catch-Up (CLC), wat de RTO aanzienlijk kan verlengen.
+\subsubsection{\IfLanguageName{dutch}{Mitigatiestrategieën voor Long-running LUW's}{Mitigation Strategies for Long-Running Logical Units of Work}}
+\label{sec:asynchrone-log-replicatie-mitigatie-long-running-logical-units-of-work}
 
-\subsubsection{\IfLanguageName{dutch}{Mitigatiestrategieën voor Incomplete LUW's}{Mitigation Strategies for Incomplete Logical Units of Work}}
-\label{sec:asynchrone-log-replicatie-mitigatie-incomplete-logical-units-of-work}
+De risico's die gepaard gaan met long-running LUW's in een asynchrone replicatieomgeving zoals Q Replication kunnen aanzienlijk worden gemitigeerd door een combinatie van preventieve en correctieve maatregelen. 
+Asynchrone replicatie is, hoewel efficiënt voor hoge doorvoersnelheden en lage vertragingstijden in normale omstandigheden, bijzonder kwetsbaar voor LUW's die langdurig actief zijn.
+Hieronder worden mitigatiestrategieën uiteengezet om de impact van long-running LUW's te minimaliseren.
 
-De risico's die gepaard gaan met incomplete LUW's in een asynchrone replicatieomgeving zoals Q Replication kunnen aanzienlijk worden gemitigeerd door een combinatie van preventieve en correctieve maatregelen. 
-Voor financiële instellingen, waar dataconsistentie en operationele veerkracht van het grootste belang zijn, is het implementeren van deze strategieën essentieel om te voldoen aan strenge eisen zoals die gesteld worden door DORA, PCI-DSS en GDPR. 
-Hieronder worden de meest effectieve mitigatiestrategieën besproken.
+Een eerste mogelijke mitigatiestrategie is het vaker uitvoeren van commits in een transactie.
+Hiermee wordt gedoeld op het strategisch implementeren van handmatige commit-statements in de code van de applicaties, met als specifiek doel om omvangrijke transacties op te splitsen in opeenvolgende, compacte LUW's.
+Wanneer de Db2 LOAD utility wordt gebruikt om via een sequentiële dataset gegevens aan een tabel toe te voegen, kan het loggen worden beperkt.
+Dit kan gedaan worden door \textbf{RESUME YES SHRLEVEL CHANGE} toe te voegen op het einde van het desbetreffende statement van de Db2 load utility \autocite{ibm_2026_running_load_resume_yes}.
+Echter moet wel rekening gehouden worden met het feit dat, wanneer de LOAD job faalt, deze niet herstart kan worden.
+In dat geval moet de job worden beëindigd en de data worden hersteld van een vorige image copy, waarna de LOAD job opnieuw kan worden gestart.
+Bij een standaard LOAD-operatie logt Db2 elke rij die wordt toegevoegd of gewijzigd \autocite{ibm_2026_syntax_load_utility_db2}.
+Met de eerder besproken \textbf{RESUME YES SHRLEVEL CHANGE} parameters wordt het loggen beperkt tot enkel de metadata, niet elke individuele rij.
+Hierdoor neemt de belasting op het log af, wat de kans verkleint dat de LUW te lang open blijft staan.
 
-Preventieve maatregelen zijn gericht op het voorkomen van situaties die kunnen leiden tot incomplete LUW's. 
-Een van de meest effectieve strategieën is het gebruik van frequente consistency groups in combinatie met GDPS Global Mirror. 
-Door elke 30 seconden een consistency group aan te maken, wordt de RPO beperkt tot maximaal 30 seconden. 
-Dit zorgt ervoor dat, zelfs bij een storing, het dataverlies beperkt blijft tot de transacties die plaatsvonden tussen twee opeenvolgende consistency groups. 
-Hoewel deze aanpak de netwerkbelasting verhoogt, is de winst in termen van databescherming aanzienlijk, met name voor kritieke systemen \autocite{gomes_2025_redbooks}.
+Een tweede mogelijke mitigatiestrategie is het scheiden van workloads voor batch en Online Transaction Processing (OLTP).
+OLTP handelt korte, snelle transacties af, zoals banktransacties, terwijl batchverwerking het verwerken van grote hoeveelheden data in één keer inhoudt.
+Omdat batchjobs veel data verwerken, kunnen ze langdurig locks vasthouden, wat de afhandeling van OLTP-transacties vertraagt.
+Door deze te scheiden, wordt er vermeden dat OLTP-transacties moeten wachten op batchprocessen.
+Het is dus aangeraden om batchjobs op een ander Db2-subsysteem uit te voeren en de resultaten daarna asynchroon te repliceren naar het OLTP-subsysteem, indien van toepassing.
+In een sysplex-omgeving kan Db2 data sharing hiervoor worden gebruikt om dit te bereiken \autocite{ibm_2026_introduction_db2_data_sharing}.
 
-Redundante netwerkverbindingen kunnen worden geïmplementeerd om het risico op netwerkstoringen te minimaliseren. 
-Door twee of meer onafhankelijke netwerkpaden te gebruiken voor replicatie, kan het systeem overschakelen naar een backup-verbinding als de primaire verbinding uitvalt. 
-Dit vermindert de kans dat MQ-berichten verloren gaan of onvolledig worden ontvangen \autocite{ballard_2016_understanding_q_replication_high_availability}.
-Tot slot kan de batchgrootte in Q Capture worden geoptimaliseerd. 
-Q Capture leest logrecords uit de Db2-log en groepeert deze in batches voordat ze als MQ-berichten worden verzonden. 
+Om het risico op netwerkstoringen te minimaliseren, kunnen redundante netwerkverbindingen worden geïmplementeerd. 
+Bij het uitvallen van het primaire netwerkpad schakelt het systeem dan automatisch over naar een back-upverbinding.
+Dit vermindert replicatievertraging, wat de impact van long-running LUW's op de RPO beperkt \autocite{ballard_2016_understanding_q_replication_high_availability}.
+De batchgrootte in Q Capture kan worden geoptimaliseerd. 
+Q Capture leest logrecords uit het Db2-log en groepeert deze in batches voordat ze als MQ-berichten worden verzonden. 
 Een kleinere batchgrootte zorgt voor snellere verwerking, maar veroorzaakt meer netwerkoverhead. 
 Omgekeerd vermindert een grotere batchgrootte de overhead, maar kan de verwerking vertragen. 
 Het is daarom aan te raden om de batchgrootte af te stemmen op de specifieke workload en netwerkomstandigheden \autocite{ibm_2025_infosphere_batch_frequency_param}.
 
-Indien incomplete LUW's toch optreden, zijn er verschillende correctieve maatregelen beschikbaar om de dataconsistentie te herstellen. 
-De RECOVER utility in Db2 laat toe om data herstellen naar een huidige of vorige staat door het kopiëren van en toepassen van logrecords \autocite{ibm_2025_db2_recover}.
-Als een LUW onvolledig is toegepast, kan de RECOVERY utility deze terugdraaien of opnieuw toepassen om de consistentie te herstellen \autocite{ibm_2021_db2_clc}.
-Hoewel deze aanpak tijdrovend kan zijn, is het vaak noodzakelijk om de dataconsistentie te waarborgen \autocite{ibm_2026_how_rolls_back}.
-
-In het ergste geval kan de secundaire database hersteld worden vanaf een backup. 
-Dit is echter een laatste redmiddel, omdat alle transacties die sinds de laatste backup zijn uitgevoerd, verloren zullen gaan. 
-Het herstelproces omvat het herstellen van de database vanaf de backup, het toepassen van ontbrekende transacties met behulp van archive logs, en het opnieuw synchroniseren met de primaire database. 
-Deze aanpak heeft een aanzienlijke impact op zowel de RPO als de RTO en moet daarom alleen worden overwogen wanneer andere herstelmethoden niet beschikbaar zijn \autocite{broadcom_2026_db2_backup_recovery_handbook}.
-
-Tot slot is regelmatige monitoring en testing essentieel. 
+Tot slot zijn regelmatige monitoring en testen essentieel. 
 Door replicatieprestaties te monitoren met tools zoals IBM Z NetView en Q Replication Alert Monitor, kunnen potentiële problemen tijdig worden gedetecteerd. 
+Monitoren met deze tools zorgt ervoor dat long-running LUW's tijdig worden gedetecteerd, bijvoorbeeld door drempels in te stellen voor de duur van openstaande transacties.
+Ook kunnen utilities zoals \textbf{DSN1LOGP} gebruikt worden om logrecords te analyseren in Db2 voor z/OS \autocite{ibm_2026_dsn1logp}.
+\textbf{DSN1LOGP} maakt het mogelijk om zowel active logs als archive logs te formatteren en weer te geven.
 Daarnaast is het raadzaam om failover-scenario's minstens één keer per jaar te testen om te waarborgen dat de RPO en RTO binnen de gestelde doelen blijven.
 
 \subsection{\IfLanguageName{dutch}{Inconsistenties Volgorde Logreplicatie}{Inconsistencies Order Log Replication}}
@@ -465,7 +469,7 @@ Dit introduceert een vertraging, zoals eerder besproken, tussen het moment waaro
 Het is essentieel dat de volgorde van de transacties wordt behouden ondanks deze replicatievertraging.
 Met name in financiële instellingen zijn transacties vaak afhankelijk van elkaar.
 Bij een overschrijving, bijvoorbeeld, moet eerst het geld worden afgenomen van de ene rekening voordat het wordt toegevoegd aan de andere rekening.
-Als deze volgorde niet wordt gerespecteerd kan dit leiden tot zaken zoals negatieve saldi en dubbele betalingen.
+Als deze volgorde niet wordt gerespecteerd, kan dit leiden tot zaken zoals negatieve saldi en dubbele betalingen.
 Bovendien mag asynchrone replicatie de ACID-principes (Atomicity, Consistency, Isolation en Durability) niet overschrijden. 
 Ook moeten na een storing de transacties in de juiste volgorde kunnen worden hersteld om RPO en RTO te waarborgen.
 Een verkeerde volgorde kan leiden tot dataverlies of langere hersteltijden.
@@ -536,7 +540,7 @@ Een score van 1 tot 2 wordt als een laag risico beschouwd, een score van 3 tot 4
 \hline
 Replicatie\-vertraging & Q Capture, MQ queue, netwerk & 3 & 2 & 6 & Inherent aan asynchrone replicatie; frequentie stijgt bij hoge workload of beperkte bandbreedte. \\
 \hline
-Incomplete LUW's & Q Apply, active log, archive log & 2 & 3 & 6 & Minder frequent maar met hoge impact op dataconsistentie en RPO. \\
+Long-running LUW's & Q Apply, active log, archive log & 2 & 3 & 6 & Minder frequent maar met hoge impact op dataconsistentie en RPO. \\
 \hline
 Inconsistenties in volgorde & IBM MQ, Q Apply, IBMQREP\_SEND\-QUEUES & 2 & 3 & 6 & Kan leiden tot foutieve saldi of dubbele transacties bij financiële instellingen. \\
 \hline
@@ -565,7 +569,7 @@ Failover naar asynchrone site & GDPS Global Mirror, GDPS HyperSwap & 2 & 2 & 4 &
 
 \FloatBarrier
 
-Uit de risicomatrix blijkt dat replicatievertraging, incomplete LUW's en inconsistenties in de volgorde van logreplicatie de hoogste risicoscores behalen.
+Uit de risicomatrix blijkt dat replicatievertraging, long-running LUW's en inconsistenties in de volgorde van logreplicatie de hoogste risicoscores behalen.
 Deze risico's zijn inherent aan asynchrone replicatie en zijn het meest relevant voor de loggebaseerde replicatieomgeving met Q Replication.
 Geregionaliseerde uitval en gaten in logbestanden zijn weliswaar minder waarschijnlijk, maar hebben een catastrofale impact wanneer ze zich voordoen.
 Dit benadrukt het belang van een hybride opstelling met een geografisch gescheiden derde site om dit scenario op te vangen.
@@ -573,10 +577,10 @@ Dit benadrukt het belang van een hybride opstelling met een geografisch gescheid
 \subsection{\IfLanguageName{dutch}{Rol van Controlled Log Catch-Up}{Role of Controlled Log Catch-Up}}%
 \label{sec:rol-clc}
 
-Controlled Log Catch-Up (CLC) is een mechanisme binnen Db2 voor z/OS dat wordt ingezet om onvolledige of uit-de-volgorde-geraakte Logical Units of Work (LUW's) op de secundaire databank te detecteren en te corrigeren \autocite{ibm_2021_db2_clc}.
+Controlled Log Catch-Up (CLC) is een mechanisme binnen Db2 voor z/OS dat wordt ingezet om uit-de-volgorde-geraakte Logical Units of Work (LUW's) op de secundaire databank te detecteren en te corrigeren \autocite{ibm_2021_db2_clc}.
 Het mechanisme speelt een cruciale rol bij het waarborgen van transactionele consistentie na een failover of een hersteloperatie.
 
-CLC werkt door de log van de secundaire databank te doorlopen en te vergelijken met de bekende herstelpunten.
+CLC werkt door het log van de secundaire databank te doorlopen en te vergelijken met de bekende herstelpunten.
 Hierbij worden LUW's die gedeeltelijk zijn toegepast teruggedraaid en worden ontbrekende LUW's opnieuw toegepast tot een consistent herstelpunt is bereikt \autocite{ibm_2026_db2}.
 Dit herstelpunt wordt gedefinieerd door de meest recente consistency group die volledig is gerepliceerd naar de secundaire site.
 
@@ -586,7 +590,7 @@ Ten tweede worden alle onvolledige LUW's die niet zijn gecommit teruggedraaid, z
 Ten derde worden transacties die in de verkeerde volgorde zijn toegepast gecorrigeerd tot het consistente herstelpunt.
 
 CLC legt echter ook beperkingen op aan de hersteltijd.
-Het inhalen van een achterstand, zeker wanneer er een grote replicatievertraging bestaat of wanneer er veel incomplete LUW's zijn, vergt verwerkingstijd en verhoogt daarmee de RTO\@.
+Het inhalen van een achterstand, zeker wanneer er een grote replicatievertraging bestaat of wanneer er veel long-running LUW's zijn, vergt verwerkingstijd en verhoogt daarmee de RTO\@.
 Bovendien moeten alle schrijfoperaties van applicaties op de primaire site worden gepauzeerd totdat de consistency group volledig is verstuurd naar de herstelsite \autocite{ibm_2021_ibm_copy_consistency_groups}.
 Dit kan een tijdelijke impact hebben op de beschikbaarheid van de primaire site.
 De effectiviteit van CLC is ook afhankelijk van de volledigheid van de archive logs op de secundaire site.
@@ -610,7 +614,7 @@ Twee asynchrone sites (GDPS Global Mirror) & Seconden tot 1 minuut & 30 seconden
 \hline
 Hybride opstelling (Metro Mirror + Global Mirror) & 0 voor synchrone sites; seconden tot 1 minuut voor asynchrone site & Seconden tot 1 uur bij synchrone failover, 30 seconden tot 2 uur bij asynchrone failover & Complexiteit bij failover naar derde site, afhankelijkheid van consistency groups & Geautomatiseerde failover via GDPS HyperSwap, CLC inzetten bij inconsistenties, monitoring met IBM Z NetView en Q Replication Alert Monitor. \\
 \hline
-Q Replication (log-gebaseerd) & Minder dan 3 seconden & Minder dan 1 minuut & Replicatie\-vertraging, incomplete LUW's, inconsistenties door verkeerde volgorde & Parallelle queues, kleinere batchgrootte, message sequencing inschakelen, regelmatige monitoring. \\
+Q Replication (log-gebaseerd) & Minder dan 3 seconden & Minder dan 1 minuut & Replicatie\-vertraging, long-running LUW's, inconsistenties door verkeerde volgorde & Parallelle queues, kleinere batchgrootte, message sequencing inschakelen, regelmatige monitoring. \\
 \hline
 \end{tabularx}
 \caption{Aanbevelingstabel per architectuur met resterende risico's en implicaties voor RPO en RTO}
