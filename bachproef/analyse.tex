@@ -431,19 +431,19 @@ Hieronder worden mitigatiestrategieën uiteengezet om de impact van long-running
 Een eerste mogelijke mitigatiestrategie is het vaker uitvoeren van commits in een transactie.
 Hiermee wordt gedoeld op het strategisch implementeren van handmatige commit-statements in de code van de applicaties, met als specifiek doel om omvangrijke transacties op te splitsen in opeenvolgende, compacte LUW's.
 Wanneer de Db2 LOAD utility wordt gebruikt om via een sequentiële dataset gegevens aan een tabel toe te voegen, kan het loggen worden beperkt.
-Dit kan gedaan worden door \textbf{RESUME YES SHRLEVEL CHANGE} toe te voegen op het einde van het desbetreffende statement van de Db2 load utility \autocite{ibm_2026_running_load_resume_yes}.
+Dit kan gedaan worden door \textbf{LOG NO} toe te voegen op het einde van het desbetreffende statement van de Db2 load utility \autocite{ibm_2026_the_log_option_load_reorg_utilities}.
 Echter moet wel rekening gehouden worden met het feit dat, wanneer de LOAD job faalt, deze niet herstart kan worden.
 In dat geval moet de job worden beëindigd en de data worden hersteld van een vorige image copy, waarna de LOAD job opnieuw kan worden gestart.
 Bij een standaard LOAD-operatie logt Db2 elke rij die wordt toegevoegd of gewijzigd \autocite{ibm_2026_syntax_load_utility_db2}.
-Met de eerder besproken \textbf{RESUME YES SHRLEVEL CHANGE} parameters wordt het loggen beperkt tot enkel de metadata, niet elke individuele rij.
+Met de eerder besproken \textbf{LOG NO} parameters wordt het loggen beperkt tot enkel de metadata, niet elke individuele rij.
 Hierdoor neemt de belasting op het log af, wat de kans verkleint dat de LUW te lang open blijft staan.
 
 Een tweede mogelijke mitigatiestrategie is het scheiden van workloads voor batch en Online Transaction Processing (OLTP).
 OLTP handelt korte, snelle transacties af, zoals banktransacties, terwijl batchverwerking het verwerken van grote hoeveelheden data in één keer inhoudt.
 Omdat batchjobs veel data verwerken, kunnen ze langdurig locks vasthouden, wat de afhandeling van OLTP-transacties vertraagt.
-Door deze te scheiden, wordt er vermeden dat OLTP-transacties moeten wachten op batchprocessen.
-Het is dus aangeraden om batchjobs op een ander Db2-subsysteem uit te voeren en de resultaten daarna asynchroon te repliceren naar het OLTP-subsysteem, indien van toepassing.
-In een sysplex-omgeving kan Db2 data sharing hiervoor worden gebruikt om dit te bereiken \autocite{ibm_2026_introduction_db2_data_sharing}.
+In een Db2 data sharing-omgeving werken locks op het niveau van de data sharing group, wat betekent dat batch- en OLTP-workloads elkaars rijen nog steeds kunnen locken, zelfs als ze op verschillende members draaien \autocite{ibm_2026_introduction_db2_data_sharing}.
+Toch kan het scheiden van workloads wel helpen om bufferpool-contention te verminderen, omdat bufferpools per subsysteem zijn ingericht \autocite{ibm_2026_buffer_pools}.
+Db2 data sharing kan dus gebruikt worden om de inhoud van bufferpools beter te managen en op deze manier te vermijden dat batch- en OLTP-workloads concurreren om dezelfde bufferpoolinhoud.
 
 Om het risico op netwerkstoringen te minimaliseren, kunnen redundante netwerkverbindingen worden geïmplementeerd. 
 Bij het uitvallen van het primaire netwerkpad schakelt het systeem dan automatisch over naar een back-upverbinding.
