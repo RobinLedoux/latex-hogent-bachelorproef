@@ -248,6 +248,9 @@
 %%============================================================================
 
 \usepackage{multicol} % This is so we can have multiple columns of text side-by-side
+
+\usepackage{tabularx}
+
 \columnsep=100pt % This is the amount of white space between the columns in the poster
 \columnseprule=3pt % This is the thickness of the black line between the columns in the poster
 
